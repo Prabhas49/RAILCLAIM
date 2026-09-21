@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Sidebar } from './components/Sidebar'
 import { Topbar } from './components/Topbar'
+import Landing from './screens/Landing'
 import Dashboard from './screens/Dashboard'
 import Capture from './screens/Capture'
 import Pipeline from './screens/Pipeline'
@@ -12,7 +13,8 @@ import type { ViewId } from './types'
 const ORDER: ViewId[] = ['capture', 'pipeline', 'review', 'oem', 'audit']
 function viewFromHash(): ViewId {
   const raw = window.location.hash.replace(/^#\/?/, '')
-  return (ORDER as string[]).concat('dashboard').includes(raw) ? (raw as ViewId) : 'dashboard'
+  if (!raw) return 'landing'
+  return (ORDER as string[]).concat('dashboard', 'landing').includes(raw) ? (raw as ViewId) : 'landing'
 }
 export default function App() {
   const [view, setView] = useState<ViewId>(viewFromHash)
@@ -29,6 +31,17 @@ export default function App() {
     const i = ORDER.indexOf(view)
     navigate(i === -1 ? 'capture' : ORDER[Math.min(i + 1, ORDER.length - 1)])
   }, [view, navigate])
+  if (view === 'landing') {
+    return (
+      <div className="min-h-screen bg-[#FFFDF8]">
+        <AnimatePresence mode="wait">
+          <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+            <Landing onEnter={navigate} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-[#FFFDF8] lg:flex lg:items-start">
       {/* warm radial glow */}

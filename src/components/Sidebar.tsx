@@ -60,7 +60,7 @@ export function Sidebar({ current, onNavigate, running }: { current: ViewId; onN
               <p className="text-[11px] text-muted">RailCorp HQ · 12 day streak 🔥</p>
             </div>
           </div>
-          <p className="mt-3 px-1 text-[11px] leading-relaxed text-tertiary">Simulated pipeline. No live OEM connection.</p>
+          <p className="mt-3 px-1 text-[11px] leading-relaxed text-tertiary">Simulated pipeline. No live OEM connection. <button type="button" onClick={() => onNavigate('landing')} className="font-medium underline decoration-dotted underline-offset-2 hover:text-muted">← Back to site</button></p>
         </div>
       </aside>
     </>

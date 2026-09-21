@@ -115,6 +115,7 @@ export interface AuditEvent {
 }
 
 export type ViewId =
+  | 'landing'
   | 'dashboard'
   | 'capture'
   | 'pipeline'
