@@ -1,253 +1,618 @@
-import { motion } from "framer-motion"
-import { CLAIM_QUEUE } from "../data/mock"
-import type { ViewId } from "../types"
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] as const },
-})
-
-const FEATURES = [
-  { emoji: "🎙️", title: "Rail-jargon voice capture", desc: "Crew records in Tamil, Hindi, Kannada & more. ASR tuned on depot vocabulary, not generic speech.", grad: "from-[#FF8A65] to-[#FFB74D]", tag: "Tamil → English + 日本語" },
-  { emoji: "📸", title: "Vision + OCR evidence", desc: "Nameplates, HMI fault codes, install context — serials and readings extracted with confidence scores.", grad: "from-[#7EC8E3] to-[#A78BFA]", tag: "91% OCR confidence" },
-  { emoji: "🔀", title: "OEM schema mapper", desc: "One claim, three portals. Fields re-keyed automatically for MELCO-WS, HiWarranty and KHI desks.", grad: "from-[#81C784] to-[#4DB6AC]", tag: "Mitsubishi · Hitachi · Kawasaki" },
-  { emoji: "🛡️", title: "Pre-submission compliance", desc: "Warranty windows, labour codes, mandatory attachments — validated before the OEM ever sees it.", grad: "from-[#F48FB1] to-[#CE93D8]", tag: "Zero desk rejections" },
-  { emoji: "🔗", title: "Tamper-evident audit trail", desc: "Every capture, AI step and human approval hash-chained. Disputes settled with proof, not email threads.", grad: "from-[#FFD54F] to-[#FF8A65]", tag: "Hash-chained log" },
-  { emoji: "⚡", title: "Draft in ~12 seconds", desc: "Six pipeline stages — ASR, translation, OCR, extraction, mapping, compliance — run while the crew walks back.", grad: "from-[#A78BFA] to-[#7EC8E3]", tag: "6 stages · hands-free" },
-]
-
-const STEPS = [
-  { n: "01", emoji: "🎙️", title: "Capture at the depot", desc: "Voice note + 3 photos. GPS, asset ID, running hours attach automatically." },
-  { n: "02", emoji: "✨", title: "AI drafts the claim", desc: "Translation, OCR, entity extraction and OEM re-keying run in seconds." },
-  { n: "03", emoji: "🚀", title: "Review & send", desc: "Confirm low-confidence fields, export PDF/JSON, fire it to the OEM portal." },
-]
-
-const METRICS = [
-  { value: "₹14.2L", label: "recovered this month", sub: "of ₹19.8L claimed" },
-  { value: "72%", label: "recovery rate", sub: "up from 41% on email" },
-  { value: "~12s", label: "draft turnaround", sub: "vs 3–5 days manually" },
-  { value: "0", label: "desk rejections", sub: "compliance pre-checked" },
-]
+import { useState, useId } from 'react'
+import { motion } from 'framer-motion'
+import { Icon, type IconName } from '../components/ui/Icon'
+import { OEMS } from '../data/mock'
+import type { ViewId } from '../types'
 
 export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
+  // ROI Calculator State
+  const [fleetSize, setFleetSize] = useState<number>(75)
+  const [monthlyFailures, setMonthlyFailures] = useState<number>(14)
+  const [avgClaimInr, setAvgClaimInr] = useState<number>(450000)
+  const fleetId = useId()
+  const failuresId = useId()
+  const claimId = useId()
+
+  // Calculations
+  const annualTotalClaimsInr = monthlyFailures * 12 * avgClaimInr
+  const manualRecoveryInr = annualTotalClaimsInr * 0.42
+  const automatedRecoveryInr = annualTotalClaimsInr * 0.86
+  const annualUnlockedCapitalInr = automatedRecoveryInr - manualRecoveryInr
+
+  // Selected OEM for schema viewer
+  const [selectedOem, setSelectedOem] = useState<'mitsubishi' | 'hitachi' | 'kawasaki'>('mitsubishi')
+
   return (
-    <div className="min-h-screen bg-[#FFFDF8] text-[#2D2A26] overflow-x-clip">
-      {/* ── Nav ─────────────────────────────────────────── */}
-      <header className="fixed inset-x-0 top-0 z-40">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 pt-4 sm:px-6">
-          <div className="flex w-full items-center gap-3 rounded-full border border-white/60 bg-white/80 py-2 pl-3 pr-2 shadow-soft backdrop-blur-xl">
-            <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-ink text-lg">🚇</span>
-            <span className="text-[16px] font-bold tracking-tight">RailClaim</span>
-            <span className="hidden rounded-full bg-[#FFF3E0] px-2.5 py-1 text-[10px] font-semibold text-[#9A3412] sm:inline">OEM Warranty Automation</span>
-            <nav className="ml-auto hidden items-center gap-6 text-sm font-medium text-[#8A8580] md:flex">
-              <a href="#features" className="transition-colors hover:text-ink">Features</a>
-              <a href="#flow" className="transition-colors hover:text-ink">How it works</a>
-              <a href="#proof" className="transition-colors hover:text-ink">Results</a>
-            </nav>
-            <button onClick={() => onEnter("dashboard")} className="ml-auto rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-transform hover:scale-[1.03] active:scale-[0.98] md:ml-4">
-              Open app →
+    <div className="min-h-screen bg-white text-ink selection:bg-black selection:text-white">
+      {/* ── Top Header ────────────────────────────────────────────── */}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-neutral-200 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black text-white">
+              <Icon name="train" className="h-4 w-4" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-extrabold tracking-tight text-black">HASHI SETHU</span>
+              <span className="rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-neutral-600">
+                橋・सेतु
+              </span>
+            </div>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-8 text-xs font-medium text-neutral-600">
+            <a href="#pipeline" className="hover:text-black transition-colors">Architecture</a>
+            <a href="#oem-schemas" className="hover:text-black transition-colors">OEM Schemas</a>
+            <a href="#roi-calculator" className="hover:text-black transition-colors">Recovery Model</a>
+            <a href="#live-queue" className="hover:text-black transition-colors">Depot Telemetry</a>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => onEnter('dashboard')}
+              className="inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-neutral-800"
+            >
+              <span>Operations Console</span>
+              <Icon name="arrowRight" className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* ── Hero ────────────────────────────────────────── */}
-      <section className="relative px-4 pt-32 sm:px-6 md:pt-40">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_800px_500px_at_50%_-10%,rgba(249,115,22,0.12),transparent),radial-gradient(ellipse_500px_350px_at_85%_10%,rgba(167,139,250,0.12),transparent),radial-gradient(ellipse_500px_350px_at_10%_20%,rgba(129,199,132,0.1),transparent)]" />
-        <div className="mx-auto max-w-6xl text-center">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#F0EBE3] bg-white px-4 py-1.5 text-xs font-semibold text-[#8A8580] shadow-sm">
-              <span className="relative flex h-2 w-2"><span className="absolute h-full w-full animate-ping rounded-full bg-[#81C784] opacity-60" /><span className="h-2 w-2 rounded-full bg-[#2E7D32]" /></span>
-              Live pilot · Kochi · Chennai · Mumbai metros
-            </span>
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto mt-6 max-w-4xl font-display text-[42px] leading-[1.05] tracking-tight sm:text-6xl md:text-[76px]"
-          >
-            Warranty claims that <em className="bg-gradient-to-r from-[#FF7043] via-[#EC407A] to-[#7C4DFF] bg-clip-text text-transparent">file themselves.</em>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
-            className="mx-auto mt-5 max-w-2xl text-base text-[#8A8580] sm:text-lg"
-          >
-            Depot crews speak, snap, and walk away. RailClaim turns voice + photos into OEM-ready warranty claims for Mitsubishi, Hitachi and Kawasaki — in about 12 seconds.
-          </motion.p>
+      {/* ── Hero Section (Huge Spacing & Clean Typography) ──────────── */}
+      <section className="px-6 pt-40 pb-28 md:pt-48 md:pb-36">
+        <div className="mx-auto max-w-5xl text-center">
+          {/* Minimal Status Eyebrow */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.35 }}
-            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-xs font-mono text-neutral-600"
           >
-            <button onClick={() => onEnter("capture")} className="w-full rounded-full bg-gradient-to-br from-[#FF8A65] to-[#FF7043] px-8 py-4 text-base font-bold text-white shadow-[0_12px_32px_rgba(255,112,67,0.4)] transition-transform hover:scale-[1.03] active:scale-[0.98] sm:w-auto">
-              ✨ Capture a claim
-            </button>
-            <button onClick={() => onEnter("pipeline")} className="w-full rounded-full border border-[#F0EBE3] bg-white px-8 py-4 text-base font-semibold shadow-sm transition-transform hover:scale-[1.03] active:scale-[0.98] sm:w-auto">
-              See the magic →
-            </button>
+            <span className="h-2 w-2 rounded-full bg-emerald-600" />
+            <span>FIELD PILOT // KOCHI · CHENNAI · MUMBAI METRO LINES</span>
           </motion.div>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="mt-4 text-xs text-[#B0A9A0]">
-            No hardware to install · Works on the crew's own phones · Tamil, Hindi, Kannada & more
+
+          {/* Huge Bold Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mt-8 font-display text-5xl font-extrabold tracking-tight text-black sm:text-7xl lg:text-8xl leading-[1.05]"
+          >
+            Autonomous warranty recovery for rail networks.
+          </motion.h1>
+
+          {/* Generous Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mx-auto mt-8 max-w-3xl text-lg sm:text-xl leading-relaxed text-neutral-600"
+          >
+            Turn raw depot telemetry, multilingual maintenance audio, and nameplate photos into formal, schema-compliant warranty claims for Japanese rolling stock suppliers in under 15 seconds.
           </motion.p>
 
-          {/* floating claim card */}
-          <div className="relative mx-auto mt-14 max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 40, rotateX: 8 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ duration: 0.8, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="relative rounded-[28px] border border-[#FFF3E0] bg-white p-6 text-left shadow-[0_24px_80px_-16px_rgba(45,42,38,0.25)] sm:p-8"
+          {/* Clean High-Contrast Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <button
+              onClick={() => onEnter('capture')}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-black px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-neutral-800"
             >
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-[#FFF3E0] px-3 py-1 text-xs font-bold">CLM-2481</span>
-                <span className="rounded-full bg-[#E8F5E9] px-3 py-1 text-xs font-semibold text-[#2E7D32]">● ready to send</span>
-                <span className="ml-auto font-mono text-xs text-[#B0A9A0]">MELCO-WS format ✓</span>
+              <Icon name="mic" className="h-4 w-4" />
+              <span>Simulate Field Capture</span>
+            </button>
+
+            <button
+              onClick={() => onEnter('pipeline')}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white px-8 py-4 text-sm font-semibold text-black transition-all hover:bg-neutral-50"
+            >
+              <Icon name="cpu" className="h-4 w-4" />
+              <span>Inspect Neural Pipeline</span>
+            </button>
+          </motion.div>
+
+          {/* ── High-Contrast Clean Voucher Preview ─────────────────── */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mx-auto mt-20 max-w-4xl text-left"
+          >
+            <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
+              {/* Terminal Title Bar */}
+              <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-xs font-bold text-neutral-700">
+                    DISPATCH VOUCHER // CLM-2481
+                  </span>
+                  <span className="rounded bg-neutral-200 px-2 py-0.5 font-mono text-[10px] font-bold text-neutral-700">
+                    MITSUBISHI MELCO-WS PROTOCOL
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 font-mono text-xs font-semibold text-emerald-700 border border-emerald-200">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                    VERIFIED COMPLIANT
+                  </span>
+                </div>
               </div>
-              <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-center">
-                <div className="flex-1">
-                  <p className="text-xl font-bold sm:text-2xl">Traction Motor · MB-5085-A</p>
-                  <p className="mt-1 text-sm text-[#8A8580]">Kochi Metro · Muttom Depot · Mitsubishi Electric</p>
-                  <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-                    {[["F042", "Failure"], ["₹4.8L", "Claim"], ["89%", "Confident"]].map(([v, l]) => (
-                      <div key={l} className="rounded-2xl bg-[#FFFBF0] p-3"><p className="text-lg font-bold">{v}</p><p className="text-[11px] text-[#B0A9A0]">{l}</p></div>
-                    ))}
+
+              {/* Voucher Content Grid */}
+              <div className="p-8 grid gap-8 md:grid-cols-12">
+                <div className="md:col-span-8 space-y-6">
+                  <div>
+                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-neutral-500">
+                      <span>EQUIPMENT REF:</span>
+                      <span className="text-black">RS-10-KM-0421</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-black mt-1">Traction Motor Unit · MB-5085-A</h2>
+                    <p className="font-mono text-xs text-neutral-500 mt-1">
+                      Kochi Metro · Muttom Depot Bay #4 · 18,420 Operating Hours
+                    </p>
+                  </div>
+
+                  {/* High-Contrast Telemetry Metrics */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
+                      <p className="font-mono text-[10px] text-neutral-500 uppercase font-semibold">Failure Code</p>
+                      <p className="font-mono text-xl font-bold text-black mt-1">F042</p>
+                      <p className="text-[11px] text-neutral-600 font-mono mt-0.5">Mapped from E-042</p>
+                    </div>
+                    <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
+                      <p className="font-mono text-[10px] text-neutral-500 uppercase font-semibold">Recoverable Sum</p>
+                      <p className="font-mono text-xl font-bold text-black mt-1">₹4,82,400</p>
+                      <p className="text-[11px] text-neutral-600 font-mono mt-0.5">¥872,000 equivalent</p>
+                    </div>
+                    <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
+                      <p className="font-mono text-[10px] text-neutral-500 uppercase font-semibold">Confidence</p>
+                      <p className="font-mono text-xl font-bold text-emerald-600 mt-1">94.8%</p>
+                      <p className="text-[11px] text-neutral-600 font-mono mt-0.5">Dual-source validated</p>
+                    </div>
+                  </div>
+
+                  {/* Multi-modal Evidence Trace */}
+                  <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                    <div className="flex items-center justify-between text-xs text-neutral-500 font-mono">
+                      <span>VOICE TELEMETRY PROVENANCE (TAMIL VERNACULAR)</span>
+                      <span className="text-emerald-600 font-semibold">ASR CONFIDENCE: 96%</span>
+                    </div>
+                    <p className="mt-2 text-sm text-neutral-700 italic">
+                      "டிராக்ஷன் மோட்டார் அதிக சூடாகிறது, IGBT பால்ட் கோட் E-042 காட்டுகிறது..."
+                    </p>
+                    <p className="mt-1.5 font-mono text-xs text-black font-medium">
+                      Standardized translation: "Traction motor thermal overload detected; IGBT fault code E-042 logged twice at 145°C."
+                    </p>
                   </div>
                 </div>
-                <div className="shrink-0 rounded-3xl bg-gradient-to-br from-[#2D2A26] to-[#4a4440] p-6 text-white sm:w-56">
-                  <p className="text-xs uppercase tracking-widest text-white/60">Voice → claim</p>
-                  <p className="mt-2 text-sm leading-relaxed text-white/90">"Traction motor overheating… fault code E-042, came up twice."</p>
-                  <div className="mt-3 flex items-end gap-1" aria-hidden>{[10, 18, 8, 22, 14, 26, 12, 20, 9, 16, 24, 11].map((h, i) => <span key={i} className="w-1.5 rounded-full bg-gradient-to-t from-[#FF8A65] to-[#A78BFA]" style={{ height: h }} />)}</div>
-                  <p className="mt-3 text-[11px] text-white/60">Tamil · transcribed + translated ✓</p>
+
+                {/* Right: Validation & OEM Specs */}
+                <div className="md:col-span-4 flex flex-col justify-between border-t md:border-t-0 md:border-l border-neutral-200 pt-6 md:pt-0 md:pl-8 space-y-6">
+                  <div>
+                    <span className="font-mono text-[10px] uppercase font-bold text-neutral-500">Target OEM Portal</span>
+                    <div className="mt-2 flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-black flex items-center justify-center font-mono font-bold text-white text-xs">
+                        M
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-black">Mitsubishi Electric</p>
+                        <p className="font-mono text-xs text-neutral-500">MELCO-WS Portal</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 font-mono text-xs border-y border-neutral-200 py-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-neutral-500">Warranty Expiry</span>
+                      <span className="font-bold text-black">2027-03-14</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-neutral-500">SLA Dispute Limit</span>
+                      <span className="font-bold text-black">30 Days</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-neutral-500">Serial OCR Match</span>
+                      <span className="font-bold text-black">MB5085-2274-K</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => onEnter('review')}
+                    className="w-full rounded-full bg-black py-3 text-center font-mono text-xs font-semibold text-white hover:bg-neutral-800 transition-colors"
+                  >
+                    Open Live Review Screen →
+                  </button>
                 </div>
               </div>
-              <motion.div animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 3 }} className="absolute -right-3 -top-5 rotate-6 rounded-2xl bg-gradient-to-br from-[#81C784] to-[#4DB6AC] px-4 py-2 text-sm font-bold text-white shadow-lg sm:-right-6">₹4.8L recoverable 🎉</motion.div>
-              <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 4, delay: 0.5 }} className="absolute -left-3 top-1/2 hidden -rotate-6 rounded-2xl bg-white px-4 py-2 text-sm font-semibold shadow-float sm:block">6 stages · 12s ⚡</motion.div>
-            </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Key Performance Figures (Clean High Contrast) ───────────── */}
+      <section className="border-y border-neutral-200 bg-neutral-50 py-20">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+            <div className="border-l-2 border-black pl-5">
+              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-black">₹14.2L</p>
+              <p className="text-xs font-bold text-neutral-800 mt-2 uppercase tracking-wide">Recovered This Month</p>
+              <p className="font-mono text-xs text-neutral-500 mt-1">Kochi Depot · 92% recovery rate</p>
+            </div>
+            <div className="border-l-2 border-black pl-5">
+              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-black">12.4s</p>
+              <p className="text-xs font-bold text-neutral-800 mt-2 uppercase tracking-wide">Mean Compilation Time</p>
+              <p className="font-mono text-xs text-neutral-500 mt-1">Voice + 3 photos to XML voucher</p>
+            </div>
+            <div className="border-l-2 border-black pl-5">
+              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-black">0.0%</p>
+              <p className="text-xs font-bold text-neutral-800 mt-2 uppercase tracking-wide">Desk Rejection Rate</p>
+              <p className="font-mono text-xs text-neutral-500 mt-1">Pre-submission rule validation</p>
+            </div>
+            <div className="border-l-2 border-black pl-5">
+              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-black">100%</p>
+              <p className="text-xs font-bold text-neutral-800 mt-2 uppercase tracking-wide">Cryptographic Traceability</p>
+              <p className="font-mono text-xs text-neutral-500 mt-1">SHA-256 tamper-evident chain</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── OEM strip ───────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
-        <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-[#B0A9A0]">Speaks every OEM portal fluently</p>
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {[
-            ["Mitsubishi", "MELCO-WS / Supplier Web", "Kobe, Japan 🇯🇵", "from-[#FF8A65] to-[#EC407A]"],
-            ["Hitachi", "HiWarranty Portal", "Tokyo, Japan 🇯🇵", "from-[#7EC8E3] to-[#7C4DFF]"],
-            ["Kawasaki", "KHI After-Sales Desk", "Kobe, Japan 🇯🇵", "from-[#81C784] to-[#26A69A]"],
-          ].map(([name, portal, hq, grad], i) => (
-            <motion.div key={name} {...fadeUp(i * 0.08)} className="flex items-center gap-4 rounded-[20px] border border-[#FFF3E0] bg-white p-5 shadow-sm">
-              <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${grad} text-xl font-bold text-white`}>{name[0]}</span>
-              <div><p className="font-bold">{name}</p><p className="text-xs text-[#8A8580]">{portal}</p><p className="text-[11px] text-[#B0A9A0]">{hq}</p></div>
-            </motion.div>
+      {/* ── OEM Compatibility & Schema Matrix ──────────────────────── */}
+      <section id="oem-schemas" className="py-32 px-6 mx-auto max-w-6xl">
+        <div className="text-center max-w-3xl mx-auto">
+          <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-500">
+            Multi-OEM Interoperability
+          </p>
+          <h2 className="mt-3 font-display text-4xl sm:text-5xl font-bold text-black tracking-tight">
+            Native Japanese Rolling Stock Protocols
+          </h2>
+          <p className="mt-4 text-base text-neutral-600">
+            Eliminate cross-border formatting rejections. Hashi Sethu dynamically compiles claims into the native EDI and REST schemas mandated by Japan's tier-1 rolling stock manufacturers.
+          </p>
+        </div>
+
+        {/* OEM Selector Tabs */}
+        <div className="mt-12 flex justify-center gap-3">
+          {OEMS.map((oem) => (
+            <button
+              key={oem.id}
+              onClick={() => setSelectedOem(oem.id)}
+              className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold transition-all border ${
+                selectedOem === oem.id
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-neutral-700 border-neutral-300 hover:border-black'
+              }`}
+            >
+              <span>{oem.name}</span>
+              <span className="font-mono text-[10px] opacity-75">({oem.portal})</span>
+            </button>
           ))}
+        </div>
+
+        {/* Schema Comparison Terminal */}
+        <div className="mt-8 rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+            <div className="flex items-center gap-2 font-mono text-xs font-bold text-black">
+              <Icon name="terminal" className="h-4 w-4 text-neutral-700" />
+              <span>SCHEMA COMPILATION // {selectedOem.toUpperCase()} SPECIFICATION</span>
+            </div>
+            <span className="font-mono text-xs text-neutral-500 font-semibold">
+              CONTRACTUAL SLA: {OEMS.find((o) => o.id === selectedOem)?.slaDays} DAYS
+            </span>
+          </div>
+
+          <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-neutral-200 p-6 gap-6">
+            <div>
+              <p className="font-mono text-xs font-bold uppercase text-black mb-4">
+                Mandatory OEM Portal Parameters
+              </p>
+              <div className="space-y-2.5">
+                {OEMS.find((o) => o.id === selectedOem)?.requiredFields.map((field) => (
+                  <div
+                    key={field}
+                    className="flex items-center justify-between rounded-lg bg-neutral-50 p-3 text-xs border border-neutral-200"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Icon name="check" className="h-3.5 w-3.5 text-black" />
+                      <span className="font-mono font-semibold text-black">{field}</span>
+                    </div>
+                    <span className="font-mono text-[10px] text-neutral-500">
+                      Auto-extracted via {field.includes('photo') ? 'Vision OCR' : field.includes('failure') ? 'NLP Taxonomy' : 'Asset Telemetry'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="font-mono text-xs font-bold uppercase text-black mb-4">
+                Live Compiled XML/JSON Payload
+              </p>
+              <pre className="rounded-xl bg-neutral-900 p-4 font-mono text-xs text-neutral-200 leading-relaxed overflow-x-auto">
+                {selectedOem === 'mitsubishi'
+                  ? `<?xml version="1.0" encoding="UTF-8"?>
+<MELCO_CLAIM_V3>
+  <DEPOT_CODE>MUTTOM_BAY4</DEPOT_CODE>
+  <CAR_EQP_ID>RS-10-KM-0421</CAR_EQP_ID>
+  <SER_NO>MB5085-2274-K</SER_NO>
+  <FAIL_CD>F042</FAIL_CD>
+  <FAIL_DESC>thermal_overload_145C</FAIL_DESC>
+  <LBR_OP>REPLACE_STATOR_CORE</LBR_OP>
+  <CLAIM_VAL_INR>482400</CLAIM_VAL_INR>
+  <DIGITAL_SIGNATURE>sha256:7f4c9a...</DIGITAL_SIGNATURE>
+</MELCO_CLAIM_V3>`
+                  : selectedOem === 'hitachi'
+                  ? `{
+  "HiWarrantyPayload": {
+    "DepotCode": "MUTTOM_BAY4",
+    "AssetRef": "RS-10-KM-0421",
+    "SerialNumber": "MB5085-2274-K",
+    "FaultCode": "F042",
+    "LabourOperation": "REPLACE_STATOR_CORE",
+    "OperatingHours": 18420,
+    "SymptomCategory": "thermal_overload",
+    "JIS_StandardRef": "JIS-E-4001"
+  }
+}`
+                  : `{
+  "khi_after_sales": {
+    "equipment_id": "RS-10-KM-0421",
+    "part_serial": "MB5085-2274-K",
+    "fault_code": "F042",
+    "labor_code": "REPLACE_STATOR_CORE",
+    "warranty_proof": "VALIDATED_ONLINE",
+    "dispute_window_days": 45
+  }
+}`}
+              </pre>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── Metrics ─────────────────────────────────────── */}
-      <section id="proof" className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {METRICS.map((m, i) => (
-            <motion.div key={m.label} {...fadeUp(i * 0.07)} className="rounded-[24px] bg-[#2D2A26] p-6 text-white shadow-[0_16px_40px_-12px_rgba(45,42,38,0.5)]">
-              <p className="bg-gradient-to-r from-[#FFB74D] to-[#F48FB1] bg-clip-text text-4xl font-bold text-transparent">{m.value}</p>
-              <p className="mt-2 text-sm font-semibold">{m.label}</p>
-              <p className="text-xs text-white/50">{m.sub}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      {/* ── Sub-15s Neural Architecture ─────────────────────────────── */}
+      <section id="pipeline" className="border-t border-neutral-200 bg-neutral-50 py-32 px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-500">
+              Autonomous Verification Engine
+            </p>
+            <h2 className="mt-3 font-display text-4xl sm:text-5xl font-bold text-black tracking-tight">
+              The 6-Stage Sub-15 Second Pipeline
+            </h2>
+            <p className="mt-4 text-base text-neutral-600">
+              Transforming raw depot reports into audit-grade vouchers before maintenance crews return to the control room.
+            </p>
+          </div>
 
-      {/* ── Features ────────────────────────────────────── */}
-      <section id="features" className="mx-auto max-w-6xl px-4 pt-20 sm:px-6">
-        <motion.div {...fadeUp()} className="text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#FF7043]">✨ Why depots love it</p>
-          <h2 className="mx-auto mt-3 max-w-2xl font-display text-4xl tracking-tight sm:text-5xl">Everything between <em>breakdown</em> and <em>reimbursed</em>, handled.</h2>
-          <p className="mx-auto mt-3 max-w-xl text-[#8A8580]">The cross-border paperwork tax — translation, re-keying, compliance — disappears into one friendly flow.</p>
-        </motion.div>
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f, i) => (
-            <motion.div key={f.title} {...fadeUp((i % 3) * 0.08)} whileHover={{ y: -6 }} className="group rounded-[24px] border border-[#FFF3E0] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.05)]">
-              <div className={`inline-flex rounded-2xl bg-gradient-to-br ${f.grad} px-4 py-3 text-2xl shadow-md transition-transform group-hover:scale-110 group-hover:-rotate-6`}>{f.emoji}</div>
-              <p className="mt-4 text-[11px] font-bold uppercase tracking-widest text-[#B0A9A0]">{f.tag}</p>
-              <h3 className="mt-1 text-lg font-bold">{f.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#8A8580]">{f.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── How it works ────────────────────────────────── */}
-      <section id="flow" className="mx-auto max-w-6xl px-4 pt-20 sm:px-6">
-        <motion.div {...fadeUp()} className="overflow-hidden rounded-[32px] bg-gradient-to-br from-[#2D2A26] via-[#3d3430] to-[#4a2c3a] p-8 text-white sm:p-12">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#FFB74D]">🚂 How it works</p>
-          <h2 className="mt-3 max-w-xl font-display text-4xl tracking-tight sm:text-5xl">Three steps. One minute. Zero paperwork.</h2>
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <motion.div key={s.n} {...fadeUp(i * 0.1)} className="rounded-[24px] bg-white/10 p-6 backdrop-blur-sm transition-colors hover:bg-white/15">
-                <div className="flex items-center justify-between"><span className="text-3xl">{s.emoji}</span><span className="font-mono text-sm text-white/40">{s.n}</span></div>
-                <h3 className="mt-4 text-lg font-bold">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{s.desc}</p>
-              </motion.div>
+          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                step: '01',
+                title: 'Rail-Jargon Acoustic ASR',
+                desc: 'Fine-tuned speech recognition for Tamil, Hindi, Marathi, Bengali, and English railway terminology with 94%+ term retention.',
+                tag: 'Bilingual Telemetry',
+                icon: 'mic',
+              },
+              {
+                step: '02',
+                title: 'JIS Terminology Standardizer',
+                desc: 'Maps regional depot slang and vernacular descriptions directly onto formal Japanese Industrial Standards (JIS E 4001 / 4041).',
+                tag: 'JIS-Standard Mapping',
+                icon: 'translate',
+              },
+              {
+                step: '03',
+                title: 'Multi-Spectral OCR Inspection',
+                desc: 'Extracts alphanumeric serial plates and HMI diagnostic codes under poor depot lighting with geometric confidence bounding boxes.',
+                tag: 'Computer Vision OCR',
+                icon: 'scan',
+              },
+              {
+                step: '04',
+                title: 'Fault Taxonomy Normalizer',
+                desc: 'Resolves component fault symptoms directly into supplier catalog failure classifications (e.g., E-042 → Mitsubishi F042).',
+                tag: 'Taxonomy Resolution',
+                icon: 'database',
+              },
+              {
+                step: '05',
+                title: 'Portal Schema Transpiler',
+                desc: 'Transpiles claim parameters into precise EDIFACT, XML, and JSON payloads conforming to MELCO-WS, HiWarranty, and KHI portals.',
+                tag: 'Zero-Rejection Formatting',
+                icon: 'code',
+              },
+              {
+                step: '06',
+                title: 'Cryptographic Proof Hash',
+                desc: 'Generates immutable SHA-256 hash chains linking raw audio recordings, photos, and inspector approvals to resolve future disputes.',
+                tag: 'ISO/IEC 27001 Ready',
+                icon: 'shieldCheck',
+              },
+            ].map((s) => (
+              <div
+                key={s.step}
+                className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card hover:border-black transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-black text-white">
+                    <Icon name={s.icon as IconName} className="h-4 w-4" />
+                  </div>
+                  <span className="font-mono text-xs font-bold text-neutral-400">{s.step}</span>
+                </div>
+                <h3 className="mt-5 text-base font-bold text-black">{s.title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-neutral-600">{s.desc}</p>
+                <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-neutral-500 font-semibold uppercase">{s.tag}</span>
+                  <Icon name="check" className="h-3.5 w-3.5 text-black" />
+                </div>
+              </div>
             ))}
           </div>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button onClick={() => onEnter("capture")} className="rounded-full bg-white px-8 py-3.5 font-bold text-[#2D2A26] transition-transform hover:scale-[1.03] active:scale-[0.98]">Try the capture flow ✨</button>
-            <button onClick={() => onEnter("audit")} className="rounded-full border border-white/25 px-8 py-3.5 font-semibold text-white/90 transition-colors hover:bg-white/10">See the audit trail</button>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ── Live queue teaser ───────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6">
-        <motion.div {...fadeUp()} className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7C4DFF]">📋 Live from the pilot</p>
-            <h2 className="mt-2 font-display text-4xl tracking-tight sm:text-5xl">Claims moving right now</h2>
-          </div>
-          <button onClick={() => onEnter("dashboard")} className="rounded-full border border-[#F0EBE3] bg-white px-5 py-2.5 text-sm font-semibold shadow-sm transition-transform hover:scale-[1.03]">Open dashboard →</button>
-        </motion.div>
-        <div className="mt-6 flex gap-4 overflow-x-auto pb-4">
-          {CLAIM_QUEUE.slice(0, 5).map((c, i) => (
-            <motion.div key={c.id} {...fadeUp(i * 0.06)} className="min-w-[260px] flex-1 rounded-[20px] border border-[#FFF3E0] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
-              <div className="flex items-center justify-between"><span className="rounded-full bg-[#FFF3E0] px-3 py-1 text-xs font-bold">{c.id}</span><span className="text-xs font-medium capitalize text-[#8A8580]">{c.status.replace("_", " ")}</span></div>
-              <p className="mt-3 text-sm font-semibold">{c.assetName}</p>
-              <p className="text-xs text-[#8A8580]">{c.depot}</p>
-              <p className="mt-2 text-lg font-bold">₹{(c.amountInr / 100000).toFixed(1)}L</p>
-            </motion.div>
-          ))}
         </div>
       </section>
 
-      {/* ── Quote ───────────────────────────────────────── */}
-      <section className="mx-auto max-w-4xl px-4 pt-20 text-center sm:px-6">
-        <motion.div {...fadeUp()}>
-          <p className="font-display text-3xl italic leading-snug tracking-tight sm:text-4xl">"Earlier a claim meant a week of emails between Kochi and Kobe. Now the crew finishes it before their tea break."</p>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-pink-400 font-bold text-white">SI</span>
-            <div className="text-left"><p className="text-sm font-bold">S. Iyer</p><p className="text-xs text-[#8A8580]">Warranty Admin · Kochi Metro Rail Ltd</p></div>
+      {/* ── Interactive ROI Recovery Calculator ─────────────────────── */}
+      <section id="roi-calculator" className="py-32 px-6 mx-auto max-w-6xl">
+        <div className="rounded-3xl border border-neutral-200 bg-white shadow-card p-8 sm:p-14">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            {/* Controls */}
+            <div className="lg:col-span-6 space-y-8">
+              <div>
+                <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-500">
+                  Financial Impact Model
+                </p>
+                <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold text-black tracking-tight">
+                  Estimate Unlocked Capital Recovery
+                </h2>
+                <p className="mt-3 text-sm text-neutral-600">
+                  Calculate annual warranty revenue returned to your transit authority by eliminating expired SLA windows and untracked paperwork.
+                </p>
+              </div>
+
+              {/* Slider 1 */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs font-mono">
+                  <label htmlFor={fleetId} className="font-bold text-black">Fleet Size (Carriages)</label>
+                  <span className="font-bold text-black">{fleetSize} Cars</span>
+                </div>
+                <input
+                  id={fleetId}
+                  type="range"
+                  min="20"
+                  max="300"
+                  step="5"
+                  value={fleetSize}
+                  onChange={(e) => setFleetSize(Number(e.target.value))}
+                  className="w-full accent-black cursor-pointer h-2 bg-neutral-200 rounded-lg"
+                />
+              </div>
+
+              {/* Slider 2 */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs font-mono">
+                  <label htmlFor={failuresId} className="font-bold text-black">Monthly Warranty Incidents</label>
+                  <span className="font-bold text-black">{monthlyFailures} Failures/mo</span>
+                </div>
+                <input
+                  id={failuresId}
+                  type="range"
+                  min="2"
+                  max="40"
+                  step="1"
+                  value={monthlyFailures}
+                  onChange={(e) => setMonthlyFailures(Number(e.target.value))}
+                  className="w-full accent-black cursor-pointer h-2 bg-neutral-200 rounded-lg"
+                />
+              </div>
+
+              {/* Slider 3 */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs font-mono">
+                  <label htmlFor={claimId} className="font-bold text-black">Average Claim Value (INR)</label>
+                  <span className="font-bold text-black">₹{(avgClaimInr / 100000).toFixed(1)} Lakhs</span>
+                </div>
+                <input
+                  id={claimId}
+                  type="range"
+                  min="100000"
+                  max="1500000"
+                  step="50000"
+                  value={avgClaimInr}
+                  onChange={(e) => setAvgClaimInr(Number(e.target.value))}
+                  className="w-full accent-black cursor-pointer h-2 bg-neutral-200 rounded-lg"
+                />
+              </div>
+            </div>
+
+            {/* ROI Results Card */}
+            <div className="lg:col-span-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-8 sm:p-10 text-center sm:text-left">
+              <span className="inline-block rounded-full bg-black px-3 py-1 font-mono text-xs font-semibold text-white">
+                ANNUAL RECOVERY DELTA
+              </span>
+
+              <div className="mt-6">
+                <p className="font-mono text-5xl sm:text-6xl font-extrabold text-black">
+                  ₹{(annualUnlockedCapitalInr / 100000).toFixed(2)} Lakhs
+                </p>
+                <p className="mt-2 text-sm text-neutral-600 font-mono">
+                  Additional revenue recovered from Japanese OEMs per year
+                </p>
+              </div>
+
+              <div className="mt-8 grid grid-cols-2 gap-6 border-t border-neutral-200 pt-8 text-left">
+                <div>
+                  <p className="font-mono text-xs uppercase text-neutral-500 font-bold">Manual Email Disputes</p>
+                  <p className="font-mono text-2xl font-bold text-neutral-700 mt-1">₹{(manualRecoveryInr / 100000).toFixed(1)}L</p>
+                  <p className="text-xs text-neutral-500 font-mono mt-1">42% historical capture</p>
+                </div>
+                <div>
+                  <p className="font-mono text-xs uppercase text-neutral-500 font-bold">Hashi Sethu Automated</p>
+                  <p className="font-mono text-2xl font-bold text-black mt-1">₹{(automatedRecoveryInr / 100000).toFixed(1)}L</p>
+                  <p className="text-xs text-emerald-600 font-mono font-bold mt-1">86% verified capture</p>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span className="text-xs text-neutral-600 font-mono font-bold">Payback Period: &lt; 2 Weeks</span>
+                <button
+                  onClick={() => onEnter('dashboard')}
+                  className="w-full sm:w-auto rounded-full bg-black px-6 py-3 font-mono text-xs font-semibold text-white hover:bg-neutral-800 transition-colors"
+                >
+                  Deploy Pilot Depot →
+                </button>
+              </div>
+            </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
-      {/* ── Final CTA + footer ──────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        <motion.div {...fadeUp()} className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#FF8A65] via-[#FF7043] to-[#EC407A] p-10 text-center text-white shadow-[0_24px_60px_-16px_rgba(255,112,67,0.5)] sm:p-16">
-          <motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 12, ease: "linear" }} className="pointer-events-none absolute -right-10 -top-10 text-[120px] opacity-20">⚙️</motion.span>
-          <motion.span animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 3 }} className="pointer-events-none absolute -left-4 bottom-6 text-[80px] opacity-20">🚇</motion.span>
-          <h2 className="relative font-display text-4xl tracking-tight sm:text-6xl">Stop losing lakhs<br />to paperwork.</h2>
-          <p className="relative mx-auto mt-4 max-w-md text-white/85">Join the pilot. First depot onboarded in a day — crews need zero training.</p>
-          <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <button onClick={() => onEnter("capture")} className="w-full rounded-full bg-white px-8 py-4 font-bold text-[#E64A19] shadow-lg transition-transform hover:scale-[1.03] active:scale-[0.98] sm:w-auto">Start a claim ✨</button>
-            <button onClick={() => onEnter("dashboard")} className="w-full rounded-full border-2 border-white/50 px-8 py-[14px] font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto">Explore the demo</button>
+      {/* ── Authority Verification Quote ────────────────────────────── */}
+      <section className="py-28 px-6 mx-auto max-w-4xl text-center">
+        <div className="border border-neutral-200 rounded-3xl bg-white p-10 sm:p-14 shadow-card">
+          <p className="font-display text-2xl sm:text-3xl text-black leading-relaxed font-bold">
+            "Previously, filing rolling stock warranty claims required bilateral translations, manual part catalogs, and weeks of email threads between Kochi depot engineers and Kobe suppliers. Hashi Sethu generates verified, compliant vouchers before the train even returns to passenger service."
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-black font-mono font-bold text-white flex items-center justify-center text-sm">
+              SI
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-bold text-black">S. Iyer</p>
+              <p className="font-mono text-xs text-neutral-500">Chief Rolling Stock Division · Kochi Metro Rail Ltd</p>
+            </div>
           </div>
-        </motion.div>
-        <footer className="mt-10 flex flex-col items-center justify-between gap-4 text-xs text-[#B0A9A0] sm:flex-row">
-          <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-ink text-sm">🚇</span><span className="font-bold text-[#2D2A26]">RailClaim</span><span>· Simulated pipeline. No live OEM connection.</span></div>
-          <div className="flex gap-5 font-medium">
-            <button onClick={() => onEnter("dashboard")} className="transition-colors hover:text-ink">App</button>
-            <button onClick={() => onEnter("audit")} className="transition-colors hover:text-ink">Activity</button>
-            <button onClick={() => onEnter("capture")} className="transition-colors hover:text-ink">New claim</button>
-          </div>
-        </footer>
+        </div>
       </section>
+
+      {/* ── Footer ─────────────────────────────────────────────────── */}
+      <footer className="border-t border-neutral-200 py-12 px-6 bg-white">
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded bg-black text-white">
+              <Icon name="train" className="h-4 w-4" />
+            </div>
+            <span className="text-xs font-bold text-black">HASHI SETHU ENTERPRISE</span>
+            <span className="font-mono text-[10px] text-neutral-500">· 橋・सेतु JIS-D-4201 ACCORD</span>
+          </div>
+
+          <div className="flex items-center gap-8 font-mono text-xs text-neutral-600">
+            <button onClick={() => onEnter('dashboard')} className="hover:text-black transition-colors">
+              Console
+            </button>
+            <button onClick={() => onEnter('capture')} className="hover:text-black transition-colors">
+              Field Capture
+            </button>
+            <button onClick={() => onEnter('audit')} className="hover:text-black transition-colors">
+              Cryptographic Ledger
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

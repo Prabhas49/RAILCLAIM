@@ -117,11 +117,14 @@ export interface AuditEvent {
 export type ViewId =
   | 'landing'
   | 'dashboard'
+  | 'claims'
   | 'capture'
+  | 'evidence'
   | 'pipeline'
   | 'review'
   | 'oem'
   | 'audit'
+  | 'analytics'
 
 export interface CaptureMeta {
   gps: string
