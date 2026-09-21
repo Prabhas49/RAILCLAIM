@@ -1,104 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 @layer base {
-  html {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-
-  body {
-    @apply bg-slate-50 font-sans text-slate-900 antialiased;
-  }
-
-  ::selection {
-    @apply bg-indigo-500/15;
-  }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { @apply bg-[#FFFDF8] font-sans text-ink antialiased; }
+  ::selection { @apply bg-[#111113] text-white; }
 }
-
-/*
- * Design language v2 — deliberately small vocabulary.
- * Five type steps only: micro / body / strong / title / display.
- * Surfaces are white with a hairline border and no shadow; depth comes from
- * whitespace, not from rings and drop shadows on every box.
- */
 @layer components {
-  .panel {
-    @apply rounded-2xl border border-slate-200/70 bg-white;
-  }
-
-  .panel-head {
-    @apply flex items-center justify-between gap-4 px-6 py-5;
-  }
-
-  .panel-body {
-    @apply px-6 pb-6;
-  }
-
-  .micro {
-    @apply text-[11px] font-medium uppercase tracking-[0.07em] text-slate-400;
-  }
-
-  .body {
-    @apply text-[13px] leading-relaxed text-slate-600;
-  }
-
-  .strong {
-    @apply text-[13px] font-medium text-slate-900;
-  }
-
-  .title {
-    @apply text-[15px] font-semibold tracking-[-0.01em] text-slate-900;
-  }
-
-  .display {
-    @apply font-mono text-[26px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-slate-900;
-  }
-
-  .num {
-    @apply font-mono tabular-nums;
-  }
-
-  .hairline {
-    @apply border-slate-100;
-  }
+  .panel { @apply rounded-card border border-line bg-white shadow-soft; }
+  .glass { @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-float; }
 }
-
-@layer utilities {
-  .scroll-slim {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(203 213 225) transparent;
-  }
-  .scroll-slim::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  .scroll-slim::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scroll-slim::-webkit-scrollbar-thumb {
-    background-color: rgb(203 213 225);
-    border-radius: 9999px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-  }
-
-  .grid-paper {
-    background-image:
-      linear-gradient(to right, rgb(15 23 42 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(15 23 42 / 0.04) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: 0.01ms !important; } }

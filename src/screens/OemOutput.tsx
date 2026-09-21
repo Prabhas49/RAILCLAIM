@@ -1,317 +1,34 @@
-import { useMemo, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Button } from '../components/ui/Button'
-import { Card, PanelHead } from '../components/ui/Card'
-import { Icon, type IconName } from '../components/ui/Icon'
-import { cx } from '../lib/cx'
-import { formatInr } from '../lib/format'
-import {
-  ACTIVE_CLAIM,
-  CLAIM_FIELDS,
-  COMPLIANCE_CHECKS,
-  EVIDENCE_PHOTOS,
-  OEMS,
-  OEM_BY_ID,
-  OEM_SCHEMA,
-} from '../data/mock'
-import type { OemId } from '../types'
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { ACTIVE_CLAIM, OEM_BY_ID } from "../data/mock"
 
-export function OemOutput({ onContinue }: { onContinue: () => void }) {
-  const [oemId, setOemId] = useState<OemId>(ACTIVE_CLAIM.oem)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [copied, setCopied] = useState(false)
-
-  const oem = OEM_BY_ID[oemId]
-
-  const payload = useMemo(() => {
-    const mapped: Record<string, string | number> = {
-      CLAIM_REF: ACTIVE_CLAIM.id,
-      OPERATOR: ACTIVE_CLAIM.operator,
-      DEPOT: ACTIVE_CLAIM.depot,
-      CURRENCY: 'INR',
-      CLAIM_AMOUNT: ACTIVE_CLAIM.amountInr,
-    }
-    for (const field of CLAIM_FIELDS) {
-      const key = OEM_SCHEMA[field.id]?.[oemId]
-      if (key) mapped[key] = field.value
-    }
-    return { portal: oem.portal, payload: mapped }
-  }, [oemId, oem.portal])
-
-  const json = useMemo(() => JSON.stringify(payload, null, 2), [payload])
-
-  /** Kawasaki needs a warranty proof document this claim does not carry. */
-  const missing = oem.requiredFields.filter((id) => !CLAIM_FIELDS.some((f) => f.id === id))
-  const satisfied = oem.requiredFields.length - missing.length
-
-  const downloadJson = () => {
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${ACTIVE_CLAIM.id}-${oemId}-claim.json`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  const copyJson = async () => {
-    try {
-      await navigator.clipboard.writeText(json)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 1800)
-    } catch {
-      setCopied(false)
-    }
-  }
-
-  const submit = () => {
-    setSubmitting(true)
-    window.setTimeout(() => {
-      setSubmitting(false)
-      setSubmitted(true)
-    }, 1600)
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-slate-200/70 pb-1">
-        {OEMS.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            onClick={() => {
-              setOemId(o.id)
-              setSubmitted(false)
-            }}
-            className={cx(
-              '-mb-px border-b-2 pb-3 text-[13px] transition-colors',
-              o.id === oemId
-                ? 'border-slate-900 font-medium text-slate-900'
-                : 'border-transparent text-slate-400 hover:text-slate-600',
-            )}
-          >
-            {o.name}
-          </button>
-        ))}
-        <span className="num ml-auto text-[11px] text-slate-400">
-          {oem.slaDays} day SLA · {oem.portal}
-        </span>
+export default function OemOutput({onContinue}:{onContinue:()=>void}){
+  const [done,setDone]=useState<string|null>(null)
+  const oem=OEM_BY_ID[ACTIVE_CLAIM.oem]
+  return <div className="min-h-screen bg-[#FFFDF8] p-6 md:p-10 max-w-[760px] mx-auto">
+    <h1 className="text-[28px] font-bold text-[#2D2A26]">Ready to send 🚀</h1><p className="text-[#8A8580]">Preview for {oem.name} · {oem.portal}</p>
+    <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="bg-white rounded-[24px] shadow-[0_12px_40px_rgba(0,0,0,0.08)] p-8 mt-6 relative" style={{boxShadow:"0 12px 40px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06)"}}>
+      <div className="absolute -bottom-2 left-4 right-4 h-4 bg-white rounded-b-[24px] shadow-sm -z-10 opacity-60"/><div className="absolute -bottom-4 left-8 right-8 h-4 bg-white rounded-b-[24px] -z-20 opacity-30"/>
+      <p className="text-xs tracking-widest font-bold text-[#B0A9A0]">{oem.legalName.toUpperCase()}</p>
+      <h2 className="font-bold text-[#2D2A26] mt-1">Warranty Claim · {ACTIVE_CLAIM.id}</h2><p className="text-sm text-[#8A8580]">{ACTIVE_CLAIM.assetName} · {ACTIVE_CLAIM.depot}</p>
+      <div className="grid grid-cols-2 gap-3 mt-6 text-sm">
+        <div className="bg-[#FFFBF0] rounded-[16px] p-3"><p className="text-xs text-[#B0A9A0]">Failure</p><p className="font-semibold text-[#2D2A26]">F042 · thermal_overload</p></div>
+        <div className="bg-[#FFFBF0] rounded-[16px] p-3"><p className="text-xs text-[#B0A9A0]">Amount</p><p className="font-semibold text-[#2D2A26]">₹{(ACTIVE_CLAIM.amountInr).toLocaleString('en-IN')}</p></div>
+        <div className="bg-[#FFFBF0] rounded-[16px] p-3"><p className="text-xs text-[#B0A9A0]">Serial</p><p className="font-semibold text-[#2D2A26]">MB5085-2274-K</p></div>
+        <div className="bg-[#FFFBF0] rounded-[16px] p-3"><p className="text-xs text-[#B0A9A0]">Warranty until</p><p className="font-semibold text-[#2D2A26]">2027-03-14 ✅</p></div>
       </div>
-
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="space-y-5">
-          <Card className="bg-slate-100/60 p-5">
-            <motion.div
-              key={oemId}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.24 }}
-              className="mx-auto max-w-[680px] rounded-lg bg-white p-7 shadow-paper"
-            >
-              <div className="flex items-start justify-between gap-6 border-b border-slate-200 pb-5">
-                <div>
-                  <div className="micro">warranty claim</div>
-                  <div className="mt-2 text-[15px] font-semibold text-slate-900">
-                    {oem.legalName}
-                  </div>
-                  <div className="mt-1 text-[13px] text-slate-500">
-                    {oem.hq} · {oem.portal}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="num text-[13px] font-medium text-slate-900">
-                    {ACTIVE_CLAIM.id}
-                  </div>
-                  <div className="num mt-1 text-[11px] text-slate-400">{ACTIVE_CLAIM.coacheset}</div>
-                  <div className="mt-2 text-[11px] font-medium text-emerald-600">in warranty</div>
-                </div>
-              </div>
-
-              <dl className="divide-y divide-slate-100">
-                {CLAIM_FIELDS.filter((f) => OEM_SCHEMA[f.id]).map((f) => (
-                  <div key={f.id} className="grid grid-cols-[170px_minmax(0,1fr)] gap-4 py-2.5">
-                    <dt className="num text-[11px] text-slate-400">
-                      {OEM_SCHEMA[f.id][oemId]}
-                    </dt>
-                    <dd className="num text-[13px] text-slate-900">{f.value}</dd>
-                  </div>
-                ))}
-              </dl>
-
-              <div className="mt-5 flex items-end justify-between border-t border-slate-200 pt-5">
-                <div>
-                  <div className="micro">total claimed</div>
-                  <div className="num mt-2 text-[20px] font-semibold text-slate-900">
-                    {formatInr(ACTIVE_CLAIM.amountInr)}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="micro">response due</div>
-                  <div className="num mt-2 text-[13px] text-slate-700">within {oem.slaDays} days</div>
-                </div>
-              </div>
-            </motion.div>
-          </Card>
-
-          <Card flush className="overflow-hidden">
-            <PanelHead
-              title="Payload"
-              description="Machine-readable, ready for the portal API"
-              action={
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="secondary" icon="download" onClick={downloadJson}>
-                    JSON
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    icon={copied ? 'check' : 'file'}
-                    onClick={copyJson}
-                  >
-                    {copied ? 'Copied' : 'Copy'}
-                  </Button>
-                </div>
-              }
-            />
-            <pre className="max-h-[280px] overflow-auto scroll-slim bg-slate-900 px-6 py-5 font-mono text-[11px] leading-relaxed text-slate-300">
-              {json}
-            </pre>
-          </Card>
-        </div>
-
-        <div className="space-y-5">
-          <Card>
-            <span className="micro">Compliance</span>
-            <div className="mt-4 flex items-baseline justify-between gap-3">
-              <span className="body">Required fields</span>
-              <span className="num text-[13px] font-medium text-slate-900">
-                {satisfied}/{oem.requiredFields.length}
-              </span>
-            </div>
-            <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-slate-100">
-              <div
-                className={cx(
-                  'h-full rounded-full transition-all',
-                  missing.length ? 'bg-amber-500' : 'bg-emerald-500',
-                )}
-                style={{ width: `${(satisfied / oem.requiredFields.length) * 100}%` }}
-              />
-            </div>
-
-            <div className="mt-6 space-y-4 border-t border-slate-100 pt-6">
-              {COMPLIANCE_CHECKS.map((c) => (
-                <Check key={c.id} state={c.state} title={c.rule} detail={c.detail} />
-              ))}
-              {missing.map((m) => (
-                <Check
-                  key={m}
-                  state="fail"
-                  title={`${m.replace(/_/g, ' ')} missing`}
-                  detail={`${oem.name} will not accept this claim without it.`}
-                />
-              ))}
-            </div>
-          </Card>
-
-          <Card>
-            <span className="micro">Evidence bundle</span>
-            <ul className="mt-4 space-y-3">
-              <Bundle title="Voice note · Tamil" detail="26.4 s" />
-              <Bundle title="Translation" detail="EN + JA" />
-              {EVIDENCE_PHOTOS.map((p) => (
-                <Bundle key={p.id} title={p.caption} detail={`${p.annotations.length} reads`} />
-              ))}
-              <Bundle title="Metadata attestation" detail="hashed" />
-            </ul>
-          </Card>
-
-          <AnimatePresence mode="wait">
-            {submitted ? (
-              <motion.div
-                key="done"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="panel p-6"
-              >
-                <div className="flex items-center gap-2 text-[13px] font-medium text-emerald-600">
-                  <Icon name="circleCheck" className="h-4 w-4" />
-                  Filed to {oem.portal}
-                </div>
-                <p className="mt-2 text-[13px] leading-relaxed text-slate-500">
-                  {ACTIVE_CLAIM.id} submitted. Response due within {oem.slaDays} days.
-                </p>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  full
-                  className="mt-4"
-                  iconRight="arrowRight"
-                  onClick={onContinue}
-                >
-                  View audit trail
-                </Button>
-              </motion.div>
-            ) : (
-              <motion.div key="cta" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  full
-                  icon="send"
-                  onClick={submit}
-                  disabled={submitting}
-                >
-                  {submitting ? 'Submitting…' : `Submit to ${oem.name}`}
-                </Button>
-                <p className="mt-3 text-center text-[11px] text-slate-400">
-                  {missing.length > 0
-                    ? `${missing.length} required document(s) missing — expect an RFI.`
-                    : 'Demo only. Nothing leaves this session.'}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      <div className="mt-6 h-px bg-[#FFF3E0]"/><p className="text-xs text-[#B0A9A0] mt-4">3 attachments included · Nameplate, HMI, Context</p>
+    </motion.div>
+    <div className="grid grid-cols-3 gap-3 mt-6">
+      {[
+        {id:"pdf",label:"Export PDF",emoji:"📄",grad:"from-[#FF8A65] to-[#FF7043]"},
+        {id:"json",label:"Copy JSON",emoji:"⚙️",grad:"from-[#7EC8E3] to-[#81C784]"},
+        {id:"oem",label:"Send to OEM",emoji:"📤",grad:"from-[#A78BFA] to-[#7EC8E3]"},
+      ].map(b=><motion.button key={b.id} whileTap={{scale:0.96}} onClick={()=>setDone(b.id)} className={`rounded-[20px] p-4 text-white font-semibold bg-gradient-to-br ${b.grad} shadow-md`}>
+        <span className="text-xl">{b.emoji}</span><p className="text-sm mt-1">{b.label}</p>
+      </motion.button>)}
     </div>
-  )
-}
-
-function Check({
-  state,
-  title,
-  detail,
-}: {
-  state: 'pass' | 'warn' | 'fail'
-  title: string
-  detail: string
-}) {
-  const icon: IconName = state === 'pass' ? 'circleCheck' : state === 'warn' ? 'alert' : 'circleX'
-  return (
-    <div className="flex items-start gap-3">
-      <Icon
-        name={icon}
-        className={cx(
-          'mt-0.5 h-3.5 w-3.5 shrink-0',
-          state === 'pass' && 'text-emerald-500',
-          state === 'warn' && 'text-amber-500',
-          state === 'fail' && 'text-rose-500',
-        )}
-      />
-      <div className="min-w-0">
-        <div className="text-[13px] font-medium capitalize text-slate-800">{title}</div>
-        <p className="mt-1 text-[11px] leading-relaxed text-slate-400">{detail}</p>
-      </div>
-    </div>
-  )
-}
-
-function Bundle({ title, detail }: { title: string; detail: string }) {
-  return (
-    <li className="flex items-baseline justify-between gap-3">
-      <span className="truncate text-[13px] text-slate-600">{title}</span>
-      <span className="num shrink-0 text-[11px] text-slate-400">{detail}</span>
-    </li>
-  )
+    {done&&<motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} className="bg-[#E8F5E9] rounded-[20px] p-4 mt-4 text-center"><p className="font-semibold text-[#2E7D32]">🎉 {done==="oem"?"Sent to "+oem.name+"!":done==="pdf"?"PDF downloaded!":"JSON copied!"} </p></motion.div>}
+    <button onClick={onContinue} className="w-full mt-4 bg-white border border-[#F0EBE3] rounded-[20px] py-4 font-semibold text-[#2D2A26]">Back to dashboard</button>
+  </div>
 }

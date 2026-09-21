@@ -1,191 +1,29 @@
-import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Button } from '../components/ui/Button'
-import { Card, PanelHead } from '../components/ui/Card'
-import { SourceChip } from '../components/ui/Badge'
-import { ConfidenceBar, ConfidenceRing } from '../components/ui/Confidence'
-import { cx } from '../lib/cx'
-import { CONFIDENCE_FLOOR } from '../lib/status'
-import {
-  ACTIVE_CLAIM,
-  CAPTURE_META,
-  CLAIM_FIELDS,
-  EVIDENCE_PHOTOS,
-  OEM_BY_ID,
-  TRANSCRIPT,
-} from '../data/mock'
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { CLAIM_FIELDS } from "../data/mock"
 
-export function Review({ onContinue }: { onContinue: () => void }) {
-  const [values, setValues] = useState<Record<string, string>>(() =>
-    Object.fromEntries(CLAIM_FIELDS.map((f) => [f.id, f.value])),
-  )
-  const [confirmed, setConfirmed] = useState<Record<string, boolean>>({})
-
-  const oem = OEM_BY_ID[ACTIVE_CLAIM.oem]
-
-  const lowConfidence = useMemo(
-    () => CLAIM_FIELDS.filter((f) => f.confidence < CONFIDENCE_FLOOR),
-    [],
-  )
-  const unresolved = lowConfidence.filter((f) => !confirmed[f.id])
-  const overall = useMemo(
-    () => CLAIM_FIELDS.reduce((s, f) => s + f.confidence, 0) / CLAIM_FIELDS.length,
-    [],
-  )
-
-  return (
-    <div className="space-y-6">
-      <Card className="flex flex-wrap items-center gap-6 py-5">
-        <ConfidenceRing value={overall} size={52} />
-
-        <div className="flex flex-wrap items-center gap-8">
-          <Metric value={String(CLAIM_FIELDS.length)} label="extracted" />
-          <Metric
-            value={String(CLAIM_FIELDS.length - lowConfidence.length)}
-            label="auto-accepted"
-            tone="text-emerald-600"
-          />
-          <Metric
-            value={String(unresolved.length)}
-            label="need your check"
-            tone={unresolved.length ? 'text-amber-600' : undefined}
-          />
-        </div>
-
-        <Button
-          variant="primary"
-          className="ml-auto"
-          iconRight="arrowRight"
-          disabled={unresolved.length > 0}
-          onClick={onContinue}
-        >
-          {unresolved.length ? `Confirm ${unresolved.length} field(s)` : `Build ${oem.name} package`}
-        </Button>
-      </Card>
-
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
-        <div className="space-y-5">
-          <Card flush className="overflow-hidden">
-            <PanelHead title="Transcript" description="Tamil → English" />
-            <div className="divide-y divide-slate-100 px-6 pb-6">
-              {TRANSCRIPT.map((line) => (
-                <div key={line.id} className="py-4 first:pt-0 last:pb-0">
-                  <p className="text-[13px] leading-relaxed text-slate-800">{line.source}</p>
-                  <p className="mt-2 text-[13px] leading-relaxed text-slate-500">
-                    {line.translation}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card flush className="overflow-hidden">
-            <PanelHead title="Evidence" description={`${EVIDENCE_PHOTOS.length} photos`} />
-            <div className="grid gap-5 px-6 pb-6 sm:grid-cols-3">
-              {EVIDENCE_PHOTOS.map((photo) => (
-                <div key={photo.id}>
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100">
-                    <div className="absolute inset-0 grid-paper opacity-50" />
-                    {photo.annotations.map((a) => (
-                      <span
-                        key={a.id}
-                        className="absolute rounded-sm border border-sky-500/60 bg-sky-500/10"
-                        style={{
-                          left: `${a.x}%`,
-                          top: `${a.y}%`,
-                          width: `${a.w}%`,
-                          height: `${a.h}%`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <div className="mt-3 text-[13px] text-slate-600">{photo.caption}</div>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-slate-100 px-6 py-4 text-[11px] text-slate-400">
-              <span>{CAPTURE_META.gps}</span>
-              <span>{CAPTURE_META.capturedAt}</span>
-              <span className="ml-auto">metadata signed</span>
-            </div>
-          </Card>
-        </div>
-
-        <Card flush className="overflow-hidden">
-          <PanelHead title="Structured claim" description={`${oem.name} schema`} />
-
-          <div className="divide-y divide-slate-100 px-6 pb-6">
-            {CLAIM_FIELDS.map((field, i) => {
-              const low = field.confidence < CONFIDENCE_FLOOR
-              const isConfirmed = confirmed[field.id]
-              return (
-                <motion.div
-                  key={field.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: Math.min(i * 0.025, 0.25) }}
-                  className={cx(
-                    'py-4 first:pt-0 last:pb-0',
-                    low && !isConfirmed && '-mx-3 rounded-lg bg-amber-50/50 px-3',
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <label htmlFor={`f-${field.id}`} className="strong">
-                      {field.label}
-                    </label>
-                    {field.oemRequired && (
-                      <span className="text-rose-500" title="Required by this OEM">
-                        *
-                      </span>
-                    )}
-                    <SourceChip source={field.source} />
-                    {low && isConfirmed && (
-                      <span className="ml-auto text-[11px] font-medium text-emerald-600">
-                        confirmed
-                      </span>
-                    )}
-                  </div>
-
-                  <input
-                    id={`f-${field.id}`}
-                    value={values[field.id] ?? ''}
-                    onChange={(e) => setValues((v) => ({ ...v, [field.id]: e.target.value }))}
-                    className="num mt-2.5 h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-[13px] text-slate-900 focus:border-indigo-400 focus:outline-none"
-                  />
-
-                  <div className="mt-2.5 flex items-center gap-3">
-                    <ConfidenceBar value={field.confidence} compact className="flex-1" />
-                    {low && !isConfirmed && (
-                      <Button
-                        size="sm"
-                        variant="subtle"
-                        onClick={() => setConfirmed((c) => ({ ...c, [field.id]: true }))}
-                      >
-                        Confirm
-                      </Button>
-                    )}
-                  </div>
-
-                  {field.note && (
-                    <p className="mt-2 text-[11px] leading-relaxed text-slate-400">{field.note}</p>
-                  )}
-                </motion.div>
-              )
-            })}
+export default function Review({onContinue}:{onContinue:()=>void}){
+  const [fields,setFields]=useState(CLAIM_FIELDS)
+  const [confirmed,setConfirmed]=useState<Set<string>>(new Set())
+  return <div className="min-h-screen bg-[#FFFDF8] p-6 md:p-10 max-w-[760px] mx-auto">
+    <h1 className="text-[28px] font-bold text-[#2D2A26]">Review your draft</h1><p className="text-[#8A8580]">Tap any field to edit · dots = confidence</p>
+    <div className="bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden mt-6 divide-y divide-[#FFF3E0]">
+      {fields.map((f,i)=>{
+        const ok=confirmed.has(f.id)
+        return <motion.div key={f.id} initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} transition={{delay:i*0.03}} className={`flex items-center gap-4 p-4 ${f.confidence<0.7?"bg-[#FFF8E1]/60":""}`}>
+          <div className="flex-1">
+            <p className="text-xs font-bold tracking-widest text-[#B0A9A0]">{f.label.toUpperCase()} {f.oemRequired&&<span className="text-[#FF7043]">• required</span>}</p>
+            <input value={f.value} onChange={e=>setFields(fs=>fs.map(x=>x.id===f.id?{...x,value:e.target.value}:x))} className="mt-1 w-full bg-transparent font-medium text-[#2D2A26] outline-none border-b border-transparent focus:border-[#E0D9D0] pb-1"/>
+            {f.note&&<p className="text-xs text-[#8A8580] mt-1">💡 {f.note}</p>}
           </div>
-        </Card>
-      </div>
+          <div className="text-center shrink-0">
+            <div className="flex gap-1 justify-center">{Array.from({length:5}).map((_,k)=><span key={k} className={`w-2 h-2 rounded-full ${k < Math.round(f.confidence*5)?(f.confidence>0.8?"bg-[#81C784]":f.confidence>0.6?"bg-[#FFB74D]":"bg-[#EF5350]"):"bg-[#F0EBE3]"}`}/> )}</div>
+            <p className="text-[10px] text-[#B0A9A0] mt-1">{Math.round(f.confidence*100)}% · {f.source}</p>
+          </div>
+          <button onClick={()=>setConfirmed(s=>{const n=new Set(s);n.has(f.id)?n.delete(f.id):n.add(f.id);return n})} className={`w-8 h-8 rounded-full grid place-items-center shrink-0 border-2 ${ok?"bg-[#81C784] border-[#81C784] text-white":"border-[#F0EBE3] text-[#B0A9A0]"}`}>{ok?"✓":"○"}</button>
+        </motion.div>
+      })}
     </div>
-  )
-}
-
-function Metric({ value, label, tone }: { value: string; label: string; tone?: string }) {
-  return (
-    <div>
-      <div className={cx('num text-[20px] font-semibold leading-none', tone ?? 'text-slate-900')}>
-        {value}
-      </div>
-      <div className="mt-1.5 text-[11px] text-slate-400">{label}</div>
-    </div>
-  )
+    <button onClick={onContinue} className="w-full mt-6 bg-[#2D2A26] text-white rounded-[20px] py-4 font-semibold shadow-lg">Continue to OEM preview →</button>
+  </div>
 }

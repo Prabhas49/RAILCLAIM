@@ -37,10 +37,16 @@ export type IconName =
   | 'file'
   | 'chevronRight'
   | 'chevronDown'
+  | 'chevronLeft'
+  | 'bell'
   | 'search'
   | 'calendar'
   | 'database'
   | 'gauge'
+  | 'home'
+  | 'sparkles'
+  | 'history'
+  | 'export'
 
 const PATHS: Record<IconName, ReactNode> = {
   grid: (
@@ -49,6 +55,34 @@ const PATHS: Record<IconName, ReactNode> = {
       <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.8" />
       <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.8" />
       <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.8" />
+    </>
+  ),
+  home: (
+    <>
+      <path d="M3 10.5L12 3.5l9 7v9.5a1.5 1.5 0 0 1-1.5 1.5h-3V14a1.5 1.5 0 0 0-1.5-1.5h-6A1.5 1.5 0 0 0 7.5 14v6.5h-3A1.5 1.5 0 0 1 3 19z" />
+    </>
+  ),
+  sparkles: (
+    <>
+      <path d="M12 3.5l1.7 4.9 4.8 1.6-4.8 1.6L12 16.5l-1.7-4.9L5.5 10l4.8-1.6z" />
+      <path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" />
+      <path d="M5 15.5l.7 1.9 1.9.7-1.9.7L5 20.7l-.7-1.9L2.4 18l1.9-.7z" />
+    </>
+  ),
+  history: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.2V12l3.2 2" />
+      <path d="M8.5 5.2l1.2 1.8M15.5 5.2l-1.2 1.8" />
+    </>
+  ),
+  export: (
+    <>
+      <path d="M12 3.8v11" />
+      <path d="M8 11.2l4 4 4-4" />
+      <path d="M4.5 20.2h15" />
+      <path d="M7 7.5H6a1 1 0 0 0-1 1v1" />
+      <path d="M18 7.5h1a1 1 0 0 1 1 1v1" />
     </>
   ),
   mic: (
@@ -231,6 +265,13 @@ const PATHS: Record<IconName, ReactNode> = {
   ),
   chevronRight: <path d="M9.5 5.5l6.5 6.5-6.5 6.5" />,
   chevronDown: <path d="M6 9.5l6 6 6-6" />,
+  chevronLeft: <path d="M14.5 5.5l-6.5 6.5 6.5 6.5" />,
+  bell: (
+    <>
+      <path d="M12 21a2.5 2.5 0 0 0 2.5-2.5H9.5A2.5 2.5 0 0 0 12 21Z" />
+      <path d="M5.5 16.5V14a6.5 6.5 0 0 1 6.5-6.5A6.5 6.5 0 0 1 18.5 14v2.5H5.5Z" />
+    </>
+  ),
   search: (
     <>
       <circle cx="10.8" cy="10.8" r="6.3" />
