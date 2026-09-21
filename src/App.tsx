@@ -45,7 +45,7 @@ export default function App() {
 
   if (view === 'landing') {
     return (
-      <div className="min-h-screen bg-white text-ink selection:bg-black selection:text-white">
+      <div className="min-h-screen bg-black text-white selection:bg-[#00c2ff] selection:text-black">
         <AnimatePresence mode="wait">
           <motion.div
             key="landing"
@@ -62,10 +62,10 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#090E17] text-white flex select-none">
+    <div className="min-h-screen bg-black text-white flex select-none">
       <Sidebar current={view} onNavigate={navigate} running={running} />
 
-      <div className="flex min-w-0 flex-1 flex-col bg-[#090E17]">
+      <div className="flex min-w-0 flex-1 flex-col bg-black">
         <Topbar currentView={view} running={running} />
 
         <main className="px-8 py-8 w-full max-w-[1400px]">

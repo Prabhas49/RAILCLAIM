@@ -9,31 +9,32 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    background-color: #FFFFFF;
+    background-color: #000000;
+    color: #FFFFFF;
   }
   body {
-    background-color: #FFFFFF;
-    color: #0A0A0A;
+    background-color: #000000;
+    color: #FFFFFF;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
   ::selection {
-    background-color: #0A0A0A;
-    color: #FFFFFF;
+    background-color: #00C2FF;
+    color: #000000;
   }
 }
 
-/* Minimalist scrollbar */
+/* Minimalist dark scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFFFFF;
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4D4D4;
+  background: #262626;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #A3A3A3;
+  background: #404040;
 }

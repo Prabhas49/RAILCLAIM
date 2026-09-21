@@ -116,25 +116,25 @@ export default function Claims({
     switch (status) {
       case 'Under Engineer Review':
         return (
-          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#061826] text-[#00c2ff] border border-[#0092bf]">
+          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#292010] text-[#FFB703] border border-[#FFB703]/30">
             {status}
           </span>
         )
       case 'Missing Information':
         return (
-          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#1d1406] text-[#f59e0b] border border-[#d97706]">
+          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#2B1218] text-[#FF4D6D] border border-[#FF4D6D]/30">
             {status}
           </span>
         )
       case 'Submitted to OEM':
         return (
-          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#061e16] text-[#10b981] border border-[#059669]">
+          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#0C271E] text-[#06D6A0] border border-[#06D6A0]/30">
             {status}
           </span>
         )
       default:
         return (
-          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#0c1626] text-[#7d97b8] border border-[#17263d]">
+          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#141414] text-[#a1a1aa] border border-[#27272a]">
             {status}
           </span>
         )
@@ -145,13 +145,13 @@ export default function Claims({
     <div className="relative min-h-[calc(100vh-64px)] pb-28 text-white select-none">
       {/* ── Title & Eyebrow ────────────────────────────────────────── */}
       <div>
-        <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+        <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
           MAINTENANCE OPERATIONS
         </p>
         <h1 className="mt-1.5 text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Claims
         </h1>
-        <p className="mt-1.5 text-sm text-[#738ea8]">
+        <p className="mt-1.5 text-sm text-[#a1a1aa]">
           Track, review, and move evidence-backed claims forward.
         </p>
       </div>
@@ -172,7 +172,7 @@ export default function Claims({
       <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
         {/* Search input */}
         <div className="relative flex-1">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#4c678a]">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#71717a]">
             <svg
               className="h-4 w-4"
               fill="none"
@@ -192,7 +192,7 @@ export default function Claims({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search claims, equipment, or serial number"
-            className="w-full rounded-lg border border-[#17263d] bg-[#0c1626] py-2.5 pl-10 pr-4 text-xs text-white placeholder-[#4c678a] transition-all focus:border-[#00c2ff]/60 focus:outline-none"
+            className="w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-2.5 pl-10 pr-4 text-xs text-white placeholder-[#71717a] transition-all focus:border-[#00c2ff]/60 focus:outline-none"
           />
         </div>
 
@@ -207,11 +207,11 @@ export default function Claims({
                 setEquipmentDropdownOpen(false)
                 setDateDropdownOpen(false)
               }}
-              className="flex items-center gap-2.5 rounded-lg border border-[#17263d] bg-[#0c1626] px-4 py-2.5 text-xs text-[#7d97b8] transition-colors hover:text-white"
+              className="flex items-center gap-2.5 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-2.5 text-xs text-[#a1a1aa] transition-colors hover:text-white hover:border-[#333333]"
             >
               <span>{statusFilter}</span>
               <svg
-                className="w-3.5 h-3.5 text-[#4c678a]"
+                className="w-3.5 h-3.5 text-[#71717a]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -225,7 +225,7 @@ export default function Claims({
               </svg>
             </button>
             {statusDropdownOpen && (
-              <div className="absolute right-0 top-full z-20 mt-1 w-52 rounded-lg border border-[#17263d] bg-[#0c1626] py-1 shadow-xl">
+              <div className="absolute right-0 top-full z-20 mt-1 w-52 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-1 shadow-xl">
                 {statusOptions.map((opt) => (
                   <button
                     key={opt}
@@ -234,8 +234,8 @@ export default function Claims({
                       setStatusFilter(opt)
                       setStatusDropdownOpen(false)
                     }}
-                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#13233a] hover:text-white ${
-                      statusFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#7d97b8]'
+                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#141414] hover:text-white ${
+                      statusFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#a1a1aa]'
                     }`}
                   >
                     {opt}
@@ -254,11 +254,11 @@ export default function Claims({
                 setStatusDropdownOpen(false)
                 setDateDropdownOpen(false)
               }}
-              className="flex items-center gap-2.5 rounded-lg border border-[#17263d] bg-[#0c1626] px-4 py-2.5 text-xs text-[#7d97b8] transition-colors hover:text-white"
+              className="flex items-center gap-2.5 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-2.5 text-xs text-[#a1a1aa] transition-colors hover:text-white hover:border-[#333333]"
             >
               <span>{equipmentFilter}</span>
               <svg
-                className="w-3.5 h-3.5 text-[#4c678a]"
+                className="w-3.5 h-3.5 text-[#71717a]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -272,7 +272,7 @@ export default function Claims({
               </svg>
             </button>
             {equipmentDropdownOpen && (
-              <div className="absolute right-0 top-full z-20 mt-1 w-56 rounded-lg border border-[#17263d] bg-[#0c1626] py-1 shadow-xl">
+              <div className="absolute right-0 top-full z-20 mt-1 w-56 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-1 shadow-xl">
                 {equipmentOptions.map((opt) => (
                   <button
                     key={opt}
@@ -281,8 +281,8 @@ export default function Claims({
                       setEquipmentFilter(opt)
                       setEquipmentDropdownOpen(false)
                     }}
-                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#13233a] hover:text-white ${
-                      equipmentFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#7d97b8]'
+                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#141414] hover:text-white ${
+                      equipmentFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#a1a1aa]'
                     }`}
                   >
                     {opt}
@@ -301,11 +301,11 @@ export default function Claims({
                 setStatusDropdownOpen(false)
                 setEquipmentDropdownOpen(false)
               }}
-              className="flex items-center gap-2.5 rounded-lg border border-[#17263d] bg-[#0c1626] px-4 py-2.5 text-xs text-[#7d97b8] transition-colors hover:text-white"
+              className="flex items-center gap-2.5 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-2.5 text-xs text-[#a1a1aa] transition-colors hover:text-white hover:border-[#333333]"
             >
               <span>{dateFilter}</span>
               <svg
-                className="w-3.5 h-3.5 text-[#4c678a]"
+                className="w-3.5 h-3.5 text-[#71717a]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -319,7 +319,7 @@ export default function Claims({
               </svg>
             </button>
             {dateDropdownOpen && (
-              <div className="absolute right-0 top-full z-20 mt-1 w-40 rounded-lg border border-[#17263d] bg-[#0c1626] py-1 shadow-xl">
+              <div className="absolute right-0 top-full z-20 mt-1 w-40 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-1 shadow-xl">
                 {dateOptions.map((opt) => (
                   <button
                     key={opt}
@@ -328,8 +328,8 @@ export default function Claims({
                       setDateFilter(opt)
                       setDateDropdownOpen(false)
                     }}
-                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#13233a] hover:text-white ${
-                      dateFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#7d97b8]'
+                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#141414] hover:text-white ${
+                      dateFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#a1a1aa]'
                     }`}
                   >
                     {opt}
@@ -342,10 +342,10 @@ export default function Claims({
       </div>
 
       {/* ── Claims Data Table ─────────────────────────────────────────── */}
-      <div className="mt-6 rounded-xl border border-[#17263d] bg-[#0c1626] overflow-hidden shadow-sm">
+      <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[#17263d] text-[11px] font-semibold tracking-wider text-[#4c678a] uppercase">
+            <tr className="border-b border-[#1e1e1e] text-[11px] font-semibold tracking-wider text-[#71717a] uppercase">
               <th className="py-4 px-6 font-semibold w-44">CLAIM ID</th>
               <th className="py-4 px-6 font-semibold">EQUIPMENT / FAULT</th>
               <th className="py-4 px-6 font-semibold w-40">DATE</th>
@@ -354,10 +354,10 @@ export default function Claims({
               <th className="py-4 px-6 text-right w-12"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#132034]">
+          <tbody className="divide-y divide-[#1e1e1e]">
             {filteredClaims.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-xs text-[#4c678a]">
+                <td colSpan={6} className="py-12 text-center text-xs text-[#71717a]">
                   No claims found matching the filter criteria.
                 </td>
               </tr>
@@ -368,7 +368,7 @@ export default function Claims({
                   onClick={() => {
                     if (onSelectClaim) onSelectClaim(claim.id)
                   }}
-                  className="group hover:bg-[#101e33]/70 transition-colors cursor-pointer"
+                  className="group hover:bg-[#111111] transition-colors cursor-pointer"
                 >
                   {/* Claim ID */}
                   <td className="py-4 px-6 font-sans text-xs font-bold text-[#00c2ff]">
@@ -380,13 +380,13 @@ export default function Claims({
                     <p className="text-xs font-semibold text-white group-hover:text-[#00c2ff] transition-colors">
                       {claim.equipment}
                     </p>
-                    <p className="mt-0.5 text-xs text-[#6b85a6]">
+                    <p className="mt-0.5 text-xs text-[#a1a1aa]">
                       {claim.fault}
                     </p>
                   </td>
 
                   {/* Date */}
-                  <td className="py-4 px-6 text-xs text-[#a0b5cd]">
+                  <td className="py-4 px-6 text-xs text-[#d1d5db]">
                     {claim.date}
                   </td>
 
@@ -396,14 +396,14 @@ export default function Claims({
                   </td>
 
                   {/* Engineer */}
-                  <td className="py-4 px-6 text-xs text-[#a0b5cd]">
+                  <td className="py-4 px-6 text-xs text-[#d1d5db]">
                     {claim.engineer}
                   </td>
 
                   {/* Action Chevron */}
                   <td className="py-4 px-6 text-right">
                     <svg
-                      className="w-4 h-4 text-[#435c7a] group-hover:text-white transition-colors ml-auto"
+                      className="w-4 h-4 text-[#52525b] group-hover:text-white transition-colors ml-auto"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -425,7 +425,7 @@ export default function Claims({
 
       {/* ── Floating Bottom Pill Banner ──────────────────────────────── */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-4 rounded-full bg-[#0f1929]/95 backdrop-blur-md border border-[#1d2f4a] px-5 py-2 text-xs font-medium text-white shadow-2xl">
+        <div className="flex items-center gap-4 rounded-full bg-[#0a0a0a]/95 backdrop-blur-md border border-[#1e1e1e] px-5 py-2 text-xs font-medium text-white shadow-2xl">
           <span>
             {wokenServers
               ? 'Backend servers active. Real-time telemetry synchronized.'
@@ -437,7 +437,7 @@ export default function Claims({
             className={`rounded-full px-3.5 py-1 font-semibold transition-all ${
               wokenServers
                 ? 'bg-[#06D6A0]/20 text-[#06D6A0] border border-[#06D6A0]/40'
-                : 'bg-[#0c3134] text-[#14b8a6] border border-[#14b8a6]/40 hover:bg-[#104044]'
+                : 'bg-[#141414] text-[#00c2ff] border border-[#00c2ff]/40 hover:bg-[#1a1a1a]'
             }`}
           >
             {wokenServers ? 'Servers active ✓' : 'Wake up servers'}

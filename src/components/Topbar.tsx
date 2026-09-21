@@ -18,12 +18,12 @@ export function Topbar({ currentView = 'dashboard' }: { currentView?: ViewId; ru
   const currentTitle = VIEW_TITLES[currentView] ?? 'DASHBOARD'
 
   return (
-    <header className="h-16 px-8 border-b border-[#152338] bg-[#090E17] flex items-center justify-between select-none">
+    <header className="h-16 px-8 border-b border-[#1e1e1e] bg-black flex items-center justify-between select-none">
       {/* ── Breadcrumbs ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 font-mono text-xs font-semibold tracking-wider text-[#526E94]">
+      <div className="flex items-center gap-2 font-mono text-xs font-semibold tracking-wider text-[#71717a]">
         <span>RAILCLAIM AI</span>
         <span>&gt;</span>
-        <span className="text-white">{currentTitle}</span>
+        <span className="text-white font-bold">{currentTitle}</span>
       </div>
 
       {/* ── Right Icons ────────────────────────────────────────────── */}

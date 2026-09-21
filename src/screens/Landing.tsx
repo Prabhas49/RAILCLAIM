@@ -23,33 +23,32 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
   const [selectedOem, setSelectedOem] = useState<'mitsubishi' | 'hitachi' | 'kawasaki'>('mitsubishi')
 
   return (
-    <div className="min-h-screen bg-white text-ink selection:bg-black selection:text-white">
+    <div className="min-h-screen bg-[#000000] text-white selection:bg-white selection:text-black">
       {/* ── Top Header ────────────────────────────────────────────── */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-neutral-200 bg-white/90 backdrop-blur-md">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#1e1e1e] bg-[#000000]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black">
               <Icon name="train" className="h-4 w-4" />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-extrabold tracking-tight text-black">HASHI SETHU</span>
-              <span className="rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-neutral-600">
+              <span className="text-sm font-extrabold tracking-tight text-white">HASHI SETHU</span>
+              <span className="rounded border border-[#1e1e1e] bg-[#141414] px-1.5 py-0.5 font-mono text-[9px] font-semibold text-[#a1a1aa]">
                 橋・सेतु
               </span>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-xs font-medium text-neutral-600">
-            <a href="#pipeline" className="hover:text-black transition-colors">Architecture</a>
-            <a href="#oem-schemas" className="hover:text-black transition-colors">OEM Schemas</a>
-            <a href="#roi-calculator" className="hover:text-black transition-colors">Recovery Model</a>
-            <a href="#live-queue" className="hover:text-black transition-colors">Depot Telemetry</a>
+          <nav className="hidden md:flex items-center gap-8 text-xs font-medium text-[#a1a1aa]">
+            <a href="#pipeline" className="hover:text-white transition-colors">Architecture</a>
+            <a href="#oem-schemas" className="hover:text-white transition-colors">OEM Schemas</a>
+            <a href="#roi-calculator" className="hover:text-white transition-colors">Recovery Model</a>
           </nav>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => onEnter('dashboard')}
-              className="inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-neutral-800"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-black transition-all hover:bg-neutral-200"
             >
               <span>Operations Console</span>
               <Icon name="arrowRight" className="h-3.5 w-3.5" />
@@ -58,7 +57,7 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
         </div>
       </header>
 
-      {/* ── Hero Section (Huge Spacing & Clean Typography) ──────────── */}
+      {/* ── Hero Section ────────────────────────────────────────────── */}
       <section className="px-6 pt-40 pb-28 md:pt-48 md:pb-36">
         <div className="mx-auto max-w-5xl text-center">
           {/* Minimal Status Eyebrow */}
@@ -66,9 +65,9 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-xs font-mono text-neutral-600"
+            className="inline-flex items-center gap-2 rounded-full border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-1.5 text-xs font-mono text-[#a1a1aa]"
           >
-            <span className="h-2 w-2 rounded-full bg-emerald-600" />
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
             <span>FIELD PILOT // KOCHI · CHENNAI · MUMBAI METRO LINES</span>
           </motion.div>
 
@@ -77,7 +76,7 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-8 font-display text-5xl font-extrabold tracking-tight text-black sm:text-7xl lg:text-8xl leading-[1.05]"
+            className="mt-8 font-display text-5xl font-extrabold tracking-tight text-white sm:text-7xl lg:text-8xl leading-[1.05]"
           >
             Autonomous warranty recovery for rail networks.
           </motion.h1>
@@ -87,7 +86,7 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mx-auto mt-8 max-w-3xl text-lg sm:text-xl leading-relaxed text-neutral-600"
+            className="mx-auto mt-8 max-w-3xl text-lg sm:text-xl leading-relaxed text-[#a1a1aa]"
           >
             Turn raw depot telemetry, multilingual maintenance audio, and nameplate photos into formal, schema-compliant warranty claims for Japanese rolling stock suppliers in under 15 seconds.
           </motion.p>
@@ -101,7 +100,7 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
           >
             <button
               onClick={() => onEnter('capture')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-black px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-neutral-800"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-semibold text-black transition-all hover:bg-neutral-200"
             >
               <Icon name="mic" className="h-4 w-4" />
               <span>Simulate Field Capture</span>
@@ -109,7 +108,7 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
 
             <button
               onClick={() => onEnter('pipeline')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white px-8 py-4 text-sm font-semibold text-black transition-all hover:bg-neutral-50"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-[#262626] bg-[#0a0a0a] px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-[#141414]"
             >
               <Icon name="cpu" className="h-4 w-4" />
               <span>Inspect Neural Pipeline</span>
@@ -123,20 +122,20 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mx-auto mt-20 max-w-4xl text-left"
           >
-            <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
+            <div className="rounded-2xl border border-[#1e1e1e] bg-[#0a0a0a] shadow-card overflow-hidden">
               {/* Terminal Title Bar */}
-              <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+              <div className="flex items-center justify-between border-b border-[#1e1e1e] bg-[#000000] px-6 py-4">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs font-bold text-neutral-700">
+                  <span className="font-mono text-xs font-bold text-[#d1d5db]">
                     DISPATCH VOUCHER // CLM-2481
                   </span>
-                  <span className="rounded bg-neutral-200 px-2 py-0.5 font-mono text-[10px] font-bold text-neutral-700">
+                  <span className="rounded bg-[#141414] border border-[#262626] px-2 py-0.5 font-mono text-[10px] font-bold text-[#a1a1aa]">
                     MITSUBISHI MELCO-WS PROTOCOL
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 font-mono text-xs font-semibold text-emerald-700 border border-emerald-200">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-950/40 px-3 py-1 font-mono text-xs font-semibold text-emerald-400 border border-emerald-800/40">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     VERIFIED COMPLIANT
                   </span>
                 </div>
@@ -146,83 +145,83 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
               <div className="p-8 grid gap-8 md:grid-cols-12">
                 <div className="md:col-span-8 space-y-6">
                   <div>
-                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-neutral-500">
+                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-[#71717a]">
                       <span>EQUIPMENT REF:</span>
-                      <span className="text-black">RS-10-KM-0421</span>
+                      <span className="text-white">RS-10-KM-0421</span>
                     </div>
-                    <h2 className="text-2xl font-bold text-black mt-1">Traction Motor Unit · MB-5085-A</h2>
-                    <p className="font-mono text-xs text-neutral-500 mt-1">
+                    <h2 className="text-2xl font-bold text-white mt-1">Traction Motor Unit · MB-5085-A</h2>
+                    <p className="font-mono text-xs text-[#71717a] mt-1">
                       Kochi Metro · Muttom Depot Bay #4 · 18,420 Operating Hours
                     </p>
                   </div>
 
                   {/* High-Contrast Telemetry Metrics */}
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
-                      <p className="font-mono text-[10px] text-neutral-500 uppercase font-semibold">Failure Code</p>
-                      <p className="font-mono text-xl font-bold text-black mt-1">F042</p>
-                      <p className="text-[11px] text-neutral-600 font-mono mt-0.5">Mapped from E-042</p>
+                    <div className="rounded-xl bg-[#000000] border border-[#1e1e1e] p-4">
+                      <p className="font-mono text-[10px] text-[#71717a] uppercase font-semibold">Failure Code</p>
+                      <p className="font-mono text-xl font-bold text-white mt-1">F042</p>
+                      <p className="text-[11px] text-[#a1a1aa] font-mono mt-0.5">Mapped from E-042</p>
                     </div>
-                    <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
-                      <p className="font-mono text-[10px] text-neutral-500 uppercase font-semibold">Recoverable Sum</p>
-                      <p className="font-mono text-xl font-bold text-black mt-1">₹4,82,400</p>
-                      <p className="text-[11px] text-neutral-600 font-mono mt-0.5">¥872,000 equivalent</p>
+                    <div className="rounded-xl bg-[#000000] border border-[#1e1e1e] p-4">
+                      <p className="font-mono text-[10px] text-[#71717a] uppercase font-semibold">Recoverable Sum</p>
+                      <p className="font-mono text-xl font-bold text-white mt-1">₹4,82,400</p>
+                      <p className="text-[11px] text-[#a1a1aa] font-mono mt-0.5">¥872,000 equivalent</p>
                     </div>
-                    <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
-                      <p className="font-mono text-[10px] text-neutral-500 uppercase font-semibold">Confidence</p>
-                      <p className="font-mono text-xl font-bold text-emerald-600 mt-1">94.8%</p>
-                      <p className="text-[11px] text-neutral-600 font-mono mt-0.5">Dual-source validated</p>
+                    <div className="rounded-xl bg-[#000000] border border-[#1e1e1e] p-4">
+                      <p className="font-mono text-[10px] text-[#71717a] uppercase font-semibold">Confidence</p>
+                      <p className="font-mono text-xl font-bold text-emerald-400 mt-1">94.8%</p>
+                      <p className="text-[11px] text-[#a1a1aa] font-mono mt-0.5">Dual-source validated</p>
                     </div>
                   </div>
 
                   {/* Multi-modal Evidence Trace */}
-                  <div className="rounded-xl border border-neutral-200 bg-white p-4">
-                    <div className="flex items-center justify-between text-xs text-neutral-500 font-mono">
+                  <div className="rounded-xl border border-[#1e1e1e] bg-[#000000] p-4">
+                    <div className="flex items-center justify-between text-xs text-[#71717a] font-mono">
                       <span>VOICE TELEMETRY PROVENANCE (TAMIL VERNACULAR)</span>
-                      <span className="text-emerald-600 font-semibold">ASR CONFIDENCE: 96%</span>
+                      <span className="text-emerald-400 font-semibold">ASR CONFIDENCE: 96%</span>
                     </div>
-                    <p className="mt-2 text-sm text-neutral-700 italic">
+                    <p className="mt-2 text-sm text-[#d1d5db] italic">
                       "டிராக்ஷன் மோட்டார் அதிக சூடாகிறது, IGBT பால்ட் கோட் E-042 காட்டுகிறது..."
                     </p>
-                    <p className="mt-1.5 font-mono text-xs text-black font-medium">
+                    <p className="mt-1.5 font-mono text-xs text-white font-medium">
                       Standardized translation: "Traction motor thermal overload detected; IGBT fault code E-042 logged twice at 145°C."
                     </p>
                   </div>
                 </div>
 
                 {/* Right: Validation & OEM Specs */}
-                <div className="md:col-span-4 flex flex-col justify-between border-t md:border-t-0 md:border-l border-neutral-200 pt-6 md:pt-0 md:pl-8 space-y-6">
+                <div className="md:col-span-4 flex flex-col justify-between border-t md:border-t-0 md:border-l border-[#1e1e1e] pt-6 md:pt-0 md:pl-8 space-y-6">
                   <div>
-                    <span className="font-mono text-[10px] uppercase font-bold text-neutral-500">Target OEM Portal</span>
+                    <span className="font-mono text-[10px] uppercase font-bold text-[#71717a]">Target OEM Portal</span>
                     <div className="mt-2 flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-black flex items-center justify-center font-mono font-bold text-white text-xs">
+                      <div className="h-8 w-8 rounded-lg bg-white flex items-center justify-center font-mono font-bold text-black text-xs">
                         M
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-black">Mitsubishi Electric</p>
-                        <p className="font-mono text-xs text-neutral-500">MELCO-WS Portal</p>
+                        <p className="text-sm font-bold text-white">Mitsubishi Electric</p>
+                        <p className="font-mono text-xs text-[#71717a]">MELCO-WS Portal</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3 font-mono text-xs border-y border-neutral-200 py-4">
+                  <div className="space-y-3 font-mono text-xs border-y border-[#1e1e1e] py-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">Warranty Expiry</span>
-                      <span className="font-bold text-black">2027-03-14</span>
+                      <span className="text-[#71717a]">Warranty Expiry</span>
+                      <span className="font-bold text-white">2027-03-14</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">SLA Dispute Limit</span>
-                      <span className="font-bold text-black">30 Days</span>
+                      <span className="text-[#71717a]">SLA Dispute Limit</span>
+                      <span className="font-bold text-white">30 Days</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">Serial OCR Match</span>
-                      <span className="font-bold text-black">MB5085-2274-K</span>
+                      <span className="text-[#71717a]">Serial OCR Match</span>
+                      <span className="font-bold text-white">MB5085-2274-K</span>
                     </div>
                   </div>
 
                   <button
                     onClick={() => onEnter('review')}
-                    className="w-full rounded-full bg-black py-3 text-center font-mono text-xs font-semibold text-white hover:bg-neutral-800 transition-colors"
+                    className="w-full rounded-full bg-white py-3 text-center font-mono text-xs font-semibold text-black hover:bg-neutral-200 transition-colors"
                   >
                     Open Live Review Screen →
                   </button>
@@ -233,29 +232,29 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
         </div>
       </section>
 
-      {/* ── Key Performance Figures (Clean High Contrast) ───────────── */}
-      <section className="border-y border-neutral-200 bg-neutral-50 py-20">
+      {/* ── Key Performance Figures ─────────────────────────────────── */}
+      <section className="border-y border-[#1e1e1e] bg-[#000000] py-20">
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-            <div className="border-l-2 border-black pl-5">
-              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-black">₹14.2L</p>
-              <p className="text-xs font-bold text-neutral-800 mt-2 uppercase tracking-wide">Recovered This Month</p>
-              <p className="font-mono text-xs text-neutral-500 mt-1">Kochi Depot · 92% recovery rate</p>
+            <div className="border-l-2 border-white pl-5">
+              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-white">₹14.2L</p>
+              <p className="text-xs font-bold text-[#d1d5db] mt-2 uppercase tracking-wide">Recovered This Month</p>
+              <p className="font-mono text-xs text-[#71717a] mt-1">Kochi Depot · 92% recovery rate</p>
             </div>
-            <div className="border-l-2 border-black pl-5">
-              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-black">12.4s</p>
-              <p className="text-xs font-bold text-neutral-800 mt-2 uppercase tracking-wide">Mean Compilation Time</p>
-              <p className="font-mono text-xs text-neutral-500 mt-1">Voice + 3 photos to XML voucher</p>
+            <div className="border-l-2 border-white pl-5">
+              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-white">12.4s</p>
+              <p className="text-xs font-bold text-[#d1d5db] mt-2 uppercase tracking-wide">Mean Compilation Time</p>
+              <p className="font-mono text-xs text-[#71717a] mt-1">Voice + 3 photos to XML voucher</p>
             </div>
-            <div className="border-l-2 border-black pl-5">
-              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-black">0.0%</p>
-              <p className="text-xs font-bold text-neutral-800 mt-2 uppercase tracking-wide">Desk Rejection Rate</p>
-              <p className="font-mono text-xs text-neutral-500 mt-1">Pre-submission rule validation</p>
+            <div className="border-l-2 border-white pl-5">
+              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-white">0.0%</p>
+              <p className="text-xs font-bold text-[#d1d5db] mt-2 uppercase tracking-wide">Desk Rejection Rate</p>
+              <p className="font-mono text-xs text-[#71717a] mt-1">Pre-submission rule validation</p>
             </div>
-            <div className="border-l-2 border-black pl-5">
-              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-black">100%</p>
-              <p className="text-xs font-bold text-neutral-800 mt-2 uppercase tracking-wide">Cryptographic Traceability</p>
-              <p className="font-mono text-xs text-neutral-500 mt-1">SHA-256 tamper-evident chain</p>
+            <div className="border-l-2 border-white pl-5">
+              <p className="font-mono text-4xl sm:text-5xl font-extrabold text-white">100%</p>
+              <p className="text-xs font-bold text-[#d1d5db] mt-2 uppercase tracking-wide">Cryptographic Traceability</p>
+              <p className="font-mono text-xs text-[#71717a] mt-1">SHA-256 tamper-evident chain</p>
             </div>
           </div>
         </div>
@@ -264,13 +263,13 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
       {/* ── OEM Compatibility & Schema Matrix ──────────────────────── */}
       <section id="oem-schemas" className="py-32 px-6 mx-auto max-w-6xl">
         <div className="text-center max-w-3xl mx-auto">
-          <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-500">
+          <p className="font-mono text-xs font-bold uppercase tracking-widest text-[#71717a]">
             Multi-OEM Interoperability
           </p>
-          <h2 className="mt-3 font-display text-4xl sm:text-5xl font-bold text-black tracking-tight">
+          <h2 className="mt-3 font-display text-4xl sm:text-5xl font-bold text-white tracking-tight">
             Native Japanese Rolling Stock Protocols
           </h2>
-          <p className="mt-4 text-base text-neutral-600">
+          <p className="mt-4 text-base text-[#a1a1aa]">
             Eliminate cross-border formatting rejections. Hashi Sethu dynamically compiles claims into the native EDI and REST schemas mandated by Japan's tier-1 rolling stock manufacturers.
           </p>
         </div>
@@ -283,8 +282,8 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
               onClick={() => setSelectedOem(oem.id)}
               className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold transition-all border ${
                 selectedOem === oem.id
-                  ? 'bg-black text-white border-black'
-                  : 'bg-white text-neutral-700 border-neutral-300 hover:border-black'
+                  ? 'bg-white text-black border-white'
+                  : 'bg-[#0a0a0a] text-[#a1a1aa] border-[#1e1e1e] hover:border-neutral-500 hover:text-white'
               }`}
             >
               <span>{oem.name}</span>
@@ -294,33 +293,33 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
         </div>
 
         {/* Schema Comparison Terminal */}
-        <div className="mt-8 rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
-          <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50 px-6 py-4">
-            <div className="flex items-center gap-2 font-mono text-xs font-bold text-black">
-              <Icon name="terminal" className="h-4 w-4 text-neutral-700" />
+        <div className="mt-8 rounded-2xl border border-[#1e1e1e] bg-[#0a0a0a] shadow-card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[#1e1e1e] bg-[#000000] px-6 py-4">
+            <div className="flex items-center gap-2 font-mono text-xs font-bold text-white">
+              <Icon name="terminal" className="h-4 w-4 text-[#a1a1aa]" />
               <span>SCHEMA COMPILATION // {selectedOem.toUpperCase()} SPECIFICATION</span>
             </div>
-            <span className="font-mono text-xs text-neutral-500 font-semibold">
+            <span className="font-mono text-xs text-[#71717a] font-semibold">
               CONTRACTUAL SLA: {OEMS.find((o) => o.id === selectedOem)?.slaDays} DAYS
             </span>
           </div>
 
-          <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-neutral-200 p-6 gap-6">
+          <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#1e1e1e] p-6 gap-6">
             <div>
-              <p className="font-mono text-xs font-bold uppercase text-black mb-4">
+              <p className="font-mono text-xs font-bold uppercase text-white mb-4">
                 Mandatory OEM Portal Parameters
               </p>
               <div className="space-y-2.5">
                 {OEMS.find((o) => o.id === selectedOem)?.requiredFields.map((field) => (
                   <div
                     key={field}
-                    className="flex items-center justify-between rounded-lg bg-neutral-50 p-3 text-xs border border-neutral-200"
+                    className="flex items-center justify-between rounded-lg bg-[#000000] p-3 text-xs border border-[#1e1e1e]"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Icon name="check" className="h-3.5 w-3.5 text-black" />
-                      <span className="font-mono font-semibold text-black">{field}</span>
+                      <Icon name="check" className="h-3.5 w-3.5 text-white" />
+                      <span className="font-mono font-semibold text-white">{field}</span>
                     </div>
-                    <span className="font-mono text-[10px] text-neutral-500">
+                    <span className="font-mono text-[10px] text-[#71717a]">
                       Auto-extracted via {field.includes('photo') ? 'Vision OCR' : field.includes('failure') ? 'NLP Taxonomy' : 'Asset Telemetry'}
                     </span>
                   </div>
@@ -329,10 +328,10 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
             </div>
 
             <div>
-              <p className="font-mono text-xs font-bold uppercase text-black mb-4">
+              <p className="font-mono text-xs font-bold uppercase text-white mb-4">
                 Live Compiled XML/JSON Payload
               </p>
-              <pre className="rounded-xl bg-neutral-900 p-4 font-mono text-xs text-neutral-200 leading-relaxed overflow-x-auto">
+              <pre className="rounded-xl bg-[#000000] border border-[#1e1e1e] p-4 font-mono text-xs text-emerald-400 leading-relaxed overflow-x-auto">
                 {selectedOem === 'mitsubishi'
                   ? `<?xml version="1.0" encoding="UTF-8"?>
 <MELCO_CLAIM_V3>
@@ -375,16 +374,16 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
       </section>
 
       {/* ── Sub-15s Neural Architecture ─────────────────────────────── */}
-      <section id="pipeline" className="border-t border-neutral-200 bg-neutral-50 py-32 px-6">
+      <section id="pipeline" className="border-t border-[#1e1e1e] bg-[#000000] py-32 px-6">
         <div className="mx-auto max-w-6xl">
           <div className="text-center max-w-3xl mx-auto">
-            <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-500">
+            <p className="font-mono text-xs font-bold uppercase tracking-widest text-[#71717a]">
               Autonomous Verification Engine
             </p>
-            <h2 className="mt-3 font-display text-4xl sm:text-5xl font-bold text-black tracking-tight">
+            <h2 className="mt-3 font-display text-4xl sm:text-5xl font-bold text-white tracking-tight">
               The 6-Stage Sub-15 Second Pipeline
             </h2>
-            <p className="mt-4 text-base text-neutral-600">
+            <p className="mt-4 text-base text-[#a1a1aa]">
               Transforming raw depot reports into audit-grade vouchers before maintenance crews return to the control room.
             </p>
           </div>
@@ -436,19 +435,19 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
             ].map((s) => (
               <div
                 key={s.step}
-                className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card hover:border-black transition-all"
+                className="rounded-2xl border border-[#1e1e1e] bg-[#0a0a0a] p-6 shadow-card hover:border-[#333333] transition-all"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-black text-white">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-black">
                     <Icon name={s.icon as IconName} className="h-4 w-4" />
                   </div>
-                  <span className="font-mono text-xs font-bold text-neutral-400">{s.step}</span>
+                  <span className="font-mono text-xs font-bold text-[#71717a]">{s.step}</span>
                 </div>
-                <h3 className="mt-5 text-base font-bold text-black">{s.title}</h3>
-                <p className="mt-2 text-xs leading-relaxed text-neutral-600">{s.desc}</p>
-                <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-neutral-500 font-semibold uppercase">{s.tag}</span>
-                  <Icon name="check" className="h-3.5 w-3.5 text-black" />
+                <h3 className="mt-5 text-base font-bold text-white">{s.title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-[#a1a1aa]">{s.desc}</p>
+                <div className="mt-5 pt-4 border-t border-[#1e1e1e] flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-[#71717a] font-semibold uppercase">{s.tag}</span>
+                  <Icon name="check" className="h-3.5 w-3.5 text-white" />
                 </div>
               </div>
             ))}
@@ -458,18 +457,18 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
 
       {/* ── Interactive ROI Recovery Calculator ─────────────────────── */}
       <section id="roi-calculator" className="py-32 px-6 mx-auto max-w-6xl">
-        <div className="rounded-3xl border border-neutral-200 bg-white shadow-card p-8 sm:p-14">
+        <div className="rounded-3xl border border-[#1e1e1e] bg-[#0a0a0a] shadow-card p-8 sm:p-14">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             {/* Controls */}
             <div className="lg:col-span-6 space-y-8">
               <div>
-                <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-500">
+                <p className="font-mono text-xs font-bold uppercase tracking-widest text-[#71717a]">
                   Financial Impact Model
                 </p>
-                <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold text-black tracking-tight">
+                <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold text-white tracking-tight">
                   Estimate Unlocked Capital Recovery
                 </h2>
-                <p className="mt-3 text-sm text-neutral-600">
+                <p className="mt-3 text-sm text-[#a1a1aa]">
                   Calculate annual warranty revenue returned to your transit authority by eliminating expired SLA windows and untracked paperwork.
                 </p>
               </div>
@@ -477,8 +476,8 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
               {/* Slider 1 */}
               <div className="space-y-3">
                 <div className="flex justify-between text-xs font-mono">
-                  <label htmlFor={fleetId} className="font-bold text-black">Fleet Size (Carriages)</label>
-                  <span className="font-bold text-black">{fleetSize} Cars</span>
+                  <label htmlFor={fleetId} className="font-bold text-white">Fleet Size (Carriages)</label>
+                  <span className="font-bold text-white">{fleetSize} Cars</span>
                 </div>
                 <input
                   id={fleetId}
@@ -488,15 +487,15 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
                   step="5"
                   value={fleetSize}
                   onChange={(e) => setFleetSize(Number(e.target.value))}
-                  className="w-full accent-black cursor-pointer h-2 bg-neutral-200 rounded-lg"
+                  className="w-full accent-white cursor-pointer h-2 bg-[#1e1e1e] rounded-lg"
                 />
               </div>
 
               {/* Slider 2 */}
               <div className="space-y-3">
                 <div className="flex justify-between text-xs font-mono">
-                  <label htmlFor={failuresId} className="font-bold text-black">Monthly Warranty Incidents</label>
-                  <span className="font-bold text-black">{monthlyFailures} Failures/mo</span>
+                  <label htmlFor={failuresId} className="font-bold text-white">Monthly Warranty Incidents</label>
+                  <span className="font-bold text-white">{monthlyFailures} Failures/mo</span>
                 </div>
                 <input
                   id={failuresId}
@@ -506,15 +505,15 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
                   step="1"
                   value={monthlyFailures}
                   onChange={(e) => setMonthlyFailures(Number(e.target.value))}
-                  className="w-full accent-black cursor-pointer h-2 bg-neutral-200 rounded-lg"
+                  className="w-full accent-white cursor-pointer h-2 bg-[#1e1e1e] rounded-lg"
                 />
               </div>
 
               {/* Slider 3 */}
               <div className="space-y-3">
                 <div className="flex justify-between text-xs font-mono">
-                  <label htmlFor={claimId} className="font-bold text-black">Average Claim Value (INR)</label>
-                  <span className="font-bold text-black">₹{(avgClaimInr / 100000).toFixed(1)} Lakhs</span>
+                  <label htmlFor={claimId} className="font-bold text-white">Average Claim Value (INR)</label>
+                  <span className="font-bold text-white">₹{(avgClaimInr / 100000).toFixed(1)} Lakhs</span>
                 </div>
                 <input
                   id={claimId}
@@ -524,44 +523,44 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
                   step="50000"
                   value={avgClaimInr}
                   onChange={(e) => setAvgClaimInr(Number(e.target.value))}
-                  className="w-full accent-black cursor-pointer h-2 bg-neutral-200 rounded-lg"
+                  className="w-full accent-white cursor-pointer h-2 bg-[#1e1e1e] rounded-lg"
                 />
               </div>
             </div>
 
             {/* ROI Results Card */}
-            <div className="lg:col-span-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-8 sm:p-10 text-center sm:text-left">
-              <span className="inline-block rounded-full bg-black px-3 py-1 font-mono text-xs font-semibold text-white">
+            <div className="lg:col-span-6 rounded-2xl border border-[#1e1e1e] bg-[#000000] p-8 sm:p-10 text-center sm:text-left">
+              <span className="inline-block rounded-full bg-white px-3 py-1 font-mono text-xs font-semibold text-black">
                 ANNUAL RECOVERY DELTA
               </span>
 
               <div className="mt-6">
-                <p className="font-mono text-5xl sm:text-6xl font-extrabold text-black">
+                <p className="font-mono text-5xl sm:text-6xl font-extrabold text-white">
                   ₹{(annualUnlockedCapitalInr / 100000).toFixed(2)} Lakhs
                 </p>
-                <p className="mt-2 text-sm text-neutral-600 font-mono">
+                <p className="mt-2 text-sm text-[#a1a1aa] font-mono">
                   Additional revenue recovered from Japanese OEMs per year
                 </p>
               </div>
 
-              <div className="mt-8 grid grid-cols-2 gap-6 border-t border-neutral-200 pt-8 text-left">
+              <div className="mt-8 grid grid-cols-2 gap-6 border-t border-[#1e1e1e] pt-8 text-left">
                 <div>
-                  <p className="font-mono text-xs uppercase text-neutral-500 font-bold">Manual Email Disputes</p>
-                  <p className="font-mono text-2xl font-bold text-neutral-700 mt-1">₹{(manualRecoveryInr / 100000).toFixed(1)}L</p>
-                  <p className="text-xs text-neutral-500 font-mono mt-1">42% historical capture</p>
+                  <p className="font-mono text-xs uppercase text-[#71717a] font-bold">Manual Email Disputes</p>
+                  <p className="font-mono text-2xl font-bold text-[#a1a1aa] mt-1">₹{(manualRecoveryInr / 100000).toFixed(1)}L</p>
+                  <p className="text-xs text-[#71717a] font-mono mt-1">42% historical capture</p>
                 </div>
                 <div>
-                  <p className="font-mono text-xs uppercase text-neutral-500 font-bold">Hashi Sethu Automated</p>
-                  <p className="font-mono text-2xl font-bold text-black mt-1">₹{(automatedRecoveryInr / 100000).toFixed(1)}L</p>
-                  <p className="text-xs text-emerald-600 font-mono font-bold mt-1">86% verified capture</p>
+                  <p className="font-mono text-xs uppercase text-[#71717a] font-bold">Hashi Sethu Automated</p>
+                  <p className="font-mono text-2xl font-bold text-white mt-1">₹{(automatedRecoveryInr / 100000).toFixed(1)}L</p>
+                  <p className="text-xs text-emerald-400 font-mono font-bold mt-1">86% verified capture</p>
                 </div>
               </div>
 
-              <div className="mt-8 pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span className="text-xs text-neutral-600 font-mono font-bold">Payback Period: &lt; 2 Weeks</span>
+              <div className="mt-8 pt-8 border-t border-[#1e1e1e] flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span className="text-xs text-[#a1a1aa] font-mono font-bold">Payback Period: &lt; 2 Weeks</span>
                 <button
                   onClick={() => onEnter('dashboard')}
-                  className="w-full sm:w-auto rounded-full bg-black px-6 py-3 font-mono text-xs font-semibold text-white hover:bg-neutral-800 transition-colors"
+                  className="w-full sm:w-auto rounded-full bg-white px-6 py-3 font-mono text-xs font-semibold text-black hover:bg-neutral-200 transition-colors"
                 >
                   Deploy Pilot Depot →
                 </button>
@@ -573,41 +572,41 @@ export default function Landing({ onEnter }: { onEnter: (v: ViewId) => void }) {
 
       {/* ── Authority Verification Quote ────────────────────────────── */}
       <section className="py-28 px-6 mx-auto max-w-4xl text-center">
-        <div className="border border-neutral-200 rounded-3xl bg-white p-10 sm:p-14 shadow-card">
-          <p className="font-display text-2xl sm:text-3xl text-black leading-relaxed font-bold">
+        <div className="border border-[#1e1e1e] rounded-3xl bg-[#0a0a0a] p-10 sm:p-14 shadow-card">
+          <p className="font-display text-2xl sm:text-3xl text-white leading-relaxed font-bold">
             "Previously, filing rolling stock warranty claims required bilateral translations, manual part catalogs, and weeks of email threads between Kochi depot engineers and Kobe suppliers. Hashi Sethu generates verified, compliant vouchers before the train even returns to passenger service."
           </p>
           <div className="mt-8 flex items-center justify-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-black font-mono font-bold text-white flex items-center justify-center text-sm">
+            <div className="h-12 w-12 rounded-full bg-white font-mono font-bold text-black flex items-center justify-center text-sm">
               SI
             </div>
             <div className="text-left">
-              <p className="text-sm font-bold text-black">S. Iyer</p>
-              <p className="font-mono text-xs text-neutral-500">Chief Rolling Stock Division · Kochi Metro Rail Ltd</p>
+              <p className="text-sm font-bold text-white">S. Iyer</p>
+              <p className="font-mono text-xs text-[#71717a]">Chief Rolling Stock Division · Kochi Metro Rail Ltd</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────────── */}
-      <footer className="border-t border-neutral-200 py-12 px-6 bg-white">
+      <footer className="border-t border-[#1e1e1e] py-12 px-6 bg-[#000000]">
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded bg-black text-white">
+            <div className="flex h-7 w-7 items-center justify-center rounded bg-white text-black">
               <Icon name="train" className="h-4 w-4" />
             </div>
-            <span className="text-xs font-bold text-black">HASHI SETHU ENTERPRISE</span>
-            <span className="font-mono text-[10px] text-neutral-500">· 橋・सेतु JIS-D-4201 ACCORD</span>
+            <span className="text-xs font-bold text-white">HASHI SETHU ENTERPRISE</span>
+            <span className="font-mono text-[10px] text-[#71717a]">· 橋・सेतु JIS-D-4201 ACCORD</span>
           </div>
 
-          <div className="flex items-center gap-8 font-mono text-xs text-neutral-600">
-            <button onClick={() => onEnter('dashboard')} className="hover:text-black transition-colors">
+          <div className="flex items-center gap-8 font-mono text-xs text-[#a1a1aa]">
+            <button onClick={() => onEnter('dashboard')} className="hover:text-white transition-colors">
               Console
             </button>
-            <button onClick={() => onEnter('capture')} className="hover:text-black transition-colors">
+            <button onClick={() => onEnter('capture')} className="hover:text-white transition-colors">
               Field Capture
             </button>
-            <button onClick={() => onEnter('audit')} className="hover:text-black transition-colors">
+            <button onClick={() => onEnter('audit')} className="hover:text-white transition-colors">
               Cryptographic Ledger
             </button>
           </div>

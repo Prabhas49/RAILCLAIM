@@ -308,20 +308,20 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
       {/* ── Eyebrow & Title Row with Auto-saving draft ─────────────── */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
-          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
             NEW WARRANTY CLAIM
           </p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-white sm:text-4xl">
             Capture field evidence
           </h1>
-          <p className="mt-1.5 text-sm text-[#738ea8]">
+          <p className="mt-1.5 text-sm text-[#a1a1aa]">
             Start with the facts. RailClaim AI will structure the claim for engineer review.
           </p>
         </div>
 
         {/* Auto-saving draft indicator */}
         <div className="self-start md:self-auto">
-          <div className="inline-flex items-center gap-2 rounded-lg border border-[#17263d] bg-[#0c1626] px-3.5 py-1.5 text-xs text-[#a0b5cd]">
+          <div className="inline-flex items-center gap-2 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-3.5 py-1.5 text-xs text-[#d1d5db]">
             <span className="h-2 w-2 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981]" />
             <span className="font-medium">Auto-saving draft</span>
           </div>
@@ -339,7 +339,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
       )}
 
       {/* ── Stepper Navigation ──────────────────────────────────────── */}
-      <div className="mt-7 flex items-center gap-8 border-b border-[#17263d]">
+      <div className="mt-7 flex items-center gap-8 border-b border-[#1e1e1e]">
         {steps.map((step) => {
           const isActive = currentStep === step.num
           const isCompleted = currentStep > step.num
@@ -356,7 +356,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                     ? 'bg-[#00c2ff] text-black shadow-[0_0_10px_rgba(0,194,255,0.4)]'
                     : isCompleted
                     ? 'bg-[#10b981] text-black'
-                    : 'border border-[#1f324d] bg-[#0a1220] text-[#506c90]'
+                    : 'border border-[#262626] bg-[#141414] text-[#71717a]'
                 }`}
               >
                 {isCompleted ? '✓' : step.num}
@@ -365,7 +365,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                 className={`text-sm transition-colors ${
                   isActive
                     ? 'font-semibold text-white'
-                    : 'font-normal text-[#506c90] group-hover:text-[#8ba3c2]'
+                    : 'font-normal text-[#71717a] group-hover:text-white'
                 }`}
               >
                 {step.label}
@@ -395,31 +395,31 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.15 }}
-              className="rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm"
+              className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm"
             >
-              <div className="flex items-center justify-between border-b border-[#142135] pb-3 mb-6">
-                <span className="text-[11px] font-bold tracking-wider uppercase text-[#506c90]">
+              <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-3 mb-6">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-[#71717a]">
                   STEP 1 OF 4
                 </span>
-                <span className="text-xs text-[#506c90]">* Required</span>
+                <span className="text-xs text-[#71717a]">* Required</span>
               </div>
 
               <h2 className="text-2xl font-bold text-white">Equipment details</h2>
-              <p className="mt-1 text-sm text-[#738ea8] mb-7">
+              <p className="mt-1 text-sm text-[#a1a1aa] mb-7">
                 Required fields help reduce back-and-forth with engineering and the OEM.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Equipment Type */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                  <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                     Equipment type <span className="text-[#00c2ff]">*</span>
                   </label>
                   <div className="relative">
                     <select
                       value={equipmentType}
                       onChange={(e) => setEquipmentType(e.target.value)}
-                      className="w-full appearance-none rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                      className="w-full appearance-none rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                     >
                       <option value="Traction Motor">Traction Motor</option>
                       <option value="Brake Control Unit">Brake Control Unit</option>
@@ -436,7 +436,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
 
                 {/* Manufacturer */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                  <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                     Manufacturer <span className="text-[#00c2ff]">*</span>
                   </label>
                   <div className="relative">
@@ -445,7 +445,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                       value={manufacturer}
                       onChange={(e) => setManufacturer(e.target.value)}
                       placeholder="Example OEM"
-                      className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                      className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                     />
                     <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#00c2ff] text-xs">
                       *
@@ -455,59 +455,59 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
 
                 {/* Serial Number / Asset ID */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                  <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                     Serial number / Asset ID <span className="text-[#00c2ff]">*</span>
                   </label>
                   <input
                     type="text"
                     value={serialNumber}
                     onChange={(e) => setSerialNumber(e.target.value)}
-                    className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                    className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                   />
                 </div>
 
                 {/* Trainset / Car Number */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                  <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                     Trainset / Car number <span className="text-[#00c2ff]">*</span>
                   </label>
                   <input
                     type="text"
                     value={trainsetCar}
                     onChange={(e) => setTrainsetCar(e.target.value)}
-                    className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                    className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                   />
                 </div>
 
                 {/* Depot Location */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                  <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                     Depot location
                   </label>
                   <input
                     type="text"
                     value={depotLocation}
                     onChange={(e) => setDepotLocation(e.target.value)}
-                    className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                    className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                   />
                 </div>
 
                 {/* Operating Line */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                  <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                     Operating line
                   </label>
                   <input
                     type="text"
                     value={operatingLine}
                     onChange={(e) => setOperatingLine(e.target.value)}
-                    className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                    className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Card Footer Actions */}
-              <div className="mt-8 flex items-center justify-end pt-5 border-t border-[#142135]">
+              <div className="mt-8 flex items-center justify-end pt-5 border-t border-[#1e1e1e]">
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
@@ -530,54 +530,54 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.15 }}
-              className="rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm"
+              className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm"
             >
-              <div className="flex items-center justify-between border-b border-[#142135] pb-3 mb-6">
-                <span className="text-[11px] font-bold tracking-wider uppercase text-[#506c90]">
+              <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-3 mb-6">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-[#71717a]">
                   STEP 2 OF 4
                 </span>
-                <span className="text-xs text-[#506c90]">* Required</span>
+                <span className="text-xs text-[#71717a]">* Required</span>
               </div>
 
               <h2 className="text-2xl font-bold text-white">Fault information</h2>
-              <p className="mt-1 text-sm text-[#738ea8] mb-7">
+              <p className="mt-1 text-sm text-[#a1a1aa] mb-7">
                 Provide observed symptoms and technical diagnostics codes.
               </p>
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                  <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                     Observed fault symptom / Description <span className="text-[#00c2ff]">*</span>
                   </label>
                   <textarea
                     rows={3}
                     value={faultSummary}
                     onChange={(e) => setFaultSummary(e.target.value)}
-                    className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                    className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                    <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                       HMI diagnostic fault code <span className="text-[#00c2ff]">*</span>
                     </label>
                     <input
                       type="text"
                       value={faultCode}
                       onChange={(e) => setFaultCode(e.target.value)}
-                      className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                      className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                    <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                       Fault severity rating
                     </label>
                     <select
                       value={severity}
                       onChange={(e) => setSeverity(e.target.value)}
-                      className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                      className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                     >
                       <option value="Critical (Level 1)">Critical (Level 1)</option>
                       <option value="Major (Level 2)">Major (Level 2)</option>
@@ -586,25 +586,25 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#8ca3bf] mb-2">
+                    <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                       Peak operating temperature
                     </label>
                     <input
                       type="text"
                       value={operatingTemp}
                       onChange={(e) => setOperatingTemp(e.target.value)}
-                      className="w-full rounded-lg border border-[#18283f] bg-[#060e1b] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
+                      className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-[#00c2ff]/70 focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Card Footer Actions */}
-              <div className="mt-8 flex items-center justify-between pt-5 border-t border-[#142135]">
+              <div className="mt-8 flex items-center justify-between pt-5 border-t border-[#1e1e1e]">
                 <button
                   type="button"
                   onClick={() => setCurrentStep(1)}
-                  className="rounded-lg border border-[#17263d] px-5 py-2.5 text-xs font-semibold text-[#7d97b8] hover:text-white transition-colors"
+                  className="rounded-lg border border-[#1e1e1e] bg-[#141414] px-5 py-2.5 text-xs font-semibold text-[#a1a1aa] hover:text-white transition-colors"
                 >
                   ← Back to Equipment
                 </button>
@@ -633,8 +633,8 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
               className="space-y-6"
             >
               {/* Audio Studio Card */}
-              <div className="rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm">
-                <div className="flex items-center justify-between border-b border-[#142135] pb-4">
+              <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-4">
                   <div className="flex items-center gap-2.5">
                     <Icon name="mic" className="h-4 w-4 text-[#00c2ff]" />
                     <h3 className="text-xs font-bold uppercase tracking-wider text-white">
@@ -644,11 +644,11 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
 
                   {/* Language Selector */}
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="text-[#506c90]">Dialect:</span>
+                    <span className="text-[#71717a]">Dialect:</span>
                     <select
                       value={selectedLanguage}
                       onChange={(e) => setSelectedLanguage(e.target.value)}
-                      className="rounded border border-[#17263d] bg-[#060e1b] px-3 py-1 text-white font-medium focus:outline-none"
+                      className="rounded border border-[#1e1e1e] bg-[#000000] px-3 py-1 text-white font-medium focus:outline-none"
                     >
                       {LANGUAGES.map((l) => (
                         <option key={l.code} value={l.code}>
@@ -659,7 +659,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                   </div>
                 </div>
 
-                <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-6 rounded-lg bg-[#060e1b] border border-[#142135] p-6">
+                <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-6 rounded-lg bg-[#000000] border border-[#1e1e1e] p-6">
                   <div className="flex items-center gap-5">
                     <button
                       type="button"
@@ -691,20 +691,20 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                       <p className="text-2xl font-extrabold text-white mt-0.5">
                         {formatSeconds(recordSeconds)}
                       </p>
-                      <p className="text-xs text-[#506c90]">
+                      <p className="text-xs text-[#71717a]">
                         48kHz Sampling · Railway Terminology Bias Active
                       </p>
                     </div>
                   </div>
 
                   {/* Waveform */}
-                  <div className="flex items-center gap-1 h-12 bg-[#0c1626] rounded-lg px-4 border border-[#17263d]">
+                  <div className="flex items-center gap-1 h-12 bg-[#0a0a0a] rounded-lg px-4 border border-[#1e1e1e]">
                     {[12, 28, 45, 18, 62, 35, 80, 52, 95, 40, 75, 20, 60, 85, 30, 70, 48, 90, 25, 55, 38, 72].map(
                       (h, i) => (
                         <motion.div
                           key={i}
                           className={`w-1 rounded-full ${
-                            isRecording ? 'bg-[#00c2ff]' : 'bg-[#18283f]'
+                            isRecording ? 'bg-[#00c2ff]' : 'bg-[#262626]'
                           }`}
                           animate={
                             isRecording
@@ -726,8 +726,8 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
               </div>
 
               {/* Visual OCR Evidence Card with Real Image Upload Capability */}
-              <div className="rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142135] pb-4">
+              <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1e1e1e] pb-4">
                   <div className="flex items-center gap-2.5">
                     <Icon name="camera" className="h-4 w-4 text-[#00c2ff]" />
                     <h3 className="text-xs font-bold uppercase tracking-wider text-white">
@@ -759,7 +759,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                   {evidencePhotos.map((photo, idx) => (
                     <div
                       key={photo.id}
-                      className="rounded-lg border border-[#17263d] bg-[#060e1b] p-4 flex flex-col justify-between hover:border-[#00c2ff]/60 transition-all group"
+                      className="rounded-lg border border-[#1e1e1e] bg-[#000000] p-4 flex flex-col justify-between hover:border-[#00c2ff]/60 transition-all group"
                     >
                       {/* Hidden input for this specific photo slot */}
                       <input
@@ -792,7 +792,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                       {/* Display Image Box */}
                       <div
                         onClick={() => setActivePhotoModal(idx)}
-                        className="relative aspect-video rounded border border-[#18283f] bg-[#0c1626] flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:border-[#00c2ff]/60 transition-colors"
+                        className="relative aspect-video rounded border border-[#262626] bg-[#0a0a0a] flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:border-[#00c2ff]/60 transition-colors"
                       >
                         {photo.dataUrl ? (
                           <img
@@ -802,7 +802,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                           />
                         ) : (
                           <div className="text-center p-3">
-                            <span className="text-[10px] uppercase text-[#506c90] font-bold">
+                            <span className="text-[10px] uppercase text-[#71717a] font-bold">
                               OCR DETECTED [{photo.confidence}%]
                             </span>
                             <p className="text-sm font-bold text-[#00c2ff] mt-0.5">{photo.tag}</p>
@@ -828,7 +828,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                       </div>
 
                       {/* Footer Actions */}
-                      <div className="mt-3 pt-2 border-t border-[#142135] flex items-center justify-between text-[10px] text-[#506c90]">
+                      <div className="mt-3 pt-2 border-t border-[#1e1e1e] flex items-center justify-between text-[10px] text-[#71717a]">
                         <span className="truncate">
                           {photo.tag || `${photo.annotations.length} Annotations`}
                         </span>
@@ -850,7 +850,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="rounded-lg border border-[#17263d] bg-[#0c1626] px-5 py-2.5 text-xs font-semibold text-[#7d97b8] hover:text-white transition-colors"
+                  className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-5 py-2.5 text-xs font-semibold text-[#a1a1aa] hover:text-white transition-colors"
                 >
                   ← Back to Fault Info
                 </button>
@@ -876,71 +876,71 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.15 }}
-              className="rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm"
+              className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm"
             >
-              <div className="flex items-center justify-between border-b border-[#142135] pb-3 mb-6">
-                <span className="text-[11px] font-bold tracking-wider uppercase text-[#506c90]">
+              <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-3 mb-6">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-[#71717a]">
                   STEP 4 OF 4
                 </span>
                 <span className="text-xs text-emerald-400 font-bold">ALL CRITERIA SATISFIED</span>
               </div>
 
               <h2 className="text-2xl font-bold text-white">Review & analyze claim</h2>
-              <p className="mt-1 text-sm text-[#738ea8] mb-7">
+              <p className="mt-1 text-sm text-[#a1a1aa] mb-7">
                 Verify structured facts before launching the neural warranty evaluation pipeline.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="rounded-lg bg-[#060e1b] border border-[#142135] p-5 space-y-3 text-xs">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#506c90]">
+                <div className="rounded-lg bg-[#000000] border border-[#1e1e1e] p-5 space-y-3 text-xs">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#71717a]">
                     Equipment Summary
                   </p>
                   <div className="flex justify-between">
-                    <span className="text-[#738ea8]">Equipment:</span>
+                    <span className="text-[#a1a1aa]">Equipment:</span>
                     <span className="font-semibold text-white">{equipmentType}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#738ea8]">Manufacturer:</span>
+                    <span className="text-[#a1a1aa]">Manufacturer:</span>
                     <span className="font-semibold text-white">{manufacturer}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#738ea8]">Asset ID:</span>
+                    <span className="text-[#a1a1aa]">Asset ID:</span>
                     <span className="font-mono text-[#00c2ff] font-bold">{serialNumber}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#738ea8]">Trainset:</span>
+                    <span className="text-[#a1a1aa]">Trainset:</span>
                     <span className="font-semibold text-white">{trainsetCar}</span>
                   </div>
                 </div>
 
-                <div className="rounded-lg bg-[#060e1b] border border-[#142135] p-5 space-y-3 text-xs">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#506c90]">
+                <div className="rounded-lg bg-[#000000] border border-[#1e1e1e] p-5 space-y-3 text-xs">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#71717a]">
                     Diagnostic & Telemetry
                   </p>
                   <div className="flex justify-between">
-                    <span className="text-[#738ea8]">HMI Fault Code:</span>
+                    <span className="text-[#a1a1aa]">HMI Fault Code:</span>
                     <span className="font-bold text-amber-400">{faultCode}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#738ea8]">Severity:</span>
+                    <span className="text-[#a1a1aa]">Severity:</span>
                     <span className="font-bold text-rose-400">{severity}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#738ea8]">Operating Temp:</span>
+                    <span className="text-[#a1a1aa]">Operating Temp:</span>
                     <span className="font-semibold text-white">{operatingTemp}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#738ea8]">Evidence Count:</span>
+                    <span className="text-[#a1a1aa]">Evidence Count:</span>
                     <span className="font-bold text-emerald-400">1 Audio + {evidencePhotos.length} Visual Artifacts</span>
                   </div>
                 </div>
               </div>
 
               {/* Big CTA */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-[#142135] bg-[#060e1b] p-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-[#1e1e1e] bg-[#000000] p-6">
                 <div>
                   <p className="text-sm font-bold text-white">Telemetric Payload Ready for Submission</p>
-                  <p className="text-xs text-[#506c90] mt-0.5">
+                  <p className="text-xs text-[#71717a] mt-0.5">
                     Payload: {(2.4 + evidencePhotos.length * 1.2).toFixed(1)} MB · JIS-E-4001 Compliant · SHA-256 Hashed
                   </p>
                 </div>
@@ -961,7 +961,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(3)}
-                  className="rounded-lg border border-[#17263d] px-5 py-2.5 text-xs font-semibold text-[#7d97b8] hover:text-white transition-colors"
+                  className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-5 py-2.5 text-xs font-semibold text-[#a1a1aa] hover:text-white transition-colors"
                 >
                   ← Back to Evidence
                 </button>
@@ -974,22 +974,22 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
       {/* ── Photo Modal ─────────────────────────────────────────────── */}
       {activePhotoModal !== null && evidencePhotos[activePhotoModal] && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-          <div className="w-full max-w-xl rounded-xl border border-[#17263d] bg-[#0c1626] p-6 shadow-2xl text-white">
-            <div className="flex items-center justify-between border-b border-[#142135] pb-4">
+          <div className="w-full max-w-xl rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-6 shadow-2xl text-white">
+            <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-4">
               <span className="text-xs font-bold uppercase text-[#00c2ff]">
                 {evidencePhotos[activePhotoModal].caption} // OCR Inspection
               </span>
               <button
                 type="button"
                 onClick={() => setActivePhotoModal(null)}
-                className="rounded p-1.5 text-[#506c90] hover:text-white hover:bg-[#18283f]"
+                className="rounded p-1.5 text-[#71717a] hover:text-white hover:bg-[#18283f]"
               >
                 ✕
               </button>
             </div>
 
             {/* High Res Image */}
-            <div className="mt-4 aspect-video w-full rounded-lg overflow-hidden border border-[#18283f] bg-[#060c18] flex items-center justify-center">
+            <div className="mt-4 aspect-video w-full rounded-lg overflow-hidden border border-[#262626] bg-black flex items-center justify-center">
               {evidencePhotos[activePhotoModal].dataUrl ? (
                 <img
                   src={evidencePhotos[activePhotoModal].dataUrl}
@@ -1005,12 +1005,12 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
               )}
             </div>
 
-            <div className="mt-4 rounded-lg bg-[#060e1b] p-4 border border-[#142135] space-y-3 text-xs">
-              <p className="text-[#506c90] font-bold">Annotations Extracted:</p>
+            <div className="mt-4 rounded-lg bg-[#000000] p-4 border border-[#1e1e1e] space-y-3 text-xs">
+              <p className="text-[#71717a] font-bold">Annotations Extracted:</p>
               {evidencePhotos[activePhotoModal].annotations.map((a) => (
-                <div key={a.id} className="flex justify-between items-center rounded bg-[#0c1626] p-3 border border-[#17263d]">
+                <div key={a.id} className="flex justify-between items-center rounded bg-[#0a0a0a] p-3 border border-[#1e1e1e]">
                   <div>
-                    <span className="text-[#506c90] text-[10px] font-bold">{a.label}:</span>
+                    <span className="text-[#71717a] text-[10px] font-bold">{a.label}:</span>
                     <span className="ml-2 font-bold text-white">{a.value}</span>
                   </div>
                   <span className="text-[#00c2ff] font-bold">{Math.round(a.confidence * 100)}% Match</span>
@@ -1040,7 +1040,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
 
       {/* ── Floating Bottom Pill Banner ──────────────────────────────── */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-4 rounded-full bg-[#0f1929]/95 backdrop-blur-md border border-[#1d2f4a] px-5 py-2 text-xs font-medium text-white shadow-2xl">
+        <div className="flex items-center gap-4 rounded-full bg-[#0a0a0a]/95 backdrop-blur-md border border-[#1e1e1e] px-5 py-2 text-xs font-medium text-white shadow-2xl">
           <span>
             {wokenServers
               ? 'Backend servers active. Real-time telemetry synchronized.'
@@ -1052,7 +1052,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
             className={`rounded-full px-3.5 py-1 font-semibold transition-all ${
               wokenServers
                 ? 'bg-[#06D6A0]/20 text-[#06D6A0] border border-[#06D6A0]/40'
-                : 'bg-[#0c3134] text-[#14b8a6] border border-[#14b8a6]/40 hover:bg-[#104044]'
+                : 'bg-[#141414] text-[#00c2ff] border border-[#00c2ff]/40 hover:bg-[#1a1a1a]'
             }`}
           >
             {wokenServers ? 'Servers active ✓' : 'Wake up servers'}

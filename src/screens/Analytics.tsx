@@ -34,13 +34,13 @@ export default function Analytics({
     <div className="relative min-h-[calc(100vh-64px)] pb-28 text-white select-none">
       {/* ── Title & Eyebrow ────────────────────────────────────────── */}
       <div>
-        <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+        <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
           MAINTENANCE OPERATIONS
         </p>
         <h1 className="mt-1.5 text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Analytics
         </h1>
-        <p className="mt-1.5 text-sm text-[#738ea8]">
+        <p className="mt-1.5 text-sm text-[#a1a1aa]">
           A clear view of claim throughput and evidence readiness.
         </p>
       </div>
@@ -48,11 +48,11 @@ export default function Analytics({
       {/* ── Top Two Cards Grid ──────────────────────────────────────── */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Card 1: Preparation Volume (Claims Over Time) */}
-        <div className="lg:col-span-7 rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-7 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+                <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
                   CLAIMS OVER TIME
                 </p>
                 <h2 className="mt-1 text-2xl font-bold text-white tracking-tight">
@@ -61,14 +61,14 @@ export default function Analytics({
               </div>
               <div className="text-right">
                 <span className="text-2xl font-extrabold text-white">24</span>
-                <span className="text-sm font-medium text-[#738ea8] ml-1.5">claims</span>
+                <span className="text-sm font-medium text-[#a1a1aa] ml-1.5">claims</span>
               </div>
             </div>
           </div>
 
           {/* 12-Month Bar Chart */}
           <div className="mt-8">
-            <div className="h-48 flex items-end justify-between gap-2 sm:gap-3 px-2 border-b border-[#17263d]/60 pb-2">
+            <div className="h-48 flex items-end justify-between gap-2 sm:gap-3 px-2 border-b border-[#1e1e1e] pb-2">
               {monthlyData.map((d, i) => (
                 <div
                   key={i}
@@ -78,7 +78,7 @@ export default function Analytics({
                 >
                   {/* Tooltip on hover */}
                   {hoveredBar === i && (
-                    <div className="absolute -top-8 bg-[#060e1b] border border-[#17263d] text-[#00c2ff] text-[10px] font-bold py-1 px-2 rounded shadow-lg whitespace-nowrap z-10">
+                    <div className="absolute -top-8 bg-black border border-[#1e1e1e] text-[#00c2ff] text-[10px] font-bold py-1 px-2 rounded shadow-lg whitespace-nowrap z-10">
                       {d.value} claims
                     </div>
                   )}
@@ -96,7 +96,7 @@ export default function Analytics({
             </div>
 
             {/* X-Axis Month Labels */}
-            <div className="flex justify-between gap-2 sm:gap-3 px-2 mt-2.5 text-[11px] font-medium text-[#506c90]">
+            <div className="flex justify-between gap-2 sm:gap-3 px-2 mt-2.5 text-[11px] font-medium text-[#71717a]">
               {monthlyData.map((d, i) => (
                 <span key={i} className="flex-1 text-center">
                   {d.label}
@@ -107,7 +107,7 @@ export default function Analytics({
         </div>
 
         {/* Card 2: Readiness Score (Evidence Completeness) */}
-        <div className="lg:col-span-5 rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-5 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm flex flex-col justify-between">
           <div>
             <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#10b981]">
               READINESS SCORE
@@ -127,7 +127,7 @@ export default function Analytics({
                   cy="80"
                   r={radius}
                   fill="transparent"
-                  stroke="#1c283a"
+                  stroke="#1e1e1e"
                   strokeWidth="16"
                 />
                 {/* Active Cyan Progress Arc */}
@@ -164,43 +164,43 @@ export default function Analytics({
       {/* ── Lower Breakdown Section ─────────────────────────────────── */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Metric 1 */}
-        <div className="rounded-xl border border-[#17263d] bg-[#0c1626] p-6 shadow-sm">
-          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-6 shadow-sm">
+          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
             DISPUTE AVOIDANCE
           </p>
           <p className="mt-2 text-3xl font-extrabold text-white">99.4%</p>
-          <p className="mt-1 text-xs text-[#738ea8]">
+          <p className="mt-1 text-xs text-[#a1a1aa]">
             Claims accepted on first submission without OEM dispute
           </p>
-          <div className="mt-4 h-1.5 w-full bg-[#18283f] rounded-full overflow-hidden">
+          <div className="mt-4 h-1.5 w-full bg-[#1e1e1e] rounded-full overflow-hidden">
             <div className="h-full bg-[#10b981] rounded-full" style={{ width: '99.4%' }} />
           </div>
         </div>
 
         {/* Metric 2 */}
-        <div className="rounded-xl border border-[#17263d] bg-[#0c1626] p-6 shadow-sm">
-          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-6 shadow-sm">
+          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
             AVERAGE REVIEW SPEED
           </p>
           <p className="mt-2 text-3xl font-extrabold text-[#00c2ff]">3.2 hrs</p>
-          <p className="mt-1 text-xs text-[#738ea8]">
+          <p className="mt-1 text-xs text-[#a1a1aa]">
             Time from depot incident capture to engineer dispatch
           </p>
-          <div className="mt-4 h-1.5 w-full bg-[#18283f] rounded-full overflow-hidden">
+          <div className="mt-4 h-1.5 w-full bg-[#1e1e1e] rounded-full overflow-hidden">
             <div className="h-full bg-[#00c2ff] rounded-full" style={{ width: '85%' }} />
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="rounded-xl border border-[#17263d] bg-[#0c1626] p-6 shadow-sm">
-          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-6 shadow-sm">
+          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
             WARRANTY RECOVERY
           </p>
           <p className="mt-2 text-3xl font-extrabold text-emerald-400">₹38,20,000</p>
-          <p className="mt-1 text-xs text-[#738ea8]">
+          <p className="mt-1 text-xs text-[#a1a1aa]">
             Recovered from Japanese OEM warranty clauses this quarter
           </p>
-          <div className="mt-4 h-1.5 w-full bg-[#18283f] rounded-full overflow-hidden">
+          <div className="mt-4 h-1.5 w-full bg-[#1e1e1e] rounded-full overflow-hidden">
             <div className="h-full bg-emerald-400 rounded-full" style={{ width: '92%' }} />
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function Analytics({
 
       {/* ── Floating Bottom Pill Banner ──────────────────────────────── */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-4 rounded-full bg-[#0f1929]/95 backdrop-blur-md border border-[#1d2f4a] px-5 py-2 text-xs font-medium text-white shadow-2xl">
+        <div className="flex items-center gap-4 rounded-full bg-[#0a0a0a]/95 backdrop-blur-md border border-[#1e1e1e] px-5 py-2 text-xs font-medium text-white shadow-2xl">
           <span>
             {wokenServers
               ? 'Backend servers active. Real-time telemetry synchronized.'
@@ -220,7 +220,7 @@ export default function Analytics({
             className={`rounded-full px-3.5 py-1 font-semibold transition-all ${
               wokenServers
                 ? 'bg-[#06D6A0]/20 text-[#06D6A0] border border-[#06D6A0]/40'
-                : 'bg-[#0c3134] text-[#14b8a6] border border-[#14b8a6]/40 hover:bg-[#104044]'
+                : 'bg-[#141414] text-[#00c2ff] border border-[#00c2ff]/40 hover:bg-[#1a1a1a]'
             }`}
           >
             {wokenServers ? 'Servers active ✓' : 'Wake up servers'}

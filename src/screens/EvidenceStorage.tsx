@@ -170,13 +170,13 @@ export default function EvidenceStorage({
 
       {/* ── Title & Eyebrow ────────────────────────────────────────── */}
       <div>
-        <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+        <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
           EVIDENCE VAULT
         </p>
         <h1 className="mt-1.5 text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Evidence Storage
         </h1>
-        <p className="mt-1.5 text-sm text-[#738ea8]">
+        <p className="mt-1.5 text-sm text-[#a1a1aa]">
           Original field files are preserved separately from AI-generated findings.
         </p>
       </div>
@@ -194,7 +194,7 @@ export default function EvidenceStorage({
       {/* ── Top Two Cards Grid (Matching reference pixel-to-pixel) ── */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: Secure Evidence Vault */}
-        <div className="rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm flex flex-col justify-between">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm flex flex-col justify-between">
           <div>
             {/* Cloud Icon */}
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#082236] border border-[#00c2ff]/30 text-[#00c2ff]">
@@ -216,7 +216,7 @@ export default function EvidenceStorage({
             <h2 className="mt-5 text-2xl font-bold text-white tracking-tight">
               Secure evidence vault
             </h2>
-            <p className="mt-2 text-sm text-[#738ea8] leading-relaxed">
+            <p className="mt-2 text-sm text-[#a1a1aa] leading-relaxed">
               Upload a photo, video, or voice note. Files are validated, assigned a collision-safe path, and stored behind the API.
             </p>
           </div>
@@ -242,15 +242,15 @@ export default function EvidenceStorage({
               </svg>
               <span>Upload evidence</span>
             </button>
-            <span className="text-xs text-[#506c90]">
+            <span className="text-xs text-[#71717a]">
               {photos.length} photos in persistent storage
             </span>
           </div>
         </div>
 
         {/* Card 2: Protection Controls */}
-        <div className="rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm">
-          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm">
+          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
             DATA INTEGRITY
           </p>
           <h2 className="mt-1 text-2xl font-bold text-white tracking-tight">
@@ -267,7 +267,7 @@ export default function EvidenceStorage({
               </div>
               <div>
                 <p className="text-sm font-bold text-white">Original preserved</p>
-                <p className="text-xs text-[#738ea8] mt-0.5">No AI overwrite</p>
+                <p className="text-xs text-[#a1a1aa] mt-0.5">No AI overwrite</p>
               </div>
             </div>
 
@@ -280,7 +280,7 @@ export default function EvidenceStorage({
               </div>
               <div>
                 <p className="text-sm font-bold text-white">50 MB limit</p>
-                <p className="text-xs text-[#738ea8] mt-0.5">Validated before storage</p>
+                <p className="text-xs text-[#a1a1aa] mt-0.5">Validated before storage</p>
               </div>
             </div>
 
@@ -293,7 +293,7 @@ export default function EvidenceStorage({
               </div>
               <div>
                 <p className="text-sm font-bold text-white">Soft delete</p>
-                <p className="text-xs text-[#738ea8] mt-0.5">Audit-safe retention</p>
+                <p className="text-xs text-[#a1a1aa] mt-0.5">Audit-safe retention</p>
               </div>
             </div>
           </div>
@@ -301,19 +301,19 @@ export default function EvidenceStorage({
       </div>
 
       {/* ── SPECIFIC SECTION: Persistent Uploaded Photos & Evidence Gallery ─ */}
-      <div className="mt-8 rounded-xl border border-[#17263d] bg-[#0c1626] p-7 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#17263d] pb-5">
+      <div className="mt-8 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#1e1e1e] pb-5">
           <div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#00c2ff] shadow-[0_0_8px_#00c2ff]" />
-              <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#506c90]">
+              <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
                 PERSISTENT EVIDENCE VAULT
               </p>
             </div>
             <h3 className="mt-1 text-xl font-bold text-white tracking-tight">
               Uploaded Field Evidence & Photo Gallery
             </h3>
-            <p className="mt-1 text-xs text-[#738ea8]">
+            <p className="mt-1 text-xs text-[#a1a1aa]">
               All photos uploaded here or during claim capture remain persistently stored in browser storage. Click any photo to inspect.
             </p>
           </div>
@@ -326,7 +326,7 @@ export default function EvidenceStorage({
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 photoFilter === 'all'
                   ? 'bg-[#00c2ff] text-black'
-                  : 'border border-[#17263d] text-[#738ea8] hover:text-white'
+                  : 'border border-[#1e1e1e] text-[#a1a1aa] hover:text-white'
               }`}
             >
               All Photos ({photos.length})
@@ -337,7 +337,7 @@ export default function EvidenceStorage({
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 photoFilter === 'user'
                   ? 'bg-[#00c2ff] text-black'
-                  : 'border border-[#17263d] text-[#738ea8] hover:text-white'
+                  : 'border border-[#1e1e1e] text-[#a1a1aa] hover:text-white'
               }`}
             >
               User Uploaded ({photos.filter((p) => p.isUserUploaded).length})
@@ -352,7 +352,7 @@ export default function EvidenceStorage({
                   setEvidenceList(INITIAL_VAULT_FILES)
                 }
               }}
-              className="rounded-lg border border-[#17263d] px-2.5 py-1.5 text-xs text-[#506c90] hover:text-rose-400 transition-colors"
+              className="rounded-lg border border-[#1e1e1e] px-2.5 py-1.5 text-xs text-[#71717a] hover:text-rose-400 transition-colors"
               title="Reset gallery to defaults"
             >
               Reset
@@ -372,10 +372,10 @@ export default function EvidenceStorage({
           className={`mt-6 rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all ${
             isDragging
               ? 'border-[#00c2ff] bg-[#00c2ff]/10'
-              : 'border-[#17263d] bg-[#081220]/60 hover:border-[#00c2ff]/60 hover:bg-[#0a1628]'
+              : 'border-[#1e1e1e] bg-black hover:border-[#00c2ff]/60 hover:bg-[#111111]'
           }`}
         >
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-[#0c1a2d] border border-[#17263d] text-[#00c2ff] mb-2">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-[#141414] border border-[#1e1e1e] text-[#00c2ff] mb-2">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -383,7 +383,7 @@ export default function EvidenceStorage({
           <p className="text-xs font-bold text-white">
             Drag and drop new field photos here, or <span className="text-[#00c2ff]">browse files</span>
           </p>
-          <p className="text-[11px] text-[#506c90] mt-1">
+          <p className="text-[11px] text-[#71717a] mt-1">
             PNG, JPG, WEBP or Telemetry logs up to 50 MB · Automatically synchronized across all claims
           </p>
         </div>
@@ -393,12 +393,12 @@ export default function EvidenceStorage({
           {filteredPhotos.map((photo) => (
             <div
               key={photo.id}
-              className="group relative rounded-xl border border-[#17263d] bg-[#081220] overflow-hidden flex flex-col justify-between hover:border-[#00c2ff]/60 transition-all shadow-md"
+              className="group relative rounded-xl border border-[#1e1e1e] bg-black overflow-hidden flex flex-col justify-between hover:border-[#00c2ff]/60 transition-all shadow-md"
             >
               {/* Top thumbnail image */}
               <div
                 onClick={() => setInspectModalPhoto(photo)}
-                className="relative aspect-video w-full bg-[#060c18] overflow-hidden cursor-pointer"
+                className="relative aspect-video w-full bg-black overflow-hidden cursor-pointer"
               >
                 <img
                   src={photo.dataUrl}
@@ -440,21 +440,21 @@ export default function EvidenceStorage({
                   <span className="truncate text-xs font-bold text-white" title={photo.name}>
                     {photo.name}
                   </span>
-                  <span className="shrink-0 text-[11px] text-[#506c90] ml-2">
+                  <span className="shrink-0 text-[11px] text-[#71717a] ml-2">
                     {photo.fileSize}
                   </span>
                 </div>
 
                 {photo.ocrTag && (
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="text-[10px] text-[#506c90] font-semibold">TAG:</span>
+                    <span className="text-[10px] text-[#71717a] font-semibold">TAG:</span>
                     <span className="font-mono text-xs font-bold text-[#00c2ff]">
                       {photo.ocrTag}
                     </span>
                   </div>
                 )}
 
-                <div className="mt-3 pt-2.5 border-t border-[#17263d]/80 flex items-center justify-between text-[10px] text-[#506c90]">
+                <div className="mt-3 pt-2.5 border-t border-[#1e1e1e] flex items-center justify-between text-[10px] text-[#71717a]">
                   <span className="font-mono">{photo.hash}</span>
                   <div className="flex items-center gap-2">
                     <button
@@ -482,17 +482,17 @@ export default function EvidenceStorage({
       </div>
 
       {/* ── Stored Evidence Files Table ──────────────────────────────── */}
-      <div className="mt-8 rounded-xl border border-[#17263d] bg-[#0c1626] overflow-hidden shadow-sm">
-        <div className="px-6 py-4 border-b border-[#17263d] flex items-center justify-between">
-          <span className="text-xs font-bold tracking-wider text-[#506c90] uppercase">
+      <div className="mt-8 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-[#1e1e1e] flex items-center justify-between">
+          <span className="text-xs font-bold tracking-wider text-[#71717a] uppercase">
             STORED EVIDENCE FILES ({evidenceList.length})
           </span>
-          <span className="text-xs text-[#738ea8]">Immutable Vault Storage: JIS-E-4001 Compliant</span>
+          <span className="text-xs text-[#a1a1aa]">Immutable Vault Storage: JIS-E-4001 Compliant</span>
         </div>
 
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[#17263d] text-[11px] font-semibold tracking-wider text-[#4c678a] uppercase">
+            <tr className="border-b border-[#1e1e1e] text-[11px] font-semibold tracking-wider text-[#71717a] uppercase">
               <th className="py-4 px-6 font-semibold w-40">CLAIM ID</th>
               <th className="py-4 px-6 font-semibold">FILE NAME</th>
               <th className="py-4 px-6 font-semibold w-40">FORMAT</th>
@@ -502,11 +502,11 @@ export default function EvidenceStorage({
               <th className="py-4 px-6 text-right w-24">ACTION</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#132034]">
+          <tbody className="divide-y divide-[#1e1e1e]">
             {evidenceList.map((file) => (
               <tr
                 key={file.id}
-                className="group hover:bg-[#101e33]/70 transition-colors"
+                className="group hover:bg-[#111111] transition-colors"
               >
                 {/* Claim ID */}
                 <td className="py-4 px-6 font-sans text-xs font-bold text-[#00c2ff]">
@@ -520,21 +520,21 @@ export default function EvidenceStorage({
                       {file.name}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#506c90] mt-0.5">ID: {file.id} · {file.date}</p>
+                  <p className="text-[11px] text-[#71717a] mt-0.5">ID: {file.id} · {file.date}</p>
                 </td>
 
                 {/* Format */}
-                <td className="py-4 px-6 text-xs text-[#a0b5cd]">
+                <td className="py-4 px-6 text-xs text-[#d1d5db]">
                   {file.format}
                 </td>
 
                 {/* Size */}
-                <td className="py-4 px-6 text-xs text-[#a0b5cd]">
+                <td className="py-4 px-6 text-xs text-[#d1d5db]">
                   {file.size}
                 </td>
 
                 {/* Hash */}
-                <td className="py-4 px-6 font-mono text-[11px] text-[#506c90]">
+                <td className="py-4 px-6 font-mono text-[11px] text-[#71717a]">
                   {file.hash}
                 </td>
 
@@ -579,8 +579,8 @@ export default function EvidenceStorage({
       {/* ── Photo High-Res Inspection Modal ─────────────────────────── */}
       {inspectModalPhoto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-          <div className="w-full max-w-2xl rounded-xl border border-[#17263d] bg-[#0c1626] p-6 shadow-2xl text-white">
-            <div className="flex items-center justify-between border-b border-[#17263d] pb-4">
+          <div className="w-full max-w-2xl rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-6 shadow-2xl text-white">
+            <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-4">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#00c2ff]">
                   VAULT EVIDENCE INSPECTION // {inspectModalPhoto.claimId}
@@ -592,14 +592,14 @@ export default function EvidenceStorage({
               <button
                 type="button"
                 onClick={() => setInspectModalPhoto(null)}
-                className="rounded p-1.5 text-[#506c90] hover:text-white hover:bg-[#18283f] transition-colors"
+                className="rounded p-1.5 text-[#71717a] hover:text-white hover:bg-[#18283f] transition-colors"
               >
                 ✕
               </button>
             </div>
 
             {/* High Res Image */}
-            <div className="mt-4 aspect-video w-full rounded-lg overflow-hidden border border-[#18283f] bg-[#060c18] flex items-center justify-center">
+            <div className="mt-4 aspect-video w-full rounded-lg overflow-hidden border border-[#262626] bg-black flex items-center justify-center">
               <img
                 src={inspectModalPhoto.dataUrl}
                 alt={inspectModalPhoto.name}
@@ -609,26 +609,26 @@ export default function EvidenceStorage({
 
             {/* Telemetry & Metadata Grid */}
             <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div className="rounded-lg bg-[#081220] border border-[#17263d] p-3">
-                <span className="text-[10px] text-[#506c90] uppercase font-bold">SHA-256 Hash</span>
+              <div className="rounded-lg bg-black border border-[#1e1e1e] p-3">
+                <span className="text-[10px] text-[#71717a] uppercase font-bold">SHA-256 Hash</span>
                 <p className="font-mono text-[11px] text-[#00c2ff] font-semibold truncate mt-1">
                   {inspectModalPhoto.hash}
                 </p>
               </div>
-              <div className="rounded-lg bg-[#081220] border border-[#17263d] p-3">
-                <span className="text-[10px] text-[#506c90] uppercase font-bold">File Size</span>
+              <div className="rounded-lg bg-black border border-[#1e1e1e] p-3">
+                <span className="text-[10px] text-[#71717a] uppercase font-bold">File Size</span>
                 <p className="text-white font-semibold mt-1">
                   {inspectModalPhoto.fileSize}
                 </p>
               </div>
-              <div className="rounded-lg bg-[#081220] border border-[#17263d] p-3">
-                <span className="text-[10px] text-[#506c90] uppercase font-bold">Uploaded At</span>
+              <div className="rounded-lg bg-black border border-[#1e1e1e] p-3">
+                <span className="text-[10px] text-[#71717a] uppercase font-bold">Uploaded At</span>
                 <p className="text-white font-semibold mt-1">
                   {inspectModalPhoto.uploadTime}
                 </p>
               </div>
-              <div className="rounded-lg bg-[#081220] border border-[#17263d] p-3">
-                <span className="text-[10px] text-[#506c90] uppercase font-bold">Integrity State</span>
+              <div className="rounded-lg bg-black border border-[#1e1e1e] p-3">
+                <span className="text-[10px] text-[#71717a] uppercase font-bold">Integrity State</span>
                 <p className="text-emerald-400 font-bold mt-1">
                   Immutable Vault ✓
                 </p>
@@ -639,7 +639,7 @@ export default function EvidenceStorage({
               <button
                 type="button"
                 onClick={() => setInspectModalPhoto(null)}
-                className="rounded-lg border border-[#17263d] px-4 py-2 text-xs font-semibold text-[#738ea8] hover:text-white"
+                className="rounded-lg border border-[#1e1e1e] bg-[#141414] px-4 py-2 text-xs font-semibold text-[#a1a1aa] hover:text-white"
               >
                 Close
               </button>
@@ -662,7 +662,7 @@ export default function EvidenceStorage({
 
       {/* ── Floating Bottom Pill Banner ──────────────────────────────── */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-4 rounded-full bg-[#0f1929]/95 backdrop-blur-md border border-[#1d2f4a] px-5 py-2 text-xs font-medium text-white shadow-2xl">
+        <div className="flex items-center gap-4 rounded-full bg-[#0a0a0a]/95 backdrop-blur-md border border-[#1e1e1e] px-5 py-2 text-xs font-medium text-white shadow-2xl">
           <span>
             {wokenServers
               ? 'Backend servers active. Real-time telemetry synchronized.'
@@ -674,7 +674,7 @@ export default function EvidenceStorage({
             className={`rounded-full px-3.5 py-1 font-semibold transition-all ${
               wokenServers
                 ? 'bg-[#06D6A0]/20 text-[#06D6A0] border border-[#06D6A0]/40'
-                : 'bg-[#0c3134] text-[#14b8a6] border border-[#14b8a6]/40 hover:bg-[#104044]'
+                : 'bg-[#141414] text-[#00c2ff] border border-[#00c2ff]/40 hover:bg-[#1a1a1a]'
             }`}
           >
             {wokenServers ? 'Servers active ✓' : 'Wake up servers'}

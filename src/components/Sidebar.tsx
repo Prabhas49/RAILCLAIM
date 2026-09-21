@@ -31,10 +31,10 @@ export function Sidebar({
   running?: boolean
 }) {
   return (
-    <aside className="w-[230px] shrink-0 min-h-screen bg-[#060B14] border-r border-[#152338] flex flex-col p-4 select-none">
+    <aside className="w-[230px] shrink-0 min-h-screen bg-black border-r border-[#1e1e1e] flex flex-col p-4 select-none">
       {/* ── Brand Header ────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 px-2 py-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
-        <div className="h-8 w-8 rounded-[6px] bg-[#00C2FF] flex items-center justify-center font-black text-white text-xs tracking-tight shadow-sm">
+        <div className="h-8 w-8 rounded-[6px] bg-[#00C2FF] flex items-center justify-center font-black text-black text-xs tracking-tight shadow-sm">
           RC
         </div>
         <span className="font-extrabold tracking-tight text-white text-sm">
@@ -44,7 +44,7 @@ export function Sidebar({
 
       {/* ── WORKSPACE Section ───────────────────────────────────────── */}
       <div className="mt-6">
-        <p className="px-3 text-[10px] font-bold tracking-widest text-[#4B6180] uppercase">
+        <p className="px-3 text-[10px] font-bold tracking-widest text-[#71717a] uppercase">
           WORKSPACE
         </p>
 
@@ -67,20 +67,20 @@ export function Sidebar({
                 className={cx(
                   'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-[#10243E] text-white shadow-sm'
-                    : 'text-[#7086A3] hover:text-white hover:bg-[#0D1B2E]'
+                    ? 'bg-[#141414] text-white border border-[#2a2a2a] shadow-sm'
+                    : 'text-[#9ca3af] hover:text-white hover:bg-[#111111]'
                 )}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     name={item.icon}
-                    className={cx('h-4 w-4', isActive ? 'text-[#00C2FF]' : 'text-[#526E94]')}
+                    className={cx('h-4 w-4', isActive ? 'text-[#00C2FF]' : 'text-[#71717a]')}
                   />
                   <span>{item.label}</span>
                 </div>
 
                 {item.badge !== undefined && (
-                  <span className="h-5 min-w-[20px] px-1 rounded-full bg-[#0A2E46] text-[#00C2FF] text-[10px] font-bold flex items-center justify-center border border-[#00C2FF]/30">
+                  <span className="h-5 min-w-[20px] px-1 rounded-full bg-[#0a1b28] text-[#00C2FF] text-[10px] font-bold flex items-center justify-center border border-[#00C2FF]/30">
                     {item.badge}
                   </span>
                 )}
@@ -92,7 +92,7 @@ export function Sidebar({
 
       {/* ── SYSTEM Section ─────────────────────────────────────────── */}
       <div className="mt-8">
-        <p className="px-3 text-[10px] font-bold tracking-widest text-[#4B6180] uppercase">
+        <p className="px-3 text-[10px] font-bold tracking-widest text-[#71717a] uppercase">
           SYSTEM
         </p>
 
@@ -101,9 +101,9 @@ export function Sidebar({
             <button
               key={item.id}
               type="button"
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-[#7086A3] hover:text-white hover:bg-[#0D1B2E] transition-all"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-[#9ca3af] hover:text-white hover:bg-[#111111] transition-all"
             >
-              <Icon name={item.icon} className="h-4 w-4 text-[#526E94]" />
+              <Icon name={item.icon} className="h-4 w-4 text-[#71717a]" />
               <span>{item.label}</span>
             </button>
           ))}

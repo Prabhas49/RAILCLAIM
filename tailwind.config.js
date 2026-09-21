@@ -4,18 +4,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#0A0A0A',
-        muted: '#737373',
-        subtle: '#A3A3A3',
-        line: '#E5E5E5',
-        canvas: '#FFFFFF',
-        surface: '#FAFAFA',
-        panel: '#F5F5F5',
+        ink: '#FFFFFF',
+        muted: '#A1A1AA',
+        subtle: '#71717A',
+        line: '#1E1E1E',
+        canvas: '#000000',
+        surface: '#0A0A0A',
+        panel: '#141414',
         accent: {
-          blue: '#2563EB',
-          emerald: '#16A34A',
-          amber: '#D97706',
-          rose: '#DC2626',
+          blue: '#00C2FF',
+          emerald: '#10B981',
+          amber: '#F59E0B',
+          rose: '#EF4444',
         },
       },
       fontFamily: {

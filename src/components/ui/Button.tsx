@@ -6,10 +6,10 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive'
 type Size = 'sm' | 'md'
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-ink text-white border border-ink shadow-soft hover:bg-[#1e1e20] hover:shadow-float active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100',
-  secondary: 'bg-white text-ink border border-line hover:bg-subtle hover:border-line active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed',
-  ghost: 'bg-transparent text-ink border border-transparent hover:bg-subtle active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed',
-  destructive: 'bg-white text-[#DC2626] border border-[#FECACA] hover:bg-[#FFF1F2] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed',
+  primary: 'bg-white text-black border border-white shadow-sm hover:bg-neutral-200 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100',
+  secondary: 'bg-[#141414] text-white border border-[#262626] hover:bg-[#222222] active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed',
+  ghost: 'bg-transparent text-white border border-transparent hover:bg-[#141414] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed',
+  destructive: 'bg-[#200b0b] text-[#ff6b6b] border border-[#5c1d1d] hover:bg-[#301010] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed',
 }
 
 const SIZES: Record<Size, string> = {

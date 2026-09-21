@@ -35,13 +35,13 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
       {/* ── 4 Stat Metric Cards ─────────────────────────────────────── */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Card 1: Total claims */}
-        <div className="rounded-xl border border-[#162740] bg-[#0B1526] p-5 shadow-sm">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0A263B] border border-[#00C2FF]/20 text-[#00C2FF]">
               <Icon name="file" className="h-5 w-5" />
             </div>
             <div className="text-right">
-              <span className="text-xs font-medium text-[#7D93B2]">Total claims</span>
+              <span className="text-xs font-medium text-[#a1a1aa]">Total claims</span>
               <p className="mt-1 text-3xl font-extrabold text-white">24</p>
             </div>
           </div>
@@ -51,13 +51,13 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
         </div>
 
         {/* Card 2: Awaiting review */}
-        <div className="rounded-xl border border-[#162740] bg-[#0B1526] p-5 shadow-sm">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#292010] border border-[#FFB703]/20 text-[#FFB703]">
               <Icon name="clock" className="h-5 w-5" />
             </div>
             <div className="text-right">
-              <span className="text-xs font-medium text-[#7D93B2]">Awaiting review</span>
+              <span className="text-xs font-medium text-[#a1a1aa]">Awaiting review</span>
               <p className="mt-1 text-3xl font-extrabold text-white">06</p>
             </div>
           </div>
@@ -67,13 +67,13 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
         </div>
 
         {/* Card 3: Missing evidence */}
-        <div className="rounded-xl border border-[#162740] bg-[#0B1526] p-5 shadow-sm">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2B1218] border border-[#FF4D6D]/20 text-[#FF4D6D]">
               <Icon name="alert" className="h-5 w-5" />
             </div>
             <div className="text-right">
-              <span className="text-xs font-medium text-[#7D93B2]">Missing evidence</span>
+              <span className="text-xs font-medium text-[#a1a1aa]">Missing evidence</span>
               <p className="mt-1 text-3xl font-extrabold text-white">04</p>
             </div>
           </div>
@@ -83,13 +83,13 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
         </div>
 
         {/* Card 4: Submitted to OEM */}
-        <div className="rounded-xl border border-[#162740] bg-[#0B1526] p-5 shadow-sm">
+        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0C271E] border border-[#06D6A0]/20 text-[#06D6A0]">
               <Icon name="send" className="h-5 w-5" />
             </div>
             <div className="text-right">
-              <span className="text-xs font-medium text-[#7D93B2]">Submitted to OEM</span>
+              <span className="text-xs font-medium text-[#a1a1aa]">Submitted to OEM</span>
               <p className="mt-1 text-3xl font-extrabold text-white">09</p>
             </div>
           </div>
@@ -102,9 +102,9 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
       {/* ── Bottom Section: LIVE WORK QUEUE & PORTFOLIO ─────────────── */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left: LIVE WORK QUEUE */}
-        <div className="lg:col-span-8 rounded-xl border border-[#162740] bg-[#0B1526] p-5 shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#152338] pb-4">
-            <h2 className="text-xs font-bold tracking-wider uppercase text-[#526E94]">
+        <div className="lg:col-span-8 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-4">
+            <h2 className="text-xs font-bold tracking-wider uppercase text-[#71717a]">
               LIVE WORK QUEUE
             </h2>
             <button
@@ -115,14 +115,14 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
             </button>
           </div>
 
-          <div className="divide-y divide-[#152338]">
+          <div className="divide-y divide-[#1e1e1e]">
             {CLAIM_QUEUE.slice(0, 5).map((claim) => {
               const oem = OEM_BY_ID[claim.oem]
               return (
                 <div
                   key={claim.id}
                   onClick={() => onNavigate('claims')}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 px-2 hover:bg-[#0E1E36] rounded-lg transition-colors cursor-pointer gap-2"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 px-2 hover:bg-[#111111] rounded-lg transition-colors cursor-pointer gap-2"
                 >
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-xs font-bold text-white bg-[#10243E] px-2 py-0.5 rounded border border-[#182F4D]">
@@ -159,9 +159,9 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
         </div>
 
         {/* Right: PORTFOLIO */}
-        <div className="lg:col-span-4 rounded-xl border border-[#162740] bg-[#0B1526] p-5 shadow-sm">
-          <div className="border-b border-[#152338] pb-4">
-            <h2 className="text-xs font-bold tracking-wider uppercase text-[#526E94]">
+        <div className="lg:col-span-4 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
+          <div className="border-b border-[#1e1e1e] pb-4">
+            <h2 className="text-xs font-bold tracking-wider uppercase text-[#71717a]">
               PORTFOLIO
             </h2>
             <p className="text-xs font-semibold text-white mt-1">Status overview</p>
@@ -179,15 +179,15 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
                   <span>{st.label}</span>
                   <span className="font-mono text-white font-bold">{st.count} ({st.share}%)</span>
                 </div>
-                <div className="h-1.5 w-full rounded-full bg-[#0E1E36] overflow-hidden">
+                <div className="h-1.5 w-full rounded-full bg-[#1e1e1e] overflow-hidden">
                   <div className={`h-full rounded-full ${st.color}`} style={{ width: `${st.share}%` }} />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-[#152338] flex items-center justify-between text-xs">
-            <span className="text-[#7D93B2]">OEM Partner SLA Status</span>
+          <div className="mt-6 pt-4 border-t border-[#1e1e1e] flex items-center justify-between text-xs">
+            <span className="text-[#71717a]">OEM Partner SLA Status</span>
             <span className="text-[#06D6A0] font-bold">100% In-Window</span>
           </div>
         </div>

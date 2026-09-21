@@ -37,14 +37,14 @@ export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkf
   }
 
   return (
-    <div className="mb-8 rounded-2xl border border-neutral-200 bg-white p-4 shadow-card">
+    <div className="mb-8 rounded-2xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 shadow-sm">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Left: Hackathon Jury Badge & Context */}
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-black px-3 py-1 font-mono text-[10px] font-bold uppercase text-white tracking-wider">
+          <span className="rounded-full bg-white px-3 py-1 font-mono text-[10px] font-bold uppercase text-black tracking-wider">
             JURY DEMO FLOW
           </span>
-          <span className="font-mono text-xs text-neutral-500 hidden sm:inline">
+          <span className="font-mono text-xs text-neutral-400 hidden sm:inline">
             Autonomous Depot → OEM Claim Lifecycle
           </span>
         </div>
@@ -61,10 +61,10 @@ export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkf
                   onClick={() => onNavigate(s.id)}
                   className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-mono transition-all whitespace-nowrap ${
                     isCurrent
-                      ? 'bg-black text-white font-bold'
+                      ? 'bg-white text-black font-bold'
                       : isPast
-                      ? 'bg-neutral-100 text-black font-semibold hover:bg-neutral-200'
-                      : 'text-neutral-400 hover:text-black'
+                      ? 'bg-[#18181b] text-white font-semibold hover:bg-[#27272a] border border-[#27272a]'
+                      : 'text-neutral-500 hover:text-white'
                   }`}
                 >
                   {isPast ? <Icon name="check" className="h-3 w-3" /> : <span>{s.step}</span>}
@@ -80,7 +80,7 @@ export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkf
           {isWorkflowView && currentIndex > 0 && (
             <button
               onClick={handlePrev}
-              className="rounded-full border border-neutral-300 px-3.5 py-1.5 text-black hover:bg-neutral-50 transition-colors font-medium"
+              className="rounded-full border border-[#27272a] bg-[#141414] px-3.5 py-1.5 text-white hover:bg-[#222222] transition-colors font-medium"
             >
               ← Prev Step
             </button>
@@ -89,14 +89,14 @@ export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkf
           {isWorkflowView ? (
             <button
               onClick={handleNext}
-              className="inline-flex items-center gap-1.5 rounded-full bg-black px-4 py-1.5 text-white hover:bg-neutral-800 transition-colors font-bold shadow-subtle"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-black hover:bg-neutral-200 transition-colors font-bold shadow-sm"
             >
               <span>{currentIndex === STAGES.length - 1 ? 'Finish & Return to Console' : 'Next Step →'}</span>
             </button>
           ) : (
             <button
               onClick={() => onNavigate('capture')}
-              className="inline-flex items-center gap-1.5 rounded-full bg-black px-4 py-1.5 text-white hover:bg-neutral-800 transition-colors font-bold shadow-subtle"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-black hover:bg-neutral-200 transition-colors font-bold shadow-sm"
             >
               <span>Start 5-Step Demo →</span>
             </button>
