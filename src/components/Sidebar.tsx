@@ -25,7 +25,7 @@ export function Sidebar({ current, onNavigate, running }: { current: ViewId; onN
         <Icon name={open ? 'x' : 'grid'} className="h-4 w-4 text-ink" />
       </button>
       {open && <div onClick={()=>setOpen(false)} className="fixed inset-0 z-20 bg-ink/10 backdrop-blur-sm lg:hidden" />}
-      <aside className={cx('fixed left-4 top-4 z-30 flex h-[calc(100vh-32px)] w-[280px] flex-col rounded-card border border-white/60 bg-white/80 shadow-float backdrop-blur-xl transition-transform lg:sticky', open ? 'translate-x-0' : '-translate-x-[calc(100%+16px)] lg:translate-x-0')}>
+      <aside className={cx('fixed left-4 top-4 z-30 flex h-[calc(100vh-32px)] w-[280px] flex-col rounded-card border border-white/60 bg-white/80 shadow-float backdrop-blur-xl transition-transform lg:sticky lg:top-4 lg:m-4 lg:shrink-0', open ? 'translate-x-0' : '-translate-x-[calc(100%+16px)] lg:translate-x-0')}>
         <div className="flex items-center gap-3 px-6 pt-6 pb-4">
           <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-ink shadow-soft">
             <Icon name="layers" className="h-5 w-5 text-white" />

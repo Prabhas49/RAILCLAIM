@@ -30,11 +30,11 @@ export default function App() {
     navigate(i === -1 ? 'capture' : ORDER[Math.min(i + 1, ORDER.length - 1)])
   }, [view, navigate])
   return (
-    <div className="min-h-screen bg-[#FFFDF8]">
+    <div className="min-h-screen bg-[#FFFDF8] lg:flex lg:items-start">
       {/* warm radial glow */}
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_800px_600px_at_20%_-10%,rgba(249,115,22,0.08),transparent),radial-gradient(ellipse_600px_400px_at_90%_0%,rgba(99,102,241,0.06),transparent)]" />
       <Sidebar current={view} onNavigate={navigate} running={running} />
-      <div className="flex min-w-0 flex-col lg:pl-[280px]">
+      <div className="flex min-w-0 flex-1 flex-col">
         <Topbar running={running} />
         <main className="px-4 py-6 sm:px-8 sm:py-8">
           <AnimatePresence mode="wait">
