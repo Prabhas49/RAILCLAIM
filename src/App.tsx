@@ -18,13 +18,14 @@ const ORDER: ViewId[] = ['claims', 'capture', 'evidence', 'pipeline', 'review', 
 
 function viewFromHash(): ViewId {
   const raw = window.location.hash.replace(/^#\/?/, '')
-  if (!raw) return 'dashboard'
+  if (!raw) return 'landing' // Default to landing or dashboard
   return (ORDER as string[]).concat('dashboard', 'landing').includes(raw) ? (raw as ViewId) : 'dashboard'
 }
 
 export default function App() {
   const [view, setView] = useState<ViewId>(viewFromHash)
   const [running, setRunning] = useState(false)
+  const [selectedScenarioId, setSelectedScenarioId] = useState<'1' | '2' | '3'>('1')
 
   useEffect(() => {
     const sync = () => setView(viewFromHash())
@@ -32,7 +33,10 @@ export default function App() {
     return () => window.removeEventListener('hashchange', sync)
   }, [])
 
-  const navigate = useCallback((next: ViewId) => {
+  const navigate = useCallback((next: ViewId, scenario?: '1' | '2' | '3') => {
+    if (scenario) {
+      setSelectedScenarioId(scenario)
+    }
     setView(next)
     window.location.hash = `/${next}`
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -54,7 +58,13 @@ export default function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Landing onEnter={navigate} />
+            <Landing
+              onEnter={navigate}
+              onSelectScenario={(id) => {
+                setSelectedScenarioId(id)
+                navigate('capture')
+              }}
+            />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -66,9 +76,9 @@ export default function App() {
       <Sidebar current={view} onNavigate={navigate} running={running} />
 
       <div className="flex min-w-0 flex-1 flex-col bg-black">
-        <Topbar currentView={view} running={running} />
+        <Topbar currentView={view} running={running} onNavigate={navigate} />
 
-        <main className="px-8 py-8 w-full max-w-[1400px]">
+        <main className="px-6 md:px-8 py-8 w-full max-w-[1400px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={view}
@@ -79,14 +89,22 @@ export default function App() {
             >
               {view === 'dashboard' && <Dashboard onNavigate={navigate} />}
               {view === 'claims' && <Claims onNavigate={navigate} onSelectClaim={() => navigate('review')} />}
-              {view === 'capture' && <Capture onAnalyse={() => navigate('pipeline')} onNavigate={navigate} />}
+              {view === 'capture' && (
+                <Capture
+                  onAnalyse={() => navigate('pipeline')}
+                  onNavigate={navigate}
+                  selectedScenarioId={selectedScenarioId}
+                  onSelectScenario={setSelectedScenarioId}
+                />
+              )}
               {view === 'evidence' && <EvidenceStorage onNavigate={navigate} />}
               {view === 'pipeline' && (
                 <Pipeline onRunningChange={setRunning} onContinue={() => navigate('review')} />
               )}
               {view === 'review' && <Review onContinue={next} />}
               {view === 'oem' && <OemOutput onContinue={next} />}
-              {(view === 'analytics' || view === 'audit') && <Analytics onNavigate={navigate} />}
+              {view === 'analytics' && <Analytics onNavigate={navigate} />}
+              {view === 'audit' && <AuditTrail onBack={() => navigate('dashboard')} />}
             </motion.div>
           </AnimatePresence>
         </main>

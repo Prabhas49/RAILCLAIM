@@ -33,6 +33,16 @@ export const OEMS: Oem[] = [
     requiredFields: ['failure_code', 'serial_no', 'labor_op', 'depot_code', 'photo_evidence'],
   },
   {
+    id: 'toshiba',
+    name: 'Toshiba',
+    legalName: 'Toshiba Infrastructure Systems & Solutions',
+    hq: 'Fuchu, Tokyo, Japan',
+    portal: 'Toshiba Rail EDI Gateway',
+    accent: 'amber',
+    slaDays: 28,
+    requiredFields: ['failure_code', 'serial_no', 'labor_op', 'asset_id', 'photo_evidence'],
+  },
+  {
     id: 'kawasaki',
     name: 'Kawasaki',
     legalName: 'Kawasaki Heavy Industries Rolling Stock',
@@ -51,14 +61,14 @@ export const OEM_BY_ID = Object.fromEntries(OEMS.map((o) => [o.id, o])) as Recor
  * accepted code formats all differ. This is the table that mapping step reads.
  */
 export const OEM_SCHEMA: Record<string, Record<OemId, string>> = {
-  failure_code: { mitsubishi: 'FAIL_CD', hitachi: 'FaultCode', kawasaki: 'fault_code' },
-  serial_no: { mitsubishi: 'SER_NO', hitachi: 'SerialNumber', kawasaki: 'part_serial' },
-  labor_op: { mitsubishi: 'LBR_OP', hitachi: 'LabourOperation', kawasaki: 'labor_code' },
-  asset_id: { mitsubishi: 'CAR_EQP_ID', hitachi: 'AssetRef', kawasaki: 'equipment_id' },
-  running_hours: { mitsubishi: 'MILEAGE_HRS', hitachi: 'OperatingHours', kawasaki: 'run_hours' },
-  symptom: { mitsubishi: 'FAIL_DESC', hitachi: 'SymptomCategory', kawasaki: 'symptom_class' },
-  depot_code: { mitsubishi: 'DEPOT', hitachi: 'DepotCode', kawasaki: 'depot_ref' },
-  photo_evidence: { mitsubishi: 'ATTACH_REF', hitachi: 'PhotoEvidence', kawasaki: 'evid_ref' },
+  failure_code: { mitsubishi: 'FAIL_CD', hitachi: 'FaultCode', kawasaki: 'fault_code', toshiba: 'ERR_CODE' },
+  serial_no: { mitsubishi: 'SER_NO', hitachi: 'SerialNumber', kawasaki: 'part_serial', toshiba: 'SERIAL_NUM' },
+  labor_op: { mitsubishi: 'LBR_OP', hitachi: 'LabourOperation', kawasaki: 'labor_code', toshiba: 'OP_CODE' },
+  asset_id: { mitsubishi: 'CAR_EQP_ID', hitachi: 'AssetRef', kawasaki: 'equipment_id', toshiba: 'VEHICLE_EQ_ID' },
+  running_hours: { mitsubishi: 'MILEAGE_HRS', hitachi: 'OperatingHours', kawasaki: 'run_hours', toshiba: 'TOTAL_HOURS' },
+  symptom: { mitsubishi: 'FAIL_DESC', hitachi: 'SymptomCategory', kawasaki: 'symptom_class', toshiba: 'SYMPTOM_TXT' },
+  depot_code: { mitsubishi: 'DEPOT', hitachi: 'DepotCode', kawasaki: 'depot_ref', toshiba: 'DEPOT_ID' },
+  photo_evidence: { mitsubishi: 'ATTACH_REF', hitachi: 'PhotoEvidence', kawasaki: 'evid_ref', toshiba: 'ATTACH_DOC' },
 }
 
 export const PIPELINE_STAGES: PipelineStage[] = [
@@ -555,3 +565,210 @@ export const CLAIM_QUEUE: Claim[] = [
 export function claimsByOem(oem: OemId) {
   return CLAIM_QUEUE.filter((c) => c.oem === oem)
 }
+
+export interface FailureScenario {
+  id: '1' | '2' | '3'
+  title: string
+  subtitle: string
+  equipment: string
+  model: string
+  serialNo: string
+  oemId: OemId
+  oemName: string
+  oemHq: string
+  operator: string
+  depot: string
+  claimId: string
+  faultCode: string
+  jisCode: string
+  symptom: string
+  failureDescription: string
+  rootCause: string
+  warrantyClause: string
+  amountInr: number
+  amountJpy: number
+  confidence: number
+  language: string
+  crew: string
+  crewInitials: string
+  transcript: TranscriptLine[]
+  nameplateSvg: string
+  hmiSvg: string
+  contextSvg: string
+  costs: {
+    partReplacementInr: number
+    partReplacementJpy: number
+    laborInr: number
+    laborJpy: number
+    testingInr: number
+    testingJpy: number
+  }
+}
+
+const SVG_TM_NAMEPLATE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><rect x="40" y="40" width="520" height="320" rx="12" fill="%230e0e0e" stroke="%23222222" stroke-width="2"/><rect x="70" y="80" width="460" height="120" rx="8" fill="%23000000" stroke="%23ffffff" stroke-width="1.5" stroke-dasharray="4"/><text x="90" y="115" fill="%23888888" font-family="monospace" font-size="13" font-weight="bold">OCR DETECTED [98% CONFIDENCE]</text><text x="90" y="155" fill="%2300C2FF" font-family="monospace" font-size="28" font-weight="900">MB5085-2274-K</text><text x="90" y="180" fill="%23aaaaaa" font-family="monospace" font-size="13">MFG: 2023-03 · JIS-E-4001 COMPLIANT</text><text x="70" y="240" fill="%23ffffff" font-family="sans-serif" font-size="18" font-weight="bold">MITSUBISHI ELECTRIC ROLLING STOCK DIVISION</text><text x="70" y="270" fill="%23888888" font-family="monospace" font-size="13">TRACTION MOTOR TM-450 · 220 kW · 18,420 RUNNING HOURS</text><circle cx="500" cy="300" r="26" fill="%2310b981" fill-opacity="0.1" stroke="%2310b981" stroke-width="2"/><path d="M492 300 l6 6 l14 -14" fill="none" stroke="%2310b981" stroke-width="3" stroke-linecap="round"/></svg>`
+const SVG_TM_HMI = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><rect x="40" y="40" width="520" height="320" rx="8" fill="%230e0e0e" stroke="%23ef4444" stroke-width="2"/><rect x="70" y="70" width="460" height="70" fill="%23260a0a" rx="6"/><text x="90" y="112" fill="%23f87171" font-family="sans-serif" font-size="18" font-weight="bold">⚠ TCMS FAULT ALERT // TRAIN SET 04</text><rect x="70" y="160" width="220" height="160" fill="%23000000" rx="8" stroke="%23f59e0b" stroke-width="2"/><text x="90" y="200" fill="%23888888" font-family="monospace" font-size="13">FAULT CODE [98%]</text><text x="90" y="255" fill="%23f59e0b" font-family="monospace" font-size="38" font-weight="bold">E-TM-204</text><text x="90" y="295" fill="%23f87171" font-family="monospace" font-size="12">VIBRATION > 7.2 mm/s RMS</text><rect x="310" y="160" width="220" height="160" fill="%23000000" rx="8" stroke="%23222222" stroke-width="1"/><text x="330" y="200" fill="%23888888" font-family="monospace" font-size="13">COMPONENT ID</text><text x="330" y="255" fill="%23ffffff" font-family="monospace" font-size="34" font-weight="bold">TM-04-A</text><text x="330" y="295" fill="%23a1a1aa" font-family="monospace" font-size="12">SPEED: 82.4 KM/H</text></svg>`
+const SVG_TM_CONTEXT = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><circle cx="160" cy="220" r="100" fill="%230e0e0e" stroke="%23262626" stroke-width="6"/><circle cx="160" cy="220" r="40" fill="%23000000" stroke="%23ffffff" stroke-width="2"/><circle cx="440" cy="220" r="100" fill="%230e0e0e" stroke="%23262626" stroke-width="6"/><circle cx="440" cy="220" r="40" fill="%23000000" stroke="%23ffffff" stroke-width="2"/><rect x="80" y="120" width="440" height="24" rx="4" fill="%231a1a1a" stroke="%23333333" stroke-width="2"/><rect x="220" y="160" width="160" height="90" rx="8" fill="%23000000" stroke="%2300C2FF" stroke-width="1.5" stroke-dasharray="6"/><text x="235" y="200" fill="%2300C2FF" font-family="monospace" font-size="13" font-weight="bold">TRACTION MOTOR BAY</text><text x="235" y="225" fill="%23888888" font-family="monospace" font-size="12">MUTTOM DEPOT BAY #4</text><text x="50" y="360" fill="%23888888" font-family="monospace" font-size="13">DEPOT INSPECTION ANGLE 1 // KOCHI METRO</text></svg>`
+
+const SVG_BCU_NAMEPLATE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><rect x="40" y="40" width="520" height="320" rx="12" fill="%230e0e0e" stroke="%23222222" stroke-width="2"/><rect x="70" y="80" width="460" height="120" rx="8" fill="%23000000" stroke="%23ffffff" stroke-width="1.5" stroke-dasharray="4"/><text x="90" y="115" fill="%23888888" font-family="monospace" font-size="13" font-weight="bold">OCR DETECTED [97% CONFIDENCE]</text><text x="90" y="155" fill="%236366F1" font-family="monospace" font-size="28" font-weight="900">NAB-HIT-9941-B</text><text x="90" y="180" fill="%23aaaaaa" font-family="monospace" font-size="13">MFG: 2023-08 · JIS-E-4112 COMPLIANT</text><text x="70" y="240" fill="%23ffffff" font-family="sans-serif" font-size="18" font-weight="bold">HITACHI RAIL STS / NABTESCO</text><text x="70" y="270" fill="%23888888" font-family="monospace" font-size="13">MICROPROCESSOR BRAKE CONTROL BCU-80 · 7.5 BAR</text><circle cx="500" cy="300" r="26" fill="%2310b981" fill-opacity="0.1" stroke="%2310b981" stroke-width="2"/><path d="M492 300 l6 6 l14 -14" fill="none" stroke="%2310b981" stroke-width="3" stroke-linecap="round"/></svg>`
+const SVG_BCU_HMI = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><rect x="40" y="40" width="520" height="320" rx="8" fill="%230e0e0e" stroke="%23f59e0b" stroke-width="2"/><rect x="70" y="70" width="460" height="70" fill="%23241505" rx="6"/><text x="90" y="112" fill="%23f59e0b" font-family="sans-serif" font-size="18" font-weight="bold">⚠ TCMS PNEUMATIC BRAKE FAULT // SET 02</text><rect x="70" y="160" width="220" height="160" fill="%23000000" rx="8" stroke="%23ef4444" stroke-width="2"/><text x="90" y="200" fill="%23888888" font-family="monospace" font-size="13">FAULT CODE [97%]</text><text x="90" y="255" fill="%23ef4444" font-family="monospace" font-size="38" font-weight="bold">E-BK-102</text><text x="90" y="295" fill="%23f87171" font-family="monospace" font-size="12">MAIN RES DROP &lt; 6.4 BAR</text><rect x="310" y="160" width="220" height="160" fill="%23000000" rx="8" stroke="%23222222" stroke-width="1"/><text x="330" y="200" fill="%23888888" font-family="monospace" font-size="13">COMPONENT ID</text><text x="330" y="255" fill="%23ffffff" font-family="monospace" font-size="34" font-weight="bold">BCU-02-B</text><text x="330" y="295" fill="%23a1a1aa" font-family="monospace" font-size="12">PRESS: 6.2 BAR (WARN)</text></svg>`
+const SVG_BCU_CONTEXT = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><rect x="80" y="90" width="440" height="180" rx="8" fill="%23111827" stroke="%23374151" stroke-width="3"/><rect x="120" y="130" width="160" height="100" rx="6" fill="%23030712" stroke="%236366f1" stroke-width="2"/><circle cx="340" cy="180" r="30" fill="%231f2937" stroke="%23ef4444" stroke-width="2"/><circle cx="420" cy="180" r="30" fill="%231f2937" stroke="%2310b981" stroke-width="2"/><text x="135" y="175" fill="%236366f1" font-family="monospace" font-size="12" font-weight="bold">BCU MANIFOLD</text><text x="135" y="195" fill="%239ca3af" font-family="monospace" font-size="11">VALVE BANK #2</text><text x="50" y="340" fill="%23888888" font-family="monospace" font-size="13">PNEUMATIC UNDERFRAME // CHENNAI KOYAMBEDU</text></svg>`
+
+const SVG_APU_NAMEPLATE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><rect x="40" y="40" width="520" height="320" rx="12" fill="%230e0e0e" stroke="%23222222" stroke-width="2"/><rect x="70" y="80" width="460" height="120" rx="8" fill="%23000000" stroke="%23ffffff" stroke-width="1.5" stroke-dasharray="4"/><text x="90" y="115" fill="%23888888" font-family="monospace" font-size="13" font-weight="bold">OCR DETECTED [99% CONFIDENCE]</text><text x="90" y="155" fill="%23F59E0B" font-family="monospace" font-size="28" font-weight="900">TOSH-APU-8820-X</text><text x="90" y="180" fill="%23aaaaaa" font-family="monospace" font-size="13">MFG: 2022-11 · JIS-E-5006 COMPLIANT</text><text x="70" y="240" fill="%23ffffff" font-family="sans-serif" font-size="18" font-weight="bold">TOSHIBA INFRASTRUCTURE SYSTEMS</text><text x="70" y="270" fill="%23888888" font-family="monospace" font-size="13">STATIC INVERTER APU-120 · 415V 3-PHASE · 120 kVA</text><circle cx="500" cy="300" r="26" fill="%2310b981" fill-opacity="0.1" stroke="%2310b981" stroke-width="2"/><path d="M492 300 l6 6 l14 -14" fill="none" stroke="%2310b981" stroke-width="3" stroke-linecap="round"/></svg>`
+const SVG_APU_HMI = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><rect x="40" y="40" width="520" height="320" rx="8" fill="%230e0e0e" stroke="%23ef4444" stroke-width="2"/><rect x="70" y="70" width="460" height="70" fill="%23291307" rx="6"/><text x="90" y="112" fill="%23f59e0b" font-family="sans-serif" font-size="18" font-weight="bold">⚠ TCMS AUX POWER TRIP // TRAIN SET 07</text><rect x="70" y="160" width="220" height="160" fill="%23000000" rx="8" stroke="%23ef4444" stroke-width="2"/><text x="90" y="200" fill="%23888888" font-family="monospace" font-size="13">FAULT CODE [99%]</text><text x="90" y="255" fill="%23ef4444" font-family="monospace" font-size="38" font-weight="bold">E-APU-309</text><text x="90" y="295" fill="%23f87171" font-family="monospace" font-size="12">IGBT OVERHEAT TRIP 88°C</text><rect x="310" y="160" width="220" height="160" fill="%23000000" rx="8" stroke="%23222222" stroke-width="1"/><text x="330" y="200" fill="%23888888" font-family="monospace" font-size="13">COMPONENT ID</text><text x="330" y="255" fill="%23ffffff" font-family="monospace" font-size="34" font-weight="bold">INV-07-C</text><text x="330" y="295" fill="%23a1a1aa" font-family="monospace" font-size="12">LOAD: 104% (PEAK AC)</text></svg>`
+const SVG_APU_CONTEXT = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23050505"/><rect x="60" y="110" width="480" height="140" rx="10" fill="%231c1917" stroke="%2378350f" stroke-width="3"/><rect x="100" y="130" width="180" height="100" rx="6" fill="%230c0a09" stroke="%23d97706" stroke-width="2"/><text x="120" y="175" fill="%23d97706" font-family="monospace" font-size="12" font-weight="bold">INVERTER MODULE</text><text x="120" y="195" fill="%23a8a29e" font-family="monospace" font-size="11">CHOPPER 3-PHASE</text><circle cx="360" cy="180" r="36" fill="%23292524" stroke="%23f59e0b" stroke-width="2"/><text x="50" y="340" fill="%23888888" font-family="monospace" font-size="13">ROOF AUX CONVERTER // MUMBAI METRO LINE 3</text></svg>`
+
+export const FAILURE_SCENARIOS: FailureScenario[] = [
+  {
+    id: '1',
+    title: 'Failure Type 1 · Traction Motor Vibration',
+    subtitle: 'Mitsubishi Electric TM-450 (MB5085-2274-K)',
+    equipment: 'Traction Motor TM-450',
+    model: 'MB-5085-A',
+    serialNo: 'MB5085-2274-K',
+    oemId: 'mitsubishi',
+    oemName: 'Mitsubishi Electric Transportation Systems',
+    oemHq: 'Kobe, Japan',
+    operator: 'Kochi Metro Rail Ltd',
+    depot: 'Muttom Depot',
+    claimId: 'HS-2026-0881',
+    faultCode: 'E-TM-204',
+    jisCode: 'JIS E-4001',
+    symptom: 'Bearing vibration > 7.2 mm/s RMS & stator insulation degradation',
+    failureDescription:
+      'Excessive mechanical vibration observed on motor bogie 1 during high acceleration, accompanied by abnormal temperature readout (145°C) and burning odor.',
+    rootCause:
+      'Premature non-drive-end bearing race spalling causing rotor eccentricity and stator thermal insulation breakdown prior to 250,000 km MTBF threshold.',
+    warrantyClause: 'Contract JICA-C08 // Clause 8.2 (Rotary Electrical Machinery Early Failure)',
+    amountInr: 2450000,
+    amountJpy: 4350000,
+    confidence: 0.96,
+    language: 'Tamil',
+    crew: 'R. Karthik (Depot Maintenance Lead)',
+    crewInitials: 'RK',
+    transcript: [
+      {
+        id: 't1_1',
+        source: 'டிராக்ஷன் மோட்டார் அதிக அதிர்வு ஏற்படுகிறது, வேகம் அதிகரிக்கும் போது தாங்க முடியாத சத்தம் கேட்கிறது.',
+        translation:
+          'Traction motor is experiencing abnormal vibration, accompanied by severe grinding noise during train acceleration.',
+        terms: ['traction motor', 'bearing vibration', '80 km/h'],
+        startMs: 0,
+      },
+    ],
+    nameplateSvg: SVG_TM_NAMEPLATE,
+    hmiSvg: SVG_TM_HMI,
+    contextSvg: SVG_TM_CONTEXT,
+    costs: {
+      partReplacementInr: 1850000,
+      partReplacementJpy: 3280000,
+      laborInr: 360000,
+      laborJpy: 640000,
+      testingInr: 240000,
+      testingJpy: 430000,
+    },
+  },
+  {
+    id: '2',
+    title: 'Failure Type 2 · Brake Control Pneumatic Leakage',
+    subtitle: 'Hitachi Rail STS / Nabtesco BCU-80 (NAB-HIT-9941-B)',
+    equipment: 'Microprocessor Brake Control Unit BCU-80',
+    model: 'BCU-80-MK2',
+    serialNo: 'NAB-HIT-9941-B',
+    oemId: 'hitachi',
+    oemName: 'Hitachi Rail STS',
+    oemHq: 'Tokyo, Japan',
+    operator: 'Chennai Metro Rail Ltd',
+    depot: 'Koyambedu Depot',
+    claimId: 'HS-2026-0882',
+    faultCode: 'E-BK-102',
+    jisCode: 'JIS E-4112',
+    symptom: 'Main reservoir pneumatic pressure drop below 6.4 bar',
+    failureDescription:
+      'Intermittent pneumatic pressure loss in brake pipe manifold during station brake self-test, causing emergency brake solenoid valve latch failure.',
+    rootCause:
+      'Pneumatic manifold solenoid seal ring extrusion leading to pressure dissipation under JIS E-4112 standard testing cycle.',
+    warrantyClause: 'Contract CMRL-SYS-14 // Clause 5.4 (Braking & Pneumatic Integrity Guarantee)',
+    amountInr: 1850000,
+    amountJpy: 3280000,
+    confidence: 0.94,
+    language: 'Hindi',
+    crew: 'S. Rao (Pneumatic Systems Inspector)',
+    crewInitials: 'SR',
+    transcript: [
+      {
+        id: 't2_1',
+        source: 'ब्रेक कंट्रोल यूनिट में प्रेशर ड्रॉप हो रहा है, एमरजेंसी सोलनॉइड वाल्व लीक कर रहा है।',
+        translation:
+          'Brake control unit is dropping main reservoir pressure below 6.4 bar; emergency solenoid valve is leaking.',
+        terms: ['brake control unit', 'pneumatic pressure', 'solenoid valve'],
+        startMs: 0,
+      },
+    ],
+    nameplateSvg: SVG_BCU_NAMEPLATE,
+    hmiSvg: SVG_BCU_HMI,
+    contextSvg: SVG_BCU_CONTEXT,
+    costs: {
+      partReplacementInr: 1350000,
+      partReplacementJpy: 2400000,
+      laborInr: 320000,
+      laborJpy: 570000,
+      testingInr: 180000,
+      testingJpy: 310000,
+    },
+  },
+  {
+    id: '3',
+    title: 'Failure Type 3 · Auxiliary Power Unit Overheat',
+    subtitle: 'Toshiba Infrastructure Systems APU-120 (TOSH-APU-8820-X)',
+    equipment: 'Static Inverter APU-120 (415V 3-Phase)',
+    model: 'APU-120-K',
+    serialNo: 'TOSH-APU-8820-X',
+    oemId: 'toshiba',
+    oemName: 'Toshiba Infrastructure Systems',
+    oemHq: 'Fuchu, Tokyo, Japan',
+    operator: 'Mumbai Metro Rail Corporation',
+    depot: 'Aarey Car Shed',
+    claimId: 'HS-2026-0883',
+    faultCode: 'E-APU-309',
+    jisCode: 'JIS E-5006',
+    symptom: 'IGBT module gate driver over-temperature trip at 88°C ambient',
+    failureDescription:
+      'Auxiliary Power Unit phase 3 inverter tripped on thermal overload during 104% peak HVAC operating conditions, cutting off passenger saloon lighting.',
+    rootCause:
+      'Solid-state IGBT gate driver optical isolator drift and heat pipe thermal interface material (TIM) degradation under JIS E-5006.',
+    warrantyClause: 'Contract MMRC-L3-W // Clause 11.1 (Solid-State Power Electronics MTBF)',
+    amountInr: 3120000,
+    amountJpy: 5540000,
+    confidence: 0.98,
+    language: 'English',
+    crew: 'V. Mehta (High Voltage Depot Engineer)',
+    crewInitials: 'VM',
+    transcript: [
+      {
+        id: 't3_1',
+        source: 'APU inverter module phase 3 tripping on thermal overload at 88 degrees during peak air conditioning load.',
+        translation:
+          'APU inverter module phase 3 tripping on thermal overload at 88°C during peak saloon air conditioning load.',
+        terms: ['APU inverter', 'IGBT module', 'thermal overload'],
+        startMs: 0,
+      },
+    ],
+    nameplateSvg: SVG_APU_NAMEPLATE,
+    hmiSvg: SVG_APU_HMI,
+    contextSvg: SVG_APU_CONTEXT,
+    costs: {
+      partReplacementInr: 2450000,
+      partReplacementJpy: 4350000,
+      laborInr: 410000,
+      laborJpy: 730000,
+      testingInr: 260000,
+      testingJpy: 460000,
+    },
+  },
+]
+
+export function getScenario(id?: string): FailureScenario {
+  const match = FAILURE_SCENARIOS.find((s) => s.id === id)
+  return match || FAILURE_SCENARIOS[0]
+}
+

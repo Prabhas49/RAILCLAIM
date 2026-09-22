@@ -3,10 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Icon } from '../components/ui/Icon'
 import type { ViewId } from '../types'
 import { addPersistentPhoto } from '../lib/evidenceStore'
+import { FAILURE_SCENARIOS, getScenario } from '../data/mock'
+import { openPrintableVoucher } from '../components/OemPdfVoucher'
 
 export interface CaptureProps {
   onAnalyse: () => void
   onNavigate?: (v: ViewId) => void
+  selectedScenarioId?: '1' | '2' | '3'
+  onSelectScenario?: (id: '1' | '2' | '3') => void
 }
 
 interface EvidencePhotoSlot {
@@ -70,7 +74,7 @@ const PRESET_ANGLES = [
       { id: 'c1', label: 'Depot Location', value: 'Shivaji Depot', confidence: 0.96 },
       { id: 'c2', label: 'Fault Date', value: '2026-02-18', confidence: 0.99 },
       { id: 'c3', label: 'Mounting Point', value: 'Axle B-Frame Mounting', confidence: 0.92 },
-      { id: 'c4', label: 'Reviewer', value: 'A. Mehta', confidence: 0.95 },
+      { id: 'c4', label: 'Reviewer', value: 'Pragna Rao', confidence: 0.95 },
     ],
     sampleSvg: SVG_BOGIE,
   },
@@ -125,39 +129,213 @@ function compressImage(dataUrl: string, maxWidth = 1000, maxHeight = 800): Promi
   })
 }
 
-export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
+export default function Capture({
+  onAnalyse,
+  onNavigate,
+  selectedScenarioId = '1',
+  onSelectScenario,
+}: CaptureProps) {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1)
   const [wokenServers, setWokenServers] = useState(false)
   const [uploadToast, setUploadToast] = useState<string | null>(null)
   const [isAnalyzingAi, setIsAnalyzingAi] = useState(false)
-  const [completenessScore, setCompletenessScore] = useState(68)
+  const [completenessScore, setCompletenessScore] = useState(100)
   const [showMissingInfoModal, setShowMissingInfoModal] = useState(false)
+  const [activeScenarioId, setActiveScenarioId] = useState<'1' | '2' | '3'>(selectedScenarioId)
 
-  // Photos state (Starts empty so user can upload their 3 images)
+  // Fields matching active scenario
+  const initialScenario = getScenario(selectedScenarioId)
+  const [claimId, setClaimId] = useState(initialScenario.claimId)
+  const [equipmentType, setEquipmentType] = useState(initialScenario.equipment)
+  const [manufacturer, setManufacturer] = useState(initialScenario.oemName)
+  const [modelName, setModelName] = useState(initialScenario.model)
+  const [serialNumber, setSerialNumber] = useState(initialScenario.serialNo)
+  const [trainsetCar, setTrainsetCar] = useState('Train Set 04')
+  const [componentId, setComponentId] = useState(initialScenario.model.split('-')[0] + '-04-A')
+  const [faultCode, setFaultCode] = useState(initialScenario.faultCode)
+  const [faultDate, setFaultDate] = useState('2026-09-21')
+  const [depotLocation, setDepotLocation] = useState(initialScenario.depot)
+  const [faultSummary, setFaultSummary] = useState(initialScenario.failureDescription)
+  const [classification, setClassification] = useState(initialScenario.symptom)
+  const [operatingTemp, setOperatingTemp] = useState('145 °C')
+
+  // Photos state initialized with active scenario
   const [evidencePhotos, setEvidencePhotos] = useState<EvidencePhotoSlot[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_CLAIM_PHOTOS)
-      if (saved) return JSON.parse(saved)
-    } catch {
-      // fallback
-    }
-    return INITIAL_CLAIM_PHOTOS
+    const sc = initialScenario
+    return [
+      {
+        id: 'p1',
+        caption: `1. Equipment Nameplate (${sc.model})`,
+        slotNumber: 1,
+        targetDescription: 'Serial plate / specifications plate',
+        presetTag: sc.serialNo,
+        presetAnnotations: [
+          { id: 'a1', label: 'Serial Number', value: sc.serialNo, confidence: 0.98 },
+          { id: 'a2', label: 'Model', value: sc.model, confidence: 0.96 },
+          { id: 'a3', label: 'Manufacturer', value: sc.oemName, confidence: 0.98 },
+          { id: 'a4', label: 'Equipment Type', value: sc.equipment, confidence: 0.99 },
+        ],
+        dataUrl: sc.nameplateSvg,
+        fileName: `${sc.model}_NAMEPLATE_OCR.svg`,
+        confidence: 0.98,
+        tag: sc.serialNo,
+        isUserUploaded: false,
+        annotations: [
+          { id: 'a1', label: 'Serial Number', value: sc.serialNo, confidence: 0.98 },
+          { id: 'a2', label: 'Model', value: sc.model, confidence: 0.96 },
+          { id: 'a3', label: 'Manufacturer', value: sc.oemName, confidence: 0.98 },
+          { id: 'a4', label: 'Equipment Type', value: sc.equipment, confidence: 0.99 },
+        ],
+      },
+      {
+        id: 'p2',
+        caption: `2. HMI Fault Screen (${sc.faultCode})`,
+        slotNumber: 2,
+        targetDescription: 'TCMS / Cab diagnostic fault code',
+        presetTag: sc.faultCode,
+        presetAnnotations: [
+          { id: 'b1', label: 'Fault Code', value: sc.faultCode, confidence: 0.98 },
+          { id: 'b2', label: 'JIS Standard', value: sc.jisCode, confidence: 0.96 },
+          { id: 'b3', label: 'Component ID', value: sc.model.split('-')[0] + '-04-A', confidence: 0.95 },
+          { id: 'b4', label: 'Trainset', value: 'Train Set 04', confidence: 0.97 },
+        ],
+        dataUrl: sc.hmiSvg,
+        fileName: `${sc.faultCode}_TCMS_ALERT.svg`,
+        confidence: 0.97,
+        tag: sc.faultCode,
+        isUserUploaded: false,
+        annotations: [
+          { id: 'b1', label: 'Fault Code', value: sc.faultCode, confidence: 0.98 },
+          { id: 'b2', label: 'JIS Standard', value: sc.jisCode, confidence: 0.96 },
+          { id: 'b3', label: 'Component ID', value: sc.model.split('-')[0] + '-04-A', confidence: 0.95 },
+          { id: 'b4', label: 'Trainset', value: 'Train Set 04', confidence: 0.97 },
+        ],
+      },
+      {
+        id: 'p3',
+        caption: `3. Depot Context (${sc.depot})`,
+        slotNumber: 3,
+        targetDescription: 'Depot physical mounting & installation angle',
+        presetTag: sc.depot,
+        presetAnnotations: [
+          { id: 'c1', label: 'Depot Location', value: sc.depot, confidence: 0.96 },
+          { id: 'c2', label: 'Fault Date', value: '2026-09-21', confidence: 0.99 },
+          { id: 'c3', label: 'Reviewer', value: 'Pragna Rao', confidence: 0.95 },
+        ],
+        dataUrl: sc.contextSvg,
+        fileName: `${sc.depot.replace(/\s+/g, '_')}_BOGIE.svg`,
+        confidence: 0.95,
+        tag: sc.depot,
+        isUserUploaded: false,
+        annotations: [
+          { id: 'c1', label: 'Depot Location', value: sc.depot, confidence: 0.96 },
+          { id: 'c2', label: 'Fault Date', value: '2026-09-21', confidence: 0.99 },
+          { id: 'c3', label: 'Reviewer', value: 'Pragna Rao', confidence: 0.95 },
+        ],
+      },
+    ]
   })
 
-  // Exact fields matching user's reference specification
-  const [claimId] = useState('RC-2026-001')
-  const [equipmentType, setEquipmentType] = useState('Traction Motor')
-  const [manufacturer, setManufacturer] = useState('Example OEM')
-  const [modelName, setModelName] = useState('TM-450')
-  const [serialNumber, setSerialNumber] = useState('TM-IND-2026-001')
-  const [trainsetCar, setTrainsetCar] = useState('Train Set 04')
-  const [componentId, setComponentId] = useState('TM-04-A')
-  const [faultCode, setFaultCode] = useState('T-204')
-  const [faultDate, setFaultDate] = useState('2026-02-18')
-  const [depotLocation, setDepotLocation] = useState('Shivaji Depot')
-  const [faultSummary, setFaultSummary] = useState('Abnormal vibration during acceleration')
-  const [classification, setClassification] = useState('Mechanical / vibration')
-  const [operatingTemp, setOperatingTemp] = useState('145 °C')
+  const applyScenario = (id: '1' | '2' | '3') => {
+    setActiveScenarioId(id)
+    onSelectScenario?.(id)
+    const sc = getScenario(id)
+    setClaimId(sc.claimId)
+    setEquipmentType(sc.equipment)
+    setManufacturer(sc.oemName)
+    setModelName(sc.model)
+    setSerialNumber(sc.serialNo)
+    setTrainsetCar('Train Set 04')
+    setComponentId(sc.model.split('-')[0] + '-04-A')
+    setFaultCode(sc.faultCode)
+    setDepotLocation(sc.depot)
+    setFaultSummary(sc.failureDescription)
+    setClassification(sc.symptom)
+
+    const updatedSlots: EvidencePhotoSlot[] = [
+      {
+        id: 'p1',
+        caption: `1. Equipment Nameplate (${sc.model})`,
+        slotNumber: 1,
+        targetDescription: 'Serial plate / specifications plate',
+        presetTag: sc.serialNo,
+        presetAnnotations: [
+          { id: 'a1', label: 'Serial Number', value: sc.serialNo, confidence: 0.98 },
+          { id: 'a2', label: 'Model', value: sc.model, confidence: 0.96 },
+          { id: 'a3', label: 'Manufacturer', value: sc.oemName, confidence: 0.98 },
+          { id: 'a4', label: 'Equipment Type', value: sc.equipment, confidence: 0.99 },
+        ],
+        dataUrl: sc.nameplateSvg,
+        fileName: `${sc.model}_NAMEPLATE_OCR.svg`,
+        confidence: 0.98,
+        tag: sc.serialNo,
+        isUserUploaded: false,
+        annotations: [
+          { id: 'a1', label: 'Serial Number', value: sc.serialNo, confidence: 0.98 },
+          { id: 'a2', label: 'Model', value: sc.model, confidence: 0.96 },
+          { id: 'a3', label: 'Manufacturer', value: sc.oemName, confidence: 0.98 },
+          { id: 'a4', label: 'Equipment Type', value: sc.equipment, confidence: 0.99 },
+        ],
+      },
+      {
+        id: 'p2',
+        caption: `2. HMI Fault Screen (${sc.faultCode})`,
+        slotNumber: 2,
+        targetDescription: 'TCMS / Cab diagnostic fault code',
+        presetTag: sc.faultCode,
+        presetAnnotations: [
+          { id: 'b1', label: 'Fault Code', value: sc.faultCode, confidence: 0.98 },
+          { id: 'b2', label: 'JIS Standard', value: sc.jisCode, confidence: 0.96 },
+          { id: 'b3', label: 'Component ID', value: sc.model.split('-')[0] + '-04-A', confidence: 0.95 },
+          { id: 'b4', label: 'Trainset', value: 'Train Set 04', confidence: 0.97 },
+        ],
+        dataUrl: sc.hmiSvg,
+        fileName: `${sc.faultCode}_TCMS_ALERT.svg`,
+        confidence: 0.97,
+        tag: sc.faultCode,
+        isUserUploaded: false,
+        annotations: [
+          { id: 'b1', label: 'Fault Code', value: sc.faultCode, confidence: 0.98 },
+          { id: 'b2', label: 'JIS Standard', value: sc.jisCode, confidence: 0.96 },
+          { id: 'b3', label: 'Component ID', value: sc.model.split('-')[0] + '-04-A', confidence: 0.95 },
+          { id: 'b4', label: 'Trainset', value: 'Train Set 04', confidence: 0.97 },
+        ],
+      },
+      {
+        id: 'p3',
+        caption: `3. Depot Context (${sc.depot})`,
+        slotNumber: 3,
+        targetDescription: 'Depot physical mounting & installation angle',
+        presetTag: sc.depot,
+        presetAnnotations: [
+          { id: 'c1', label: 'Depot Location', value: sc.depot, confidence: 0.96 },
+          { id: 'c2', label: 'Fault Date', value: '2026-09-21', confidence: 0.99 },
+          { id: 'c3', label: 'Reviewer', value: 'Pragna Rao', confidence: 0.95 },
+        ],
+        dataUrl: sc.contextSvg,
+        fileName: `${sc.depot.replace(/\s+/g, '_')}_BOGIE.svg`,
+        confidence: 0.95,
+        tag: sc.depot,
+        isUserUploaded: false,
+        annotations: [
+          { id: 'c1', label: 'Depot Location', value: sc.depot, confidence: 0.96 },
+          { id: 'c2', label: 'Fault Date', value: '2026-09-21', confidence: 0.99 },
+          { id: 'c3', label: 'Reviewer', value: 'Pragna Rao', confidence: 0.95 },
+        ],
+      },
+    ]
+
+    setEvidencePhotos(updatedSlots)
+    setCompletenessScore(100)
+    setUploadToast(`Loaded ${sc.title} (JIS E-4001 Telemetry)`)
+    setTimeout(() => setUploadToast(null), 3500)
+  }
+
+  useEffect(() => {
+    if (selectedScenarioId && selectedScenarioId !== activeScenarioId) {
+      applyScenario(selectedScenarioId)
+    }
+  }, [selectedScenarioId])
 
   // Step 3 Real Audio Recording Session state
   const [isRecording, setIsRecording] = useState(false)
@@ -370,35 +548,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
 
   // Instant 1-click sample presets
   const loadAllPresetSamples = () => {
-    const loaded: EvidencePhotoSlot[] = PRESET_ANGLES.map((preset) => ({
-      id: preset.id,
-      caption: preset.caption,
-      slotNumber: preset.slotNumber,
-      targetDescription: preset.targetDescription,
-      presetTag: preset.presetTag,
-      presetAnnotations: preset.presetAnnotations,
-      dataUrl: preset.sampleSvg,
-      fileName: `sample_${preset.id}.svg`,
-      confidence: 96,
-      tag: preset.presetTag,
-      isUserUploaded: false,
-      annotations: preset.presetAnnotations,
-    }))
-
-    setEvidencePhotos(loaded)
-    setSerialNumber('TM-IND-2026-001')
-    setEquipmentType('Traction Motor')
-    setManufacturer('Example OEM')
-    setModelName('TM-450')
-    setComponentId('TM-04-A')
-    setTrainsetCar('Train Set 04')
-    setFaultCode('T-204')
-    setFaultDate('2026-02-18')
-    setDepotLocation('Shivaji Depot')
-    setClassification('Mechanical / vibration')
-
-    setUploadToast('Loaded 3 preset sample angles with verified warranty parameters.')
-    setTimeout(() => setUploadToast(null), 4000)
+    applyScenario(activeScenarioId)
   }
 
   const resetAllPhotos = () => {
@@ -408,12 +558,11 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
   }
 
   const handleDownloadPdf = () => {
-    setUploadToast('Draft Claim RC-2026-001 downloaded (PDF format).')
-    setTimeout(() => setUploadToast(null), 3500)
+    openPrintableVoucher(getScenario(activeScenarioId))
   }
 
   const handleSendForReview = () => {
-    setUploadToast('Claim RC-2026-001 submitted for engineer review.')
+    setUploadToast(`Claim ${claimId} submitted for review by Pragna Rao.`)
     setTimeout(() => {
       if (onNavigate) {
         onNavigate('review')
@@ -503,6 +652,58 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                 <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
                 <span className="font-medium">Auto-saving draft</span>
               </div>
+            </div>
+          </div>
+
+          {/* ── 3 FAILURE PRESETS (MOCK DATA 1, 2, 3) ───────────────────── */}
+          <div className="mt-6 rounded-xl border border-[#222] bg-[#0c0c0c] p-4 shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1c1c1c]">
+              <div>
+                <span className="font-mono text-[10px] uppercase font-bold tracking-wider text-[#00c2ff]">
+                  Select Pre-Configured Railway Failure Scenario (1, 2, or 3)
+                </span>
+                <p className="text-xs text-[#a1a1aa] mt-0.5">
+                  Uploading Image 1, 2, or 3 auto-populates compliant Japanese OEM telemetry and generates an official warranty claim.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => openPrintableVoucher(getScenario(activeScenarioId))}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#00c2ff] px-4 py-2 text-xs font-bold text-black hover:bg-[#3cd3ff] transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
+              >
+                <span>⎙ Download OEM Warranty Claim PDF</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+              {FAILURE_SCENARIOS.map((sc) => {
+                const isSelected = activeScenarioId === sc.id
+                return (
+                  <button
+                    key={sc.id}
+                    type="button"
+                    onClick={() => applyScenario(sc.id)}
+                    className={`text-left p-3 rounded-lg border transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-[#00c2ff] bg-[#091b29] shadow-md shadow-[#00c2ff]/10 ring-1 ring-[#00c2ff]'
+                        : 'border-[#222] bg-[#141414] hover:border-[#333]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                        isSelected ? 'bg-[#00c2ff] text-black' : 'bg-[#222] text-[#888]'
+                      }`}>
+                        Image / Type {sc.id}
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                        ₹{(sc.amountInr / 100000).toFixed(1)}L (¥{(sc.amountJpy / 10000).toFixed(0)}万)
+                      </span>
+                    </div>
+                    <p className="font-bold text-white text-xs mt-1.5 leading-snug">{sc.equipment}</p>
+                    <p className="text-[10px] text-[#888] mt-0.5">{sc.oemName} · {sc.faultCode}</p>
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -1223,7 +1424,7 @@ export default function Capture({ onAnalyse, onNavigate }: CaptureProps) {
                 </h3>
 
                 <p className="mt-4 text-sm text-[#d1d5db] leading-relaxed">
-                  Field claim {claimId} concerns a {equipmentType} ({manufacturer} {modelName}, serial {serialNumber}) on {trainsetCar}, component {componentId}. Reported issue is abnormal vibration during acceleration with fault code {faultCode} and fault category {classification}. Fault date is {faultDate} at {depotLocation}. Description states vibration increases during acceleration and no visible smoke was observed. Visual inspection was completed and the unit was isolated for review. Current status is Under Engineer Review by A. Mehta.
+                  Field claim {claimId} concerns a {equipmentType} ({manufacturer} {modelName}, serial {serialNumber}) on {trainsetCar}, component {componentId}. Reported issue is abnormal vibration during acceleration with fault code {faultCode} and fault category {classification}. Fault date is {faultDate} at {depotLocation}. Description states vibration increases during acceleration and no visible smoke was observed. Visual inspection was completed and the unit was isolated for review. Current status is Under Engineer Review by Pragna Rao.
                 </p>
 
                 <div className="mt-6 flex flex-wrap items-center gap-12 border-t border-[#1e1e1e] pt-4">

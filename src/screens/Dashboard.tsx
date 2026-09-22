@@ -14,7 +14,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
           MAINTENANCE OPERATIONS
         </p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Good morning, Arjun
+          Good morning, Pragna
         </h1>
         <p className="mt-1 text-sm text-[#7D93B2]">
           Here’s the operating picture across your warranty claims.

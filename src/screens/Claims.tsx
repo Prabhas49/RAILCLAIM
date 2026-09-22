@@ -12,15 +12,15 @@ export interface ClaimItem {
 
 const CLAIMS_DATA: ClaimItem[] = [
   {
-    id: 'RC-2026-001',
+    id: 'HS-2026-001',
     equipment: 'Traction Motor',
     fault: 'Abnormal vibration during acceleration',
     date: '18 Feb 2026',
     status: 'Under Engineer Review',
-    engineer: 'A. Mehta',
+    engineer: 'Pragna Rao',
   },
   {
-    id: 'RC-2026-002',
+    id: 'HS-2026-002',
     equipment: 'Brake Control Unit',
     fault: 'Intermittent pressure loss',
     date: '18 Feb 2026',
@@ -28,12 +28,12 @@ const CLAIMS_DATA: ClaimItem[] = [
     engineer: 'S. Rao',
   },
   {
-    id: 'RC-2026-003',
+    id: 'HS-2026-003',
     equipment: 'Door Actuator',
     fault: 'Door fails to lock at station',
     date: '18 Feb 2026',
     status: 'Submitted to OEM',
-    engineer: 'A. Mehta',
+    engineer: 'Pragna Rao',
   },
   {
     id: 'RC-2026-004',

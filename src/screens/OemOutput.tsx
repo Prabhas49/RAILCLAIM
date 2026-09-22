@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Icon } from '../components/ui/Icon'
-import { ACTIVE_CLAIM, OEM_BY_ID } from '../data/mock'
+import { ACTIVE_CLAIM, OEM_BY_ID, getScenario } from '../data/mock'
+import { openPrintableVoucher } from '../components/OemPdfVoucher'
 
 export default function OemOutput({ onContinue }: { onContinue: () => void }) {
   const [activeTab, setActiveTab] = useState<'voucher' | 'payload' | 'dispatch'>('voucher')
@@ -24,7 +25,7 @@ export default function OemOutput({ onContinue }: { onContinue: () => void }) {
     <TIMESTAMP>2026-09-21T07:15:30+05:30</TIMESTAMP>
     <DEPOT_AUTHORITY>KOCHI_METRO_RAIL_LTD</DEPOT_AUTHORITY>
     <DEPOT_LOCATION>MUTTOM_BAY_4</DEPOT_LOCATION>
-    <CHIEF_INSPECTOR_ID>KM-T04-IYER</CHIEF_INSPECTOR_ID>
+    <CHIEF_INSPECTOR_ID>KM-T04-PRAGNA</CHIEF_INSPECTOR_ID>
   </HEADER>
   <CLAIM_DETAILS>
     <CLAIM_REF>${ACTIVE_CLAIM.id}</CLAIM_REF>
@@ -75,32 +76,41 @@ export default function OemOutput({ onContinue }: { onContinue: () => void }) {
           </p>
         </div>
 
-        {/* Action Tabs */}
-        <div className="flex rounded-full bg-black border border-[#1e1e1e] p-1 font-mono text-xs">
+        {/* Action Tabs & PDF Download */}
+        <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={() => setActiveTab('voucher')}
-            className={`rounded-full px-4 py-2 font-bold transition-colors ${
-              activeTab === 'voucher' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
-            }`}
+            onClick={() => openPrintableVoucher(getScenario('1'))}
+            className="inline-flex items-center gap-2 rounded-full bg-[#00c2ff] px-4 py-2 font-mono text-xs font-bold text-black hover:bg-[#3cd3ff] transition-all shadow-md active:scale-95 cursor-pointer"
           >
-            Formal Voucher
+            <span>⎙ Download Official JIS PDF</span>
           </button>
-          <button
-            onClick={() => setActiveTab('payload')}
-            className={`rounded-full px-4 py-2 font-bold transition-colors ${
-              activeTab === 'payload' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            MELCO-WS XML
-          </button>
-          <button
-            onClick={() => setActiveTab('dispatch')}
-            className={`rounded-full px-4 py-2 font-bold transition-colors ${
-              activeTab === 'dispatch' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            API Dispatch
-          </button>
+
+          <div className="flex rounded-full bg-black border border-[#1e1e1e] p-1 font-mono text-xs">
+            <button
+              onClick={() => setActiveTab('voucher')}
+              className={`rounded-full px-4 py-2 font-bold transition-colors ${
+                activeTab === 'voucher' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              Formal Voucher
+            </button>
+            <button
+              onClick={() => setActiveTab('payload')}
+              className={`rounded-full px-4 py-2 font-bold transition-colors ${
+                activeTab === 'payload' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              MELCO-WS XML
+            </button>
+            <button
+              onClick={() => setActiveTab('dispatch')}
+              className={`rounded-full px-4 py-2 font-bold transition-colors ${
+                activeTab === 'dispatch' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              API Dispatch
+            </button>
+          </div>
         </div>
       </div>
 

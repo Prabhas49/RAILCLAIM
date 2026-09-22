@@ -19,7 +19,8 @@ const WORKSPACE_NAV: NavItem[] = [
 ]
 
 const SYSTEM_NAV: NavItem[] = [
-  { id: 'settings', label: 'Settings', icon: 'settings' },
+  { id: 'audit', viewId: 'audit', label: 'Audit Trail', icon: 'shield' },
+  { id: 'landing', viewId: 'landing', label: 'Public Landing', icon: 'bolt' },
 ]
 
 export function Sidebar({
@@ -97,16 +98,30 @@ export function Sidebar({
         </p>
 
         <nav className="mt-2 space-y-1">
-          {SYSTEM_NAV.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-[#9ca3af] hover:text-white hover:bg-[#111111] transition-all"
-            >
-              <Icon name={item.icon} className="h-4 w-4 text-[#71717a]" />
-              <span>{item.label}</span>
-            </button>
-          ))}
+          {SYSTEM_NAV.map((item) => {
+            const isActive = item.viewId && current === item.viewId
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  if (item.viewId) onNavigate(item.viewId)
+                }}
+                className={cx(
+                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all',
+                  isActive
+                    ? 'bg-[#141414] text-white border border-[#2a2a2a] shadow-sm'
+                    : 'text-[#9ca3af] hover:text-white hover:bg-[#111111]'
+                )}
+              >
+                <Icon
+                  name={item.icon}
+                  className={cx('h-4 w-4', isActive ? 'text-[#00C2FF]' : 'text-[#71717a]')}
+                />
+                <span>{item.label}</span>
+              </button>
+            )
+          })}
         </nav>
       </div>
 

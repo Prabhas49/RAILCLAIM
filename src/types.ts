@@ -1,4 +1,4 @@
-export type OemId = 'mitsubishi' | 'hitachi' | 'kawasaki'
+export type OemId = 'mitsubishi' | 'hitachi' | 'kawasaki' | 'toshiba'
 
 export type Accent = 'indigo' | 'rose' | 'amber' | 'emerald' | 'sky'
 

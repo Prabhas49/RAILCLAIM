@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Icon } from '../components/ui/Icon'
-import { CLAIM_FIELDS, TRANSCRIPT } from '../data/mock'
+import { CLAIM_FIELDS, TRANSCRIPT, getScenario } from '../data/mock'
+import { openPrintableVoucher } from '../components/OemPdfVoucher'
 import type { ClaimField } from '../types'
 
 export default function Review({ onContinue }: { onContinue: () => void }) {
@@ -48,16 +49,24 @@ export default function Review({ onContinue }: { onContinue: () => void }) {
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => openPrintableVoucher(getScenario('1'))}
+            className="rounded-full bg-[#00c2ff] px-4 py-2 font-mono text-xs font-bold text-black hover:bg-[#3cd3ff] transition-all shadow-md active:scale-95 cursor-pointer"
+          >
+            <span>⎙ Download OEM Warranty PDF</span>
+          </button>
+
           <div className="font-mono text-xs text-right">
-            <span className="text-[#a1a1aa]">Sign-Off Progress:</span>
+            <span className="text-[#a1a1aa]">Sign-Off:</span>
             <span className="ml-2 font-bold text-white">
-              {confirmedCount}/{totalCount} Confirmed
+              {confirmedCount}/{totalCount}
             </span>
           </div>
           <button
             onClick={confirmAll}
-            className="rounded-full border border-[#262626] bg-[#141414] px-4 py-2 font-mono text-xs font-bold text-white hover:bg-[#222222] transition-colors"
+            className="rounded-full border border-[#262626] bg-[#141414] px-4 py-2 font-mono text-xs font-bold text-white hover:bg-[#222222] transition-colors cursor-pointer"
           >
             Sign Off All
           </button>
@@ -284,7 +293,7 @@ export default function Review({ onContinue }: { onContinue: () => void }) {
           {/* Bottom Action */}
           <div className="pt-6 border-t border-[#1e1e1e] flex flex-col sm:flex-row items-center justify-between gap-4">
             <span className="font-mono text-xs text-[#a1a1aa]">
-              Inspector: S. Iyer (Chief Rolling Stock Division)
+              Inspector: Pragna Rao (Chief Rolling Stock Division)
             </span>
 
             <button
