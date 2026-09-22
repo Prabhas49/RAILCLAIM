@@ -1,217 +1,202 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { Icon } from '../components/ui/Icon'
-import { CLAIM_QUEUE, OEM_BY_ID } from '../data/mock'
+import { getDraft, getSubmittedClaims } from '../lib/claimStore'
 import type { ViewId } from '../types'
 
+const DEMO_COUNTS = {
+  review: 2,
+  missing: 2,
+  submitted: 2,
+}
+
 export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => void }) {
-  const [wokenServers, setWokenServers] = useState(false)
+  const draft = useMemo(() => getDraft(), [])
+  const submitted = useMemo(() => getSubmittedClaims(), [])
+
+  const hasActiveDraft = Boolean(draft && draft.status !== 'submitted')
+  const totalSubmitted = submitted.length + DEMO_COUNTS.submitted
+
+  const stats = [
+    {
+      label: 'Total claims',
+      value: hasActiveDraft ? 7 + submitted.length : 6 + submitted.length,
+      note: 'This quarter',
+      icon: 'file' as const,
+      tone: 'text-white',
+    },
+    {
+      label: 'Awaiting your review',
+      value: DEMO_COUNTS.review + (hasActiveDraft ? 1 : 0),
+      note: hasActiveDraft ? 'Includes your open draft' : 'Nothing pending from you',
+      icon: 'clock' as const,
+      tone: 'text-white',
+    },
+    {
+      label: 'Missing evidence',
+      value: DEMO_COUNTS.missing,
+      note: 'Demo rows',
+      icon: 'alert' as const,
+      tone: 'text-[#FF4D6D]',
+    },
+    {
+      label: 'Submitted to OEM',
+      value: totalSubmitted,
+      note: submitted.length > 0 ? `${submitted.length} dispatched by you` : 'Demo rows only',
+      icon: 'send' as const,
+      tone: 'text-[#06D6A0]',
+    },
+  ]
 
   return (
-    <div className="relative min-h-[calc(100vh-64px)] pb-24 text-white">
-      {/* ── Title & Greeting ────────────────────────────────────────── */}
-      <div>
-        <p className="text-[11px] font-bold tracking-wider uppercase text-[#526E94]">
-          MAINTENANCE OPERATIONS
-        </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Good morning, Pragna
-        </h1>
-        <p className="mt-1 text-sm text-[#7D93B2]">
-          Here’s the operating picture across your warranty claims.
-        </p>
-      </div>
-
-      {/* ── Primary Action Button ───────────────────────────────────── */}
-      <div className="mt-6">
+    <div className="min-h-[calc(100vh-64px)] pb-16 text-white">
+      {/* ── Title ───────────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-bold tracking-wider uppercase text-[#71717a]">
+            MAINTENANCE OPERATIONS
+          </p>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-[#a1a1aa]">
+            Your claim pipeline at a glance — draft, review, dispatch.
+          </p>
+        </div>
         <button
           onClick={() => onNavigate('capture')}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#00C2FF] px-5 py-2.5 text-sm font-bold text-black shadow-sm transition-all hover:bg-[#26cbff] active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-black transition-colors hover:bg-neutral-200 cursor-pointer self-start"
         >
           <span className="text-lg leading-none font-black">+</span>
           <span>Create new claim</span>
         </button>
       </div>
 
-      {/* ── 4 Stat Metric Cards ─────────────────────────────────────── */}
+      {/* ── Stat Cards ──────────────────────────────────────────────────── */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Card 1: Total claims */}
-        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
-          <div className="flex items-start justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0A263B] border border-[#00C2FF]/20 text-[#00C2FF]">
-              <Icon name="file" className="h-5 w-5" />
-            </div>
-            <div className="text-right">
-              <span className="text-xs font-medium text-[#a1a1aa]">Total claims</span>
-              <p className="mt-1 text-3xl font-extrabold text-white">24</p>
-            </div>
-          </div>
-          <p className="mt-4 text-xs font-medium text-[#00C2FF]">
-            ↑ 12% this month
-          </p>
-        </div>
-
-        {/* Card 2: Awaiting review */}
-        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
-          <div className="flex items-start justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#292010] border border-[#FFB703]/20 text-[#FFB703]">
-              <Icon name="clock" className="h-5 w-5" />
-            </div>
-            <div className="text-right">
-              <span className="text-xs font-medium text-[#a1a1aa]">Awaiting review</span>
-              <p className="mt-1 text-3xl font-extrabold text-white">06</p>
-            </div>
-          </div>
-          <p className="mt-4 text-xs font-medium text-[#FFB703]">
-            Needs your attention
-          </p>
-        </div>
-
-        {/* Card 3: Missing evidence */}
-        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
-          <div className="flex items-start justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2B1218] border border-[#FF4D6D]/20 text-[#FF4D6D]">
-              <Icon name="alert" className="h-5 w-5" />
-            </div>
-            <div className="text-right">
-              <span className="text-xs font-medium text-[#a1a1aa]">Missing evidence</span>
-              <p className="mt-1 text-3xl font-extrabold text-white">04</p>
-            </div>
-          </div>
-          <p className="mt-4 text-xs font-medium text-[#FF4D6D]">
-            Action required
-          </p>
-        </div>
-
-        {/* Card 4: Submitted to OEM */}
-        <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
-          <div className="flex items-start justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0C271E] border border-[#06D6A0]/20 text-[#06D6A0]">
-              <Icon name="send" className="h-5 w-5" />
-            </div>
-            <div className="text-right">
-              <span className="text-xs font-medium text-[#a1a1aa]">Submitted to OEM</span>
-              <p className="mt-1 text-3xl font-extrabold text-white">09</p>
-            </div>
-          </div>
-          <p className="mt-4 text-xs font-medium text-[#06D6A0]">
-            ↑ 3 this month
-          </p>
-        </div>
-      </div>
-
-      {/* ── Bottom Section: LIVE WORK QUEUE & PORTFOLIO ─────────────── */}
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Left: LIVE WORK QUEUE */}
-        <div className="lg:col-span-8 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-4">
-            <h2 className="text-xs font-bold tracking-wider uppercase text-[#71717a]">
-              LIVE WORK QUEUE
-            </h2>
-            <button
-              onClick={() => onNavigate('claims')}
-              className="text-xs font-semibold text-[#00C2FF] hover:underline"
-            >
-              View all claims →
-            </button>
-          </div>
-
-          <div className="divide-y divide-[#1e1e1e]">
-            {CLAIM_QUEUE.slice(0, 5).map((claim) => {
-              const oem = OEM_BY_ID[claim.oem]
-              return (
-                <div
-                  key={claim.id}
-                  onClick={() => onNavigate('claims')}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 px-2 hover:bg-[#111111] rounded-lg transition-colors cursor-pointer gap-2"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs font-bold text-white bg-[#10243E] px-2 py-0.5 rounded border border-[#182F4D]">
-                      {claim.id}
-                    </span>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{claim.assetName}</p>
-                      <p className="text-xs text-[#7D93B2]">{claim.depot} · {oem.name}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 text-right sm:text-right">
-                    <div>
-                      <p className="font-mono text-xs font-bold text-white">₹{(claim.amountInr).toLocaleString('en-IN')}</p>
-                      <p className="text-[10px] text-[#526E94]">{Math.round(claim.confidence * 100)}% confidence</p>
-                    </div>
-
-                    <span
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
-                        claim.status === 'ready'
-                          ? 'bg-[#0A2E46] text-[#00C2FF] border border-[#00C2FF]/30'
-                          : claim.status === 'needs_info'
-                          ? 'bg-[#292010] text-[#FFB703] border border-[#FFB703]/30'
-                          : 'bg-[#10243E] text-[#7D93B2]'
-                      }`}
-                    >
-                      {claim.status.replace('_', ' ')}
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Right: PORTFOLIO */}
-        <div className="lg:col-span-4 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
-          <div className="border-b border-[#1e1e1e] pb-4">
-            <h2 className="text-xs font-bold tracking-wider uppercase text-[#71717a]">
-              PORTFOLIO
-            </h2>
-            <p className="text-xs font-semibold text-white mt-1">Status overview</p>
-          </div>
-
-          <div className="mt-5 space-y-3.5">
-            {[
-              { label: 'Submitted to OEM', count: 9, share: 37, color: 'bg-[#06D6A0]' },
-              { label: 'Awaiting review', count: 6, share: 25, color: 'bg-[#FFB703]' },
-              { label: 'Ready to submit', count: 5, share: 21, color: 'bg-[#00C2FF]' },
-              { label: 'Missing evidence', count: 4, share: 17, color: 'bg-[#FF4D6D]' },
-            ].map((st) => (
-              <div key={st.label} className="space-y-1 text-xs font-medium">
-                <div className="flex justify-between text-[#7D93B2]">
-                  <span>{st.label}</span>
-                  <span className="font-mono text-white font-bold">{st.count} ({st.share}%)</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-[#1e1e1e] overflow-hidden">
-                  <div className={`h-full rounded-full ${st.color}`} style={{ width: `${st.share}%` }} />
-                </div>
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
+            <div className="flex items-start justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#262626] bg-[#141414] text-white">
+                <Icon name={s.icon} className="h-5 w-5" />
               </div>
-            ))}
+              <div className="text-right">
+                <span className="text-xs font-medium text-[#a1a1aa]">{s.label}</span>
+                <p className={`mt-1 text-3xl font-extrabold ${s.tone}`}>{String(s.value).padStart(2, '0')}</p>
+              </div>
+            </div>
+            <p className="mt-4 text-xs font-medium text-[#71717a]">{s.note}</p>
           </div>
-
-          <div className="mt-6 pt-4 border-t border-[#1e1e1e] flex items-center justify-between text-xs">
-            <span className="text-[#71717a]">OEM Partner SLA Status</span>
-            <span className="text-[#06D6A0] font-bold">100% In-Window</span>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* ── Floating Bottom Pill Banner (From Screenshot) ───────────── */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-4 rounded-full bg-[#121E30]/95 backdrop-blur-md border border-[#1E3352] px-5 py-2 text-xs font-medium text-white shadow-2xl">
-          <span>
-            {wokenServers
-              ? 'Backend servers active. Real-time telemetry synchronized.'
-              : 'Frontend Preview Only. Please wake servers to enable backend functionality.'}
-          </span>
+      {/* ── Live Work Queue ─────────────────────────────────────────────── */}
+      <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 shadow-sm">
+        <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-4">
+          <h2 className="text-xs font-bold tracking-wider uppercase text-[#71717a]">
+            Your Work Queue
+          </h2>
           <button
-            onClick={() => setWokenServers(!wokenServers)}
-            className={`rounded-full px-3 py-1 font-semibold transition-all ${
-              wokenServers
-                ? 'bg-[#06D6A0]/20 text-[#06D6A0] border border-[#06D6A0]/40'
-                : 'bg-[#133C4A] text-[#00C2FF] border border-[#00C2FF]/40 hover:bg-[#184D5E]'
-            }`}
+            onClick={() => onNavigate('claims')}
+            className="text-xs font-semibold text-white hover:underline"
           >
-            {wokenServers ? 'Servers active ✓' : 'Wake up servers'}
+            View all claims →
           </button>
         </div>
+
+        <div className="divide-y divide-[#1e1e1e]">
+          {hasActiveDraft && draft && (
+            <button
+              onClick={() => onNavigate(draft.status === 'review' ? 'review' : 'capture')}
+              className="w-full flex flex-col sm:flex-row sm:items-center justify-between py-3.5 px-2 hover:bg-[#111111] rounded-lg transition-colors cursor-pointer gap-2 text-left"
+            >
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-xs font-bold text-white bg-[#141414] px-2 py-0.5 rounded border border-[#262626]">
+                  {draft.id}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-white">{draft.equipmentType}</p>
+                  <p className="text-xs text-[#71717a]">
+                    {draft.depot} · {draft.manufacturer}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <p className="font-mono text-xs font-bold text-white">
+                  ₹{draft.amountInr.toLocaleString('en-IN')}
+                </p>
+                <span className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase bg-white text-black">
+                  {draft.status === 'review' ? 'Under review' : 'Draft'}
+                </span>
+              </div>
+            </button>
+          )}
+
+          {submitted.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => onNavigate('claims')}
+              className="w-full flex flex-col sm:flex-row sm:items-center justify-between py-3.5 px-2 hover:bg-[#111111] rounded-lg transition-colors cursor-pointer gap-2 text-left"
+            >
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-xs font-bold text-white bg-[#0C271E] px-2 py-0.5 rounded border border-[#06D6A0]/30">
+                  {s.id}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-white">{s.equipment}</p>
+                  <p className="text-xs text-[#71717a]">{s.oem}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <p className="font-mono text-xs font-bold text-white">
+                  ₹{s.amountInr.toLocaleString('en-IN')}
+                </p>
+                <span className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase bg-[#0C271E] text-[#06D6A0] border border-[#06D6A0]/30">
+                  Submitted
+                </span>
+              </div>
+            </button>
+          ))}
+
+          {!hasActiveDraft && submitted.length === 0 && (
+            <div className="py-10 text-center">
+              <p className="text-sm text-[#a1a1aa]">No active claims from you yet.</p>
+              <button
+                onClick={() => onNavigate('capture')}
+                className="mt-3 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition-colors cursor-pointer"
+              >
+                Create your first claim
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Quick Actions ───────────────────────────────────────────────── */}
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <button
+          onClick={() => onNavigate('evidence')}
+          className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 text-left hover:border-[#333] transition-colors cursor-pointer"
+        >
+          <Icon name="cloud" className="h-5 w-5 text-white" />
+          <p className="mt-3 text-sm font-bold text-white">Evidence vault</p>
+          <p className="mt-1 text-xs text-[#71717a]">All photos and files stored against your claims.</p>
+        </button>
+        <button
+          onClick={() => onNavigate('analytics')}
+          className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 text-left hover:border-[#333] transition-colors cursor-pointer"
+        >
+          <Icon name="analytics" className="h-5 w-5 text-white" />
+          <p className="mt-3 text-sm font-bold text-white">Analytics</p>
+          <p className="mt-1 text-xs text-[#71717a]">Claim throughput and evidence readiness.</p>
+        </button>
+        <button
+          onClick={() => onNavigate('audit')}
+          className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5 text-left hover:border-[#333] transition-colors cursor-pointer"
+        >
+          <Icon name="shield" className="h-5 w-5 text-white" />
+          <p className="mt-3 text-sm font-bold text-white">Audit trail</p>
+          <p className="mt-1 text-xs text-[#71717a]">Every capture, sign-off and dispatch event.</p>
+        </button>
       </div>
     </div>
   )

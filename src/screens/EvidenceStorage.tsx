@@ -55,7 +55,6 @@ export default function EvidenceStorage({
 }) {
   const [photos, setPhotos] = useState<EvidencePhotoItem[]>(getStoredPhotos)
   const [evidenceList, setEvidenceList] = useState<EvidenceFileItem[]>(getStoredFiles)
-  const [wokenServers, setWokenServers] = useState(false)
   const [uploadNotification, setUploadNotification] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [inspectModalPhoto, setInspectModalPhoto] = useState<EvidencePhotoItem | null>(null)
@@ -197,7 +196,7 @@ export default function EvidenceStorage({
         <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm flex flex-col justify-between">
           <div>
             {/* Cloud Icon */}
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#082236] border border-[#00c2ff]/30 text-[#00c2ff]">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#241a08] border border-[#FFFFFF]/30 text-[#FFFFFF]">
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -225,7 +224,7 @@ export default function EvidenceStorage({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#00c2ff] px-5 py-2.5 text-sm font-extrabold text-black shadow-sm transition-all hover:bg-[#2ed2ff] active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-extrabold text-black shadow-sm transition-all hover:bg-neutral-200 active:scale-[0.98]"
             >
               <svg
                 className="h-4 w-4"
@@ -305,7 +304,7 @@ export default function EvidenceStorage({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#1e1e1e] pb-5">
           <div>
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#00c2ff] shadow-[0_0_8px_#00c2ff]" />
+              <span className="h-2 w-2 rounded-full bg-white shadow-[0_0_8px_#FFFFFF]" />
               <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
                 PERSISTENT EVIDENCE VAULT
               </p>
@@ -325,7 +324,7 @@ export default function EvidenceStorage({
               onClick={() => setPhotoFilter('all')}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 photoFilter === 'all'
-                  ? 'bg-[#00c2ff] text-black'
+                  ? 'bg-white text-black'
                   : 'border border-[#1e1e1e] text-[#a1a1aa] hover:text-white'
               }`}
             >
@@ -336,7 +335,7 @@ export default function EvidenceStorage({
               onClick={() => setPhotoFilter('user')}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 photoFilter === 'user'
-                  ? 'bg-[#00c2ff] text-black'
+                  ? 'bg-white text-black'
                   : 'border border-[#1e1e1e] text-[#a1a1aa] hover:text-white'
               }`}
             >
@@ -371,17 +370,17 @@ export default function EvidenceStorage({
           onClick={() => fileInputRef.current?.click()}
           className={`mt-6 rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all ${
             isDragging
-              ? 'border-[#00c2ff] bg-[#00c2ff]/10'
-              : 'border-[#1e1e1e] bg-black hover:border-[#00c2ff]/60 hover:bg-[#111111]'
+              ? 'border-[#FFFFFF] bg-white/10'
+              : 'border-[#1e1e1e] bg-black hover:border-[#FFFFFF]/60 hover:bg-[#111111]'
           }`}
         >
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-[#141414] border border-[#1e1e1e] text-[#00c2ff] mb-2">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-[#141414] border border-[#1e1e1e] text-[#FFFFFF] mb-2">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </div>
           <p className="text-xs font-bold text-white">
-            Drag and drop new field photos here, or <span className="text-[#00c2ff]">browse files</span>
+            Drag and drop new field photos here, or <span className="text-[#FFFFFF]">browse files</span>
           </p>
           <p className="text-[11px] text-[#71717a] mt-1">
             PNG, JPG, WEBP or Telemetry logs up to 50 MB · Automatically synchronized across all claims
@@ -393,7 +392,7 @@ export default function EvidenceStorage({
           {filteredPhotos.map((photo) => (
             <div
               key={photo.id}
-              className="group relative rounded-xl border border-[#1e1e1e] bg-black overflow-hidden flex flex-col justify-between hover:border-[#00c2ff]/60 transition-all shadow-md"
+              className="group relative rounded-xl border border-[#1e1e1e] bg-black overflow-hidden flex flex-col justify-between hover:border-[#FFFFFF]/60 transition-all shadow-md"
             >
               {/* Top thumbnail image */}
               <div
@@ -408,7 +407,7 @@ export default function EvidenceStorage({
 
                 {/* Overlaid Badges */}
                 <div className="absolute top-2 left-2 flex items-center gap-1.5">
-                  <span className="rounded bg-black/80 backdrop-blur-md px-2 py-0.5 font-mono text-[10px] font-bold text-[#00c2ff] border border-[#00c2ff]/40">
+                  <span className="rounded bg-black/80 backdrop-blur-md px-2 py-0.5 font-mono text-[10px] font-bold text-[#FFFFFF] border border-[#FFFFFF]/40">
                     {photo.claimId}
                   </span>
                   {photo.isUserUploaded && (
@@ -420,7 +419,7 @@ export default function EvidenceStorage({
 
                 {photo.confidence && (
                   <div className="absolute top-2 right-2">
-                    <span className="rounded bg-black/80 backdrop-blur-md px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                    <span className="rounded bg-black/80 backdrop-blur-md px-2 py-0.5 font-mono text-[10px] font-bold text-neutral-300 border border-white/20">
                       {photo.confidence}% Match
                     </span>
                   </div>
@@ -428,7 +427,7 @@ export default function EvidenceStorage({
 
                 {/* Hover inspect hint */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <span className="rounded-lg bg-[#00c2ff] text-black px-3 py-1 text-xs font-bold shadow-lg">
+                  <span className="rounded-lg bg-white text-black px-3 py-1 text-xs font-bold shadow-lg">
                     Click to Inspect
                   </span>
                 </div>
@@ -448,7 +447,7 @@ export default function EvidenceStorage({
                 {photo.ocrTag && (
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-[10px] text-[#71717a] font-semibold">TAG:</span>
-                    <span className="font-mono text-xs font-bold text-[#00c2ff]">
+                    <span className="font-mono text-xs font-bold text-[#FFFFFF]">
                       {photo.ocrTag}
                     </span>
                   </div>
@@ -460,7 +459,7 @@ export default function EvidenceStorage({
                     <button
                       type="button"
                       onClick={() => setInspectModalPhoto(photo)}
-                      className="text-[#00c2ff] hover:underline font-semibold"
+                      className="text-[#FFFFFF] hover:underline font-semibold"
                     >
                       View
                     </button>
@@ -509,14 +508,14 @@ export default function EvidenceStorage({
                 className="group hover:bg-[#111111] transition-colors"
               >
                 {/* Claim ID */}
-                <td className="py-4 px-6 font-sans text-xs font-bold text-[#00c2ff]">
+                <td className="py-4 px-6 font-sans text-xs font-bold text-[#FFFFFF]">
                   {file.claimId}
                 </td>
 
                 {/* File Name */}
                 <td className="py-4 px-6">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-white group-hover:text-[#00c2ff] transition-colors">
+                    <span className="text-xs font-semibold text-white group-hover:text-[#FFFFFF] transition-colors">
                       {file.name}
                     </span>
                   </div>
@@ -565,7 +564,7 @@ export default function EvidenceStorage({
                         alert(`Downloading verifiable raw evidence artifact: ${file.name}\nSHA-256 HASH: ${file.hash}`)
                       }
                     }}
-                    className="text-xs font-bold text-[#00c2ff] hover:text-white transition-colors"
+                    className="text-xs font-bold text-[#FFFFFF] hover:text-white transition-colors"
                   >
                     {file.dataUrl ? 'View' : 'Download'}
                   </button>
@@ -582,7 +581,7 @@ export default function EvidenceStorage({
           <div className="w-full max-w-2xl rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-6 shadow-2xl text-white">
             <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#00c2ff]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#FFFFFF]">
                   VAULT EVIDENCE INSPECTION // {inspectModalPhoto.claimId}
                 </p>
                 <h3 className="text-lg font-bold text-white mt-0.5">
@@ -611,7 +610,7 @@ export default function EvidenceStorage({
             <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div className="rounded-lg bg-black border border-[#1e1e1e] p-3">
                 <span className="text-[10px] text-[#71717a] uppercase font-bold">SHA-256 Hash</span>
-                <p className="font-mono text-[11px] text-[#00c2ff] font-semibold truncate mt-1">
+                <p className="font-mono text-[11px] text-[#FFFFFF] font-semibold truncate mt-1">
                   {inspectModalPhoto.hash}
                 </p>
               </div>
@@ -651,7 +650,7 @@ export default function EvidenceStorage({
                   a.download = inspectModalPhoto.name
                   a.click()
                 }}
-                className="rounded-lg bg-[#00c2ff] px-5 py-2 text-xs font-bold text-black hover:bg-[#2ed2ff]"
+                className="rounded-lg bg-white px-5 py-2 text-xs font-bold text-black hover:bg-neutral-200"
               >
                 Download Original
               </button>
@@ -659,28 +658,6 @@ export default function EvidenceStorage({
           </div>
         </div>
       )}
-
-      {/* ── Floating Bottom Pill Banner ──────────────────────────────── */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-4 rounded-full bg-[#0a0a0a]/95 backdrop-blur-md border border-[#1e1e1e] px-5 py-2 text-xs font-medium text-white shadow-2xl">
-          <span>
-            {wokenServers
-              ? 'Backend servers active. Real-time telemetry synchronized.'
-              : 'Frontend Preview Only. Please wake servers to enable backend functionality.'}
-          </span>
-          <button
-            type="button"
-            onClick={() => setWokenServers(!wokenServers)}
-            className={`rounded-full px-3.5 py-1 font-semibold transition-all ${
-              wokenServers
-                ? 'bg-[#06D6A0]/20 text-[#06D6A0] border border-[#06D6A0]/40'
-                : 'bg-[#141414] text-[#00c2ff] border border-[#00c2ff]/40 hover:bg-[#1a1a1a]'
-            }`}
-          >
-            {wokenServers ? 'Servers active ✓' : 'Wake up servers'}
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

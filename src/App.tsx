@@ -4,6 +4,8 @@ import { Sidebar } from './components/Sidebar'
 import { Topbar } from './components/Topbar'
 import { VoiceTranslatorModal } from './components/VoiceTranslatorModal'
 import Landing from './screens/Landing'
+import Login from './screens/Login'
+import { getSession, logout, type AuthUser } from './lib/auth'
 import Dashboard from './screens/Dashboard'
 import Claims from './screens/Claims'
 import Capture from './screens/Capture'
@@ -15,12 +17,14 @@ import AuditTrail from './screens/AuditTrail'
 import Analytics from './screens/Analytics'
 import type { ViewId } from './types'
 
-const ORDER: ViewId[] = ['claims', 'capture', 'evidence', 'pipeline', 'review', 'oem', 'analytics', 'audit']
+// The one true spine: create → process → review → dispatch → back to work.
+const SPINE: ViewId[] = ['capture', 'pipeline', 'review', 'oem']
+const KNOWN: ViewId[] = [...SPINE, 'dashboard', 'claims', 'evidence', 'analytics', 'audit', 'landing', 'login']
 
 function viewFromHash(): ViewId {
   const raw = window.location.hash.replace(/^#\/?/, '')
-  if (!raw) return 'landing' // Default to landing or dashboard
-  return (ORDER as string[]).concat('dashboard', 'landing').includes(raw) ? (raw as ViewId) : 'dashboard'
+  if (!raw) return 'landing'
+  return (KNOWN as string[]).includes(raw) ? (raw as ViewId) : 'dashboard'
 }
 
 export default function App() {
@@ -28,6 +32,7 @@ export default function App() {
   const [running, setRunning] = useState(false)
   const [selectedScenarioId, setSelectedScenarioId] = useState<'1' | '2' | '3'>('1')
   const [voiceModalOpen, setVoiceModalOpen] = useState(false)
+  const [user, setUser] = useState<AuthUser | null>(() => getSession())
 
   useEffect(() => {
     const sync = () => setView(viewFromHash())
@@ -36,22 +41,29 @@ export default function App() {
   }, [])
 
   const navigate = useCallback((next: ViewId, scenario?: '1' | '2' | '3') => {
-    if (scenario) {
-      setSelectedScenarioId(scenario)
-    }
+    if (scenario) setSelectedScenarioId(scenario)
     setView(next)
     window.location.hash = `/${next}`
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  const next = useCallback(() => {
-    const i = ORDER.indexOf(view)
-    navigate(i === -1 ? 'capture' : ORDER[Math.min(i + 1, ORDER.length - 1)])
+  /** Advance along the capture→dispatch spine; land on Dashboard afterwards. */
+  const advance = useCallback(() => {
+    const i = SPINE.indexOf(view)
+    const nextView = i === -1 || i === SPINE.length - 1 ? 'dashboard' : SPINE[i + 1]
+    navigate(nextView)
   }, [view, navigate])
+
+  const handleLogout = useCallback(() => {
+    logout()
+    setUser(null)
+    setView('landing')
+    window.location.hash = '/landing'
+  }, [])
 
   if (view === 'landing') {
     return (
-      <div className="min-h-screen bg-black text-white selection:bg-[#00c2ff] selection:text-black">
+      <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
         <AnimatePresence mode="wait">
           <motion.div
             key="landing"
@@ -79,6 +91,11 @@ export default function App() {
     )
   }
 
+  // ── Frontend-only auth gate: everything except landing needs login ──
+  if (!user) {
+    return <Login onLogin={(u) => { setUser(u); navigate('dashboard') }} />
+  }
+
   return (
     <div className="min-h-screen bg-black text-white flex select-none">
       <Sidebar
@@ -86,6 +103,8 @@ export default function App() {
         onNavigate={navigate}
         running={running}
         onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
+        user={user}
+        onLogout={handleLogout}
       />
 
       <div className="flex min-w-0 flex-1 flex-col bg-black">
@@ -94,6 +113,8 @@ export default function App() {
           running={running}
           onNavigate={navigate}
           onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
+          user={user}
+          onLogout={handleLogout}
         />
 
         <main className="px-6 md:px-8 py-8 w-full max-w-[1400px]">
@@ -106,7 +127,12 @@ export default function App() {
               transition={{ duration: 0.15 }}
             >
               {view === 'dashboard' && <Dashboard onNavigate={navigate} />}
-              {view === 'claims' && <Claims onNavigate={navigate} onSelectClaim={() => navigate('review')} />}
+              {view === 'claims' && (
+                <Claims
+                  onNavigate={navigate}
+                  onSelectClaim={() => navigate('review')}
+                />
+              )}
               {view === 'capture' && (
                 <Capture
                   onAnalyse={() => navigate('pipeline')}
@@ -119,8 +145,8 @@ export default function App() {
               {view === 'pipeline' && (
                 <Pipeline onRunningChange={setRunning} onContinue={() => navigate('review')} />
               )}
-              {view === 'review' && <Review onContinue={next} />}
-              {view === 'oem' && <OemOutput onContinue={next} />}
+              {view === 'review' && <Review onContinue={advance} />}
+              {view === 'oem' && <OemOutput onContinue={advance} />}
               {view === 'analytics' && <Analytics onNavigate={navigate} />}
               {view === 'audit' && <AuditTrail onBack={() => navigate('dashboard')} />}
             </motion.div>

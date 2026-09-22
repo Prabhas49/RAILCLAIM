@@ -6,23 +6,22 @@ export default function Analytics({
 }: {
   onNavigate?: (v: ViewId) => void
 }) {
-  const [wokenServers, setWokenServers] = useState(false)
   const [hoveredBar, setHoveredBar] = useState<number | null>(null)
 
-  // 12 bars matching user screenshot
+  // 12 bars — Oct 2025 → Sep 2026
   const monthlyData = [
-    { label: 'Mar', value: 8, height: 33 },
-    { label: 'Apr', value: 12, height: 50 },
-    { label: 'May', value: 9, height: 38 },
-    { label: 'Jun', value: 16, height: 65 },
-    { label: 'Mar', value: 14, height: 58 },
-    { label: 'Apr', value: 19, height: 80 },
-    { label: 'May', value: 13, height: 52 },
-    { label: 'Jun', value: 21, height: 88 },
-    { label: 'Mar', value: 18, height: 74 },
-    { label: 'Apr', value: 21, height: 88 },
+    { label: 'Oct', value: 8, height: 33 },
+    { label: 'Nov', value: 12, height: 50 },
+    { label: 'Dec', value: 9, height: 38 },
+    { label: 'Jan', value: 16, height: 65 },
+    { label: 'Feb', value: 14, height: 58 },
+    { label: 'Mar', value: 19, height: 80 },
+    { label: 'Apr', value: 13, height: 52 },
     { label: 'May', value: 21, height: 88 },
-    { label: 'Jun', value: 21, height: 88 },
+    { label: 'Jun', value: 18, height: 74 },
+    { label: 'Jul', value: 21, height: 88 },
+    { label: 'Aug', value: 21, height: 88 },
+    { label: 'Sep', value: 21, height: 88 },
   ]
 
   // Radial progress calculations for 78%
@@ -78,7 +77,7 @@ export default function Analytics({
                 >
                   {/* Tooltip on hover */}
                   {hoveredBar === i && (
-                    <div className="absolute -top-8 bg-black border border-[#1e1e1e] text-[#00c2ff] text-[10px] font-bold py-1 px-2 rounded shadow-lg whitespace-nowrap z-10">
+                    <div className="absolute -top-8 bg-black border border-[#1e1e1e] text-[#FFFFFF] text-[10px] font-bold py-1 px-2 rounded shadow-lg whitespace-nowrap z-10">
                       {d.value} claims
                     </div>
                   )}
@@ -88,7 +87,7 @@ export default function Analytics({
                     className="w-full rounded-t-[4px] transition-all duration-300 group-hover:brightness-110"
                     style={{
                       height: `${d.height}%`,
-                      background: 'linear-gradient(180deg, #00C2FF 0%, #0284C7 60%, #0369A1 100%)',
+                      background: 'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 60%, #FFFFFF 100%)',
                     }}
                   />
                 </div>
@@ -130,13 +129,13 @@ export default function Analytics({
                   stroke="#1e1e1e"
                   strokeWidth="16"
                 />
-                {/* Active Cyan Progress Arc */}
+                {/* Active Amber Progress Arc */}
                 <circle
                   cx="80"
                   cy="80"
                   r={radius}
                   fill="transparent"
-                  stroke="#00C2FF"
+                  stroke="#FFFFFF"
                   strokeWidth="16"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
@@ -182,12 +181,12 @@ export default function Analytics({
           <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
             AVERAGE REVIEW SPEED
           </p>
-          <p className="mt-2 text-3xl font-extrabold text-[#00c2ff]">3.2 hrs</p>
+          <p className="mt-2 text-3xl font-extrabold text-[#FFFFFF]">3.2 hrs</p>
           <p className="mt-1 text-xs text-[#a1a1aa]">
             Time from depot incident capture to engineer dispatch
           </p>
           <div className="mt-4 h-1.5 w-full bg-[#1e1e1e] rounded-full overflow-hidden">
-            <div className="h-full bg-[#00c2ff] rounded-full" style={{ width: '85%' }} />
+            <div className="h-full bg-white rounded-full" style={{ width: '85%' }} />
           </div>
         </div>
 
@@ -206,27 +205,6 @@ export default function Analytics({
         </div>
       </div>
 
-      {/* ── Floating Bottom Pill Banner ──────────────────────────────── */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-4 rounded-full bg-[#0a0a0a]/95 backdrop-blur-md border border-[#1e1e1e] px-5 py-2 text-xs font-medium text-white shadow-2xl">
-          <span>
-            {wokenServers
-              ? 'Backend servers active. Real-time telemetry synchronized.'
-              : 'Frontend Preview Only. Please wake servers to enable backend functionality.'}
-          </span>
-          <button
-            type="button"
-            onClick={() => setWokenServers(!wokenServers)}
-            className={`rounded-full px-3.5 py-1 font-semibold transition-all ${
-              wokenServers
-                ? 'bg-[#06D6A0]/20 text-[#06D6A0] border border-[#06D6A0]/40'
-                : 'bg-[#141414] text-[#00c2ff] border border-[#00c2ff]/40 hover:bg-[#1a1a1a]'
-            }`}
-          >
-            {wokenServers ? 'Servers active ✓' : 'Wake up servers'}
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

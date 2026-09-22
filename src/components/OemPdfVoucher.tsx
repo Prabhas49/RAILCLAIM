@@ -420,7 +420,7 @@ export default function OemPdfVoucherModal({
       <div className="relative w-full max-w-4xl rounded-2xl border border-[#262626] bg-[#0c0c0c] p-6 shadow-2xl text-white my-8">
         <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-4">
           <div className="flex items-center gap-3">
-            <div className="h-3 w-3 rounded-full bg-[#00c2ff] animate-pulse" />
+            <div className="h-3 w-3 rounded-full bg-white animate-pulse" />
             <h2 className="text-lg font-bold tracking-tight text-white">
               Official Japanese OEM Warranty Claim Voucher (JIS E-4001)
             </h2>
@@ -428,7 +428,7 @@ export default function OemPdfVoucherModal({
           <div className="flex items-center gap-3">
             <button
               onClick={() => openPrintableVoucher(scenario)}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#00c2ff] px-4 py-2 text-xs font-bold text-black hover:bg-[#33ceff] transition-all shadow-md active:scale-95"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition-all shadow-md active:scale-95"
             >
               <span>⎙ Download / Print PDF</span>
             </button>
@@ -447,7 +447,7 @@ export default function OemPdfVoucherModal({
         <div className="mt-5 rounded-xl border border-[#222] bg-[#121212] p-6 font-sans text-xs text-neutral-300">
           <div className="flex justify-between items-start border-b border-[#2a2a2a] pb-4">
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-wider text-[#00c2ff] font-bold">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF] font-bold">
                 BILATERAL WARRANTY RECOVERY
               </p>
               <h3 className="text-xl font-extrabold text-white mt-1">
@@ -473,7 +473,7 @@ export default function OemPdfVoucherModal({
                 Equipment & Serial Identification
               </span>
               <p className="text-sm font-bold text-white mt-1">{scenario.equipment}</p>
-              <p className="text-xs text-[#00c2ff] font-mono mt-0.5">Part: {scenario.model} · Serial: {scenario.serialNo}</p>
+              <p className="text-xs text-[#FFFFFF] font-mono mt-0.5">Part: {scenario.model} · Serial: {scenario.serialNo}</p>
               <p className="text-xs text-[#888] mt-2 leading-relaxed">
                 Warranty Clause: <strong className="text-neutral-200">{scenario.warrantyClause}</strong>
               </p>
@@ -483,7 +483,7 @@ export default function OemPdfVoucherModal({
               <span className="text-[10px] font-mono text-[#71717a] uppercase font-bold">
                 Defect & Telemetry Verification
               </span>
-              <p className="text-sm font-bold text-amber-400 mt-1">Fault Code: {scenario.faultCode}</p>
+              <p className="text-sm font-bold text-white mt-1">Fault Code: {scenario.faultCode}</p>
               <p className="text-xs text-[#aaa] mt-0.5">{scenario.failureDescription}</p>
               <p className="text-xs text-[#71717a] font-mono mt-2">
                 Acoustic Log ({scenario.language}): "{scenario.transcript[0]?.source}"
@@ -500,7 +500,7 @@ export default function OemPdfVoucherModal({
                 <span className="text-2xl font-black text-white font-mono">
                   ₹{scenario.amountInr.toLocaleString('en-IN')}
                 </span>
-                <span className="text-sm font-bold text-[#00c2ff] font-mono">
+                <span className="text-sm font-bold text-[#FFFFFF] font-mono">
                   (¥{scenario.amountJpy.toLocaleString('ja-JP')})
                 </span>
               </div>

@@ -5,8 +5,8 @@ import { AUDIT_EVENTS } from '../data/mock'
 
 const KIND_CONFIG: Record<string, { label: string; badge: string }> = {
   capture: { label: 'FIELD CAPTURE', badge: 'bg-[#141414] text-white border border-[#262626]' },
-  ai: { label: 'NEURAL INFERENCE', badge: 'bg-[#0A263B] text-[#00c2ff] border border-[#00c2ff]/30' },
-  human: { label: 'INSPECTOR SIGN-OFF', badge: 'bg-[#292010] text-[#FFB703] border border-[#FFB703]/30 font-bold' },
+  ai: { label: 'NEURAL INFERENCE', badge: 'bg-[#241a08] text-[#FFFFFF] border border-[#FFFFFF]/30' },
+  human: { label: 'INSPECTOR SIGN-OFF', badge: 'bg-[rgba(255,255,255,0.08)] text-[#FFFFFF] border border-[#FFFFFF]/30 font-bold' },
   system: { label: 'GATEWAY DISPATCH', badge: 'bg-[#0C271E] text-[#06D6A0] border border-[#06D6A0]/30' },
 }
 
@@ -32,7 +32,7 @@ export default function AuditTrail({ onBack }: { onBack: () => void }) {
             <span>← Back to Command Center</span>
           </button>
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#00c2ff] shadow-[0_0_8px_#00c2ff]" />
+            <span className="h-2 w-2 rounded-full bg-white shadow-[0_0_8px_#FFFFFF]" />
             <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#71717a]">
               Cryptographic Audit Chain // ISO/IEC 27001 & JIS Audit Standard
             </p>
@@ -66,7 +66,7 @@ export default function AuditTrail({ onBack }: { onBack: () => void }) {
             onClick={() => setFilter(k)}
             className={`rounded-full px-4 py-1.5 font-mono text-xs font-semibold uppercase transition-colors border ${
               filter === k
-                ? 'bg-[#00c2ff] text-black border-[#00c2ff]'
+                ? 'bg-white text-black border-[#FFFFFF]'
                 : 'bg-[#141414] text-[#a1a1aa] border-[#262626] hover:border-white hover:text-white'
             }`}
           >
@@ -92,8 +92,8 @@ export default function AuditTrail({ onBack }: { onBack: () => void }) {
               className="relative rounded-2xl border border-[#1e1e1e] bg-[#0a0a0a] shadow-sm p-6"
             >
               {/* Chain Node Marker */}
-              <div className="absolute -left-[31px] top-7 flex h-4 w-4 items-center justify-center rounded-full bg-black border-2 border-[#00c2ff]">
-                <div className="h-1.5 w-1.5 rounded-full bg-[#00c2ff]" />
+              <div className="absolute -left-[31px] top-7 flex h-4 w-4 items-center justify-center rounded-full bg-black border-2 border-[#FFFFFF]">
+                <div className="h-1.5 w-1.5 rounded-full bg-white" />
               </div>
 
               {/* Event Header */}
@@ -122,12 +122,12 @@ export default function AuditTrail({ onBack }: { onBack: () => void }) {
 
                   <div className="flex items-center gap-2">
                     <span className="text-[#71717a]">Hash:</span>
-                    <span className="rounded bg-black px-2 py-0.5 font-mono text-[11px] text-[#00c2ff] font-bold border border-[#1e1e1e]">
+                    <span className="rounded bg-black px-2 py-0.5 font-mono text-[11px] text-[#FFFFFF] font-bold border border-[#1e1e1e]">
                       {event.hash}
                     </span>
                     <button
                       onClick={() => handleVerify(event.hash)}
-                      className="text-xs font-bold text-[#00c2ff] hover:underline"
+                      className="text-xs font-bold text-[#FFFFFF] hover:underline"
                     >
                       Verify Signature
                     </button>
@@ -154,7 +154,7 @@ export default function AuditTrail({ onBack }: { onBack: () => void }) {
 
             <div className="mt-4 rounded-xl bg-black p-4 border border-[#1e1e1e] font-mono text-xs space-y-2">
               <p className="text-[#71717a] font-bold">Block Hash:</p>
-              <p className="text-[#00c2ff] break-all font-bold">{verifiedHash}</p>
+              <p className="text-[#FFFFFF] break-all font-bold">{verifiedHash}</p>
               <div className="pt-3 border-t border-[#1e1e1e] text-[11px] text-neutral-300 space-y-1">
                 <p>✓ Signature algorithm: RSA-4096 / SHA-256</p>
                 <p>✓ Timestamp Authority: KMRL Transit CA #1</p>
@@ -165,7 +165,7 @@ export default function AuditTrail({ onBack }: { onBack: () => void }) {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setVerifiedHash(null)}
-                className="rounded-full bg-[#00c2ff] px-5 py-2 font-mono text-xs font-bold text-black hover:bg-[#2ed2ff]"
+                className="rounded-full bg-white px-5 py-2 font-mono text-xs font-bold text-black hover:bg-neutral-200"
               >
                 Close Inspector
               </button>

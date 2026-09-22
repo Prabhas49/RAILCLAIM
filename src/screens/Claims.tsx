@@ -1,18 +1,20 @@
 import { useState, useMemo } from 'react'
 import type { ViewId } from '../types'
+import { getDraft, getSubmittedClaims } from '../lib/claimStore'
 
-export interface ClaimItem {
+interface ClaimRow {
   id: string
   equipment: string
   fault: string
   date: string
-  status: 'Under Engineer Review' | 'Missing Information' | 'Submitted to OEM'
+  status: 'Draft in progress' | 'Under Engineer Review' | 'Missing Information' | 'Submitted to OEM'
   engineer: string
+  live?: boolean
 }
 
-const CLAIMS_DATA: ClaimItem[] = [
+const DEMO_CLAIMS: ClaimRow[] = [
   {
-    id: 'HS-2026-001',
+    id: 'HS-2026-0881',
     equipment: 'Traction Motor',
     fault: 'Abnormal vibration during acceleration',
     date: '18 Feb 2026',
@@ -20,7 +22,7 @@ const CLAIMS_DATA: ClaimItem[] = [
     engineer: 'Pragna Rao',
   },
   {
-    id: 'HS-2026-002',
+    id: 'HS-2026-0882',
     equipment: 'Brake Control Unit',
     fault: 'Intermittent pressure loss',
     date: '18 Feb 2026',
@@ -28,7 +30,7 @@ const CLAIMS_DATA: ClaimItem[] = [
     engineer: 'S. Rao',
   },
   {
-    id: 'HS-2026-003',
+    id: 'HS-2026-0883',
     equipment: 'Door Actuator',
     fault: 'Door fails to lock at station',
     date: '18 Feb 2026',
@@ -36,7 +38,7 @@ const CLAIMS_DATA: ClaimItem[] = [
     engineer: 'Pragna Rao',
   },
   {
-    id: 'RC-2026-004',
+    id: 'HS-2026-0884',
     equipment: 'HVAC Compressor',
     fault: 'Refrigerant cycle high pressure trip',
     date: '18 Feb 2026',
@@ -44,7 +46,7 @@ const CLAIMS_DATA: ClaimItem[] = [
     engineer: 'R. Iyer',
   },
   {
-    id: 'RC-2026-005',
+    id: 'HS-2026-0885',
     equipment: 'Pantograph Assembly',
     fault: 'Arcing detected on collector strip',
     date: '18 Feb 2026',
@@ -52,7 +54,7 @@ const CLAIMS_DATA: ClaimItem[] = [
     engineer: 'S. Rao',
   },
   {
-    id: 'RC-2026-006',
+    id: 'HS-2026-0886',
     equipment: 'Auxiliary Power Unit',
     fault: 'Phase inverter temperature sensor fault',
     date: '18 Feb 2026',
@@ -61,124 +63,112 @@ const CLAIMS_DATA: ClaimItem[] = [
   },
 ]
 
+const STATUS_OPTIONS = [
+  'All statuses',
+  'Draft in progress',
+  'Under Engineer Review',
+  'Missing Information',
+  'Submitted to OEM',
+] as const
+
 export default function Claims({
   onNavigate,
   onSelectClaim,
 }: {
   onNavigate: (v: ViewId) => void
-  onSelectClaim?: (claimId: string) => void
+  onSelectClaim?: () => void
 }) {
+  const draft = useMemo(() => getDraft(), [])
+  const submitted = useMemo(() => getSubmittedClaims(), [])
+
+  const rows: ClaimRow[] = useMemo(() => {
+    const live: ClaimRow[] = []
+    if (draft && draft.status !== 'submitted') {
+      live.push({
+        id: draft.id,
+        equipment: draft.equipmentType,
+        fault: draft.faultSummary,
+        date: new Date(draft.faultDate).toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }),
+        status:
+          draft.status === 'review' ? 'Under Engineer Review' : 'Draft in progress',
+        engineer: 'You',
+        live: true,
+      })
+    }
+    const filed: ClaimRow[] = submitted.map((s) => ({
+      id: s.id,
+      equipment: s.equipment,
+      fault: s.fault,
+      date: s.date,
+      status: 'Submitted to OEM',
+      engineer: 'You',
+    }))
+    return [...live, ...filed, ...DEMO_CLAIMS]
+  }, [draft, submitted])
+
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('All statuses')
-  const [equipmentFilter, setEquipmentFilter] = useState('All equipment')
-  const [dateFilter, setDateFilter] = useState('Last 30 days')
-  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false)
-  const [equipmentDropdownOpen, setEquipmentDropdownOpen] = useState(false)
-  const [dateDropdownOpen, setDateDropdownOpen] = useState(false)
-  const [wokenServers, setWokenServers] = useState(false)
-
-  const statusOptions = [
-    'All statuses',
-    'Under Engineer Review',
-    'Missing Information',
-    'Submitted to OEM',
-  ]
-
-  const equipmentOptions = [
-    'All equipment',
-    'Traction Motor',
-    'Brake Control Unit',
-    'Door Actuator',
-    'Pantograph Assembly',
-    'Auxiliary Power Unit',
-    'HVAC Compressor',
-  ]
-
-  const dateOptions = ['Last 30 days', 'Last 7 days', 'Last 90 days', 'All time']
+  const [statusFilter, setStatusFilter] = useState<string>('All statuses')
+  const [openDropdown, setOpenDropdown] = useState<'status' | null>(null)
 
   const filteredClaims = useMemo(() => {
-    return CLAIMS_DATA.filter((c) => {
+    return rows.filter((c) => {
       if (statusFilter !== 'All statuses' && c.status !== statusFilter) return false
-      if (equipmentFilter !== 'All equipment' && c.equipment !== equipmentFilter) return false
       if (!searchQuery.trim()) return true
       const q = searchQuery.toLowerCase()
       return (
         c.id.toLowerCase().includes(q) ||
         c.equipment.toLowerCase().includes(q) ||
         c.fault.toLowerCase().includes(q) ||
-        c.engineer.toLowerCase().includes(q) ||
-        c.date.toLowerCase().includes(q)
+        c.engineer.toLowerCase().includes(q)
       )
     })
-  }, [searchQuery, statusFilter, equipmentFilter])
+  }, [rows, searchQuery, statusFilter])
 
-  const renderStatusBadge = (status: ClaimItem['status']) => {
+  const statusBadge = (status: ClaimRow['status']) => {
     switch (status) {
+      case 'Draft in progress':
+        return 'bg-[#141414] text-[#a1a1aa] border border-[#27272a]'
       case 'Under Engineer Review':
-        return (
-          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#292010] text-[#FFB703] border border-[#FFB703]/30">
-            {status}
-          </span>
-        )
+        return 'bg-[rgba(255,255,255,0.08)] text-white border border-[#FFFFFF]/30'
       case 'Missing Information':
-        return (
-          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#2B1218] text-[#FF4D6D] border border-[#FF4D6D]/30">
-            {status}
-          </span>
-        )
+        return 'bg-[#2B1218] text-[#FF4D6D] border border-[#FF4D6D]/30'
       case 'Submitted to OEM':
-        return (
-          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#0C271E] text-[#06D6A0] border border-[#06D6A0]/30">
-            {status}
-          </span>
-        )
-      default:
-        return (
-          <span className="inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium bg-[#141414] text-[#a1a1aa] border border-[#27272a]">
-            {status}
-          </span>
-        )
+        return 'bg-[#0C271E] text-[#06D6A0] border border-[#06D6A0]/30'
     }
   }
 
   return (
-    <div className="relative min-h-[calc(100vh-64px)] pb-28 text-white select-none">
-      {/* ── Title & Eyebrow ────────────────────────────────────────── */}
-      <div>
-        <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
-          MAINTENANCE OPERATIONS
-        </p>
-        <h1 className="mt-1.5 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Claims
-        </h1>
-        <p className="mt-1.5 text-sm text-[#a1a1aa]">
-          Track, review, and move evidence-backed claims forward.
-        </p>
-      </div>
-
-      {/* ── Primary Action Button ───────────────────────────────────── */}
-      <div className="mt-6">
+    <div className="min-h-[calc(100vh-64px)] pb-16 text-white">
+      {/* ── Title ───────────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
+            MAINTENANCE OPERATIONS
+          </p>
+          <h1 className="mt-1.5 text-3xl font-bold tracking-tight text-white sm:text-4xl">Claims</h1>
+          <p className="mt-1.5 text-sm text-[#a1a1aa]">
+            Track, review, and move evidence-backed claims forward.
+          </p>
+        </div>
         <button
           type="button"
           onClick={() => onNavigate('capture')}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#00c2ff] px-5 py-2.5 text-sm font-extrabold text-black shadow-sm transition-all hover:bg-[#2ed2ff] active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-black hover:bg-neutral-200 transition-colors cursor-pointer self-start"
         >
           <span className="text-lg leading-none font-black">+</span>
           <span>Create new claim</span>
         </button>
       </div>
 
-      {/* ── Search & Filter Controls ────────────────────────────────── */}
+      {/* ── Search & Filter ─────────────────────────────────────────────── */}
       <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
-        {/* Search input */}
         <div className="relative flex-1">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#71717a]">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -191,157 +181,45 @@ export default function Claims({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search claims, equipment, or serial number"
-            className="w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-2.5 pl-10 pr-4 text-xs text-white placeholder-[#71717a] transition-all focus:border-[#00c2ff]/60 focus:outline-none"
+            placeholder="Search claims, equipment, or fault"
+            className="w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-2.5 pl-10 pr-4 text-xs text-white placeholder-[#71717a] focus:border-white/60 focus:outline-none"
           />
         </div>
 
-        {/* Filter Dropdowns */}
-        <div className="flex items-center gap-3">
-          {/* Status filter */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setStatusDropdownOpen(!statusDropdownOpen)
-                setEquipmentDropdownOpen(false)
-                setDateDropdownOpen(false)
-              }}
-              className="flex items-center gap-2.5 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-2.5 text-xs text-[#a1a1aa] transition-colors hover:text-white hover:border-[#333333]"
-            >
-              <span>{statusFilter}</span>
-              <svg
-                className="w-3.5 h-3.5 text-[#71717a]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-            {statusDropdownOpen && (
-              <div className="absolute right-0 top-full z-20 mt-1 w-52 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-1 shadow-xl">
-                {statusOptions.map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => {
-                      setStatusFilter(opt)
-                      setStatusDropdownOpen(false)
-                    }}
-                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#141414] hover:text-white ${
-                      statusFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#a1a1aa]'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Equipment filter */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setEquipmentDropdownOpen(!equipmentDropdownOpen)
-                setStatusDropdownOpen(false)
-                setDateDropdownOpen(false)
-              }}
-              className="flex items-center gap-2.5 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-2.5 text-xs text-[#a1a1aa] transition-colors hover:text-white hover:border-[#333333]"
-            >
-              <span>{equipmentFilter}</span>
-              <svg
-                className="w-3.5 h-3.5 text-[#71717a]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-            {equipmentDropdownOpen && (
-              <div className="absolute right-0 top-full z-20 mt-1 w-56 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-1 shadow-xl">
-                {equipmentOptions.map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => {
-                      setEquipmentFilter(opt)
-                      setEquipmentDropdownOpen(false)
-                    }}
-                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#141414] hover:text-white ${
-                      equipmentFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#a1a1aa]'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Date filter */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setDateDropdownOpen(!dateDropdownOpen)
-                setStatusDropdownOpen(false)
-                setEquipmentDropdownOpen(false)
-              }}
-              className="flex items-center gap-2.5 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-2.5 text-xs text-[#a1a1aa] transition-colors hover:text-white hover:border-[#333333]"
-            >
-              <span>{dateFilter}</span>
-              <svg
-                className="w-3.5 h-3.5 text-[#71717a]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-            {dateDropdownOpen && (
-              <div className="absolute right-0 top-full z-20 mt-1 w-40 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-1 shadow-xl">
-                {dateOptions.map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => {
-                      setDateFilter(opt)
-                      setDateDropdownOpen(false)
-                    }}
-                    className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#141414] hover:text-white ${
-                      dateFilter === opt ? 'font-bold text-[#00c2ff]' : 'text-[#a1a1aa]'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
+            className="flex items-center gap-2.5 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-2.5 text-xs text-[#a1a1aa] transition-colors hover:text-white hover:border-[#333333] cursor-pointer"
+          >
+            <span>{statusFilter}</span>
+            <svg className="w-3.5 h-3.5 text-[#71717a]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {openDropdown === 'status' && (
+            <div className="absolute right-0 top-full z-20 mt-1 w-56 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] py-1 shadow-xl">
+              {STATUS_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => {
+                    setStatusFilter(opt)
+                    setOpenDropdown(null)
+                  }}
+                  className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-[#141414] hover:text-white cursor-pointer ${
+                    statusFilter === opt ? 'font-bold text-white' : 'text-[#a1a1aa]'
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Claims Data Table ─────────────────────────────────────────── */}
+      {/* ── Table ───────────────────────────────────────────────────────── */}
       <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -366,41 +244,39 @@ export default function Claims({
                 <tr
                   key={claim.id}
                   onClick={() => {
-                    if (onSelectClaim) onSelectClaim(claim.id)
+                    if (claim.live) onNavigate('review')
+                    else onSelectClaim?.()
                   }}
                   className="group hover:bg-[#111111] transition-colors cursor-pointer"
                 >
-                  {/* Claim ID */}
-                  <td className="py-4 px-6 font-sans text-xs font-bold text-[#00c2ff]">
-                    {claim.id}
+                  <td className="py-4 px-6 text-xs font-bold text-white">
+                    <span className="inline-flex items-center gap-2">
+                      {claim.id}
+                      {claim.live && (
+                        <span className="rounded bg-white px-1.5 py-0.5 text-[9px] font-bold text-black">
+                          YOUR DRAFT
+                        </span>
+                      )}
+                    </span>
                   </td>
 
-                  {/* Equipment / Fault */}
                   <td className="py-4 px-6">
-                    <p className="text-xs font-semibold text-white group-hover:text-[#00c2ff] transition-colors">
-                      {claim.equipment}
-                    </p>
-                    <p className="mt-0.5 text-xs text-[#a1a1aa]">
-                      {claim.fault}
-                    </p>
+                    <p className="text-xs font-semibold text-white">{claim.equipment}</p>
+                    <p className="mt-0.5 text-xs text-[#a1a1aa]">{claim.fault}</p>
                   </td>
 
-                  {/* Date */}
-                  <td className="py-4 px-6 text-xs text-[#d1d5db]">
-                    {claim.date}
-                  </td>
+                  <td className="py-4 px-6 text-xs text-[#d1d5db]">{claim.date}</td>
 
-                  {/* Status */}
                   <td className="py-4 px-6">
-                    {renderStatusBadge(claim.status)}
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-[4px] text-xs font-medium ${statusBadge(claim.status)}`}
+                    >
+                      {claim.status}
+                    </span>
                   </td>
 
-                  {/* Engineer */}
-                  <td className="py-4 px-6 text-xs text-[#d1d5db]">
-                    {claim.engineer}
-                  </td>
+                  <td className="py-4 px-6 text-xs text-[#d1d5db]">{claim.engineer}</td>
 
-                  {/* Action Chevron */}
                   <td className="py-4 px-6 text-right">
                     <svg
                       className="w-4 h-4 text-[#52525b] group-hover:text-white transition-colors ml-auto"
@@ -408,12 +284,7 @@ export default function Claims({
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </td>
                 </tr>
@@ -423,27 +294,9 @@ export default function Claims({
         </table>
       </div>
 
-      {/* ── Floating Bottom Pill Banner ──────────────────────────────── */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-4 rounded-full bg-[#0a0a0a]/95 backdrop-blur-md border border-[#1e1e1e] px-5 py-2 text-xs font-medium text-white shadow-2xl">
-          <span>
-            {wokenServers
-              ? 'Backend servers active. Real-time telemetry synchronized.'
-              : 'Frontend Preview Only. Please wake servers to enable backend functionality.'}
-          </span>
-          <button
-            type="button"
-            onClick={() => setWokenServers(!wokenServers)}
-            className={`rounded-full px-3.5 py-1 font-semibold transition-all ${
-              wokenServers
-                ? 'bg-[#06D6A0]/20 text-[#06D6A0] border border-[#06D6A0]/40'
-                : 'bg-[#141414] text-[#00c2ff] border border-[#00c2ff]/40 hover:bg-[#1a1a1a]'
-            }`}
-          >
-            {wokenServers ? 'Servers active ✓' : 'Wake up servers'}
-          </button>
-        </div>
-      </div>
+      <p className="mt-3 text-[11px] text-[#71717a]">
+        Demo rows shown for context — your draft and dispatched claims always appear at the top.
+      </p>
     </div>
   )
 }

@@ -12,9 +12,10 @@ export default {
         surface: '#0A0A0A',
         panel: '#141414',
         accent: {
-          blue: '#00C2FF',
+          primary: '#FFFFFF',
+          white: '#FFFFFF',
+          white: '#FFFFFF',
           emerald: '#10B981',
-          amber: '#F59E0B',
           rose: '#EF4444',
         },
       },

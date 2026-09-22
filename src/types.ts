@@ -1,6 +1,6 @@
 export type OemId = 'mitsubishi' | 'hitachi' | 'kawasaki' | 'toshiba'
 
-export type Accent = 'indigo' | 'rose' | 'amber' | 'emerald' | 'sky'
+export type Accent = 'indigo' | 'rose' | 'white' | 'emerald' | 'sky'
 
 export interface Oem {
   id: OemId
@@ -116,6 +116,7 @@ export interface AuditEvent {
 
 export type ViewId =
   | 'landing'
+  | 'login'
   | 'dashboard'
   | 'claims'
   | 'capture'

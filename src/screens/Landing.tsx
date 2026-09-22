@@ -11,6 +11,31 @@ interface LandingProps {
   onOpenVoiceTranslator?: () => void
 }
 
+const STEPS = [
+  {
+    num: '01',
+    title: 'Photograph the nameplate',
+    body: 'Serial number, model and manufacturer are read automatically.',
+  },
+  {
+    num: '02',
+    title: 'Record the fault',
+    body: 'Speak in Telugu, Hindi or English. It is transcribed and translated to Japanese.',
+  },
+  {
+    num: '03',
+    title: 'Send the claim',
+    body: 'A bilingual PDF with error code, photos and claim amount, ready for the OEM.',
+  },
+]
+
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+  transition: { duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] as const },
+}
+
 export default function Landing({
   onEnter,
   onSelectScenario,
@@ -26,118 +51,102 @@ export default function Landing({
   }
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-[#00c2ff] selection:text-black font-sans">
-      {/* ── Top Header ────────────────────────────────────────────── */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#1e1e1e] bg-black/90 backdrop-blur-md">
+    <div className="min-h-screen bg-black font-sans text-white antialiased">
+      {/* ── Header ──────────────────────────────────────────────────── */}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-black/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#00c2ff] text-black font-black text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-[11px] font-black text-black">
               HS
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-extrabold tracking-tight text-white">HASHI SETU</span>
-              <span className="rounded border border-[#222] bg-[#111] px-1.5 py-0.5 font-mono text-[9px] text-[#00c2ff]">
-                橋・सेतु
-              </span>
-            </div>
+            <span className="text-sm font-semibold tracking-tight">Hashi Setu</span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-xs text-[#888]">
-            <a href="#examples" className="hover:text-white transition-colors">Examples</a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
-            <a href="#results" className="hover:text-white transition-colors">Results</a>
-          </nav>
-
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {onOpenVoiceTranslator && (
               <button
                 type="button"
                 onClick={onOpenVoiceTranslator}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#00c2ff]/40 bg-[#00c2ff]/10 px-3 py-1.5 text-xs font-semibold text-[#00c2ff] hover:bg-[#00c2ff]/20 transition-all shadow-[0_0_15px_rgba(0,194,255,0.15)]"
-                title="Speak in Telugu/English -> Speaks in Japanese out loud"
+                className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-[#a1a1aa] transition-colors hover:text-white cursor-pointer"
               >
                 <Icon name="mic" className="h-3.5 w-3.5" />
-                <span>Voice to Japanese</span>
-                <span className="text-[10px] opacity-75 font-mono hidden sm:inline">音声通訳</span>
+                Voice bridge
               </button>
             )}
-
             <button
               onClick={() => onEnter('dashboard')}
-              className="inline-flex items-center gap-2 rounded-full bg-[#00c2ff] px-4 sm:px-5 py-2 text-xs font-bold text-black transition-all hover:bg-[#38d4ff] shadow-md active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-black transition-colors hover:bg-[#d4d4d8] cursor-pointer"
             >
-              <span>Open App</span>
-              <Icon name="arrowRight" className="h-3.5 w-3.5" />
+              Open App
             </button>
           </div>
         </div>
       </header>
 
-      {/* ── Hero Section ────────────────────────────────────────────── */}
-      <section className="relative px-6 pt-32 pb-16 md:pt-40 md:pb-24">
-        <div className="mx-auto max-w-3xl text-center">
-          {/* Simple Eyebrow */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#222] bg-[#0c0c0c] px-3.5 py-1 text-xs text-[#aaa]">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            <span>Built for Kochi, Chennai & Mumbai Metro Depots</span>
-          </div>
+      {/* ── Hero ────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden px-6 pb-28 pt-44 text-center sm:pb-36 sm:pt-52">
+        {/* soft top glow */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(ellipse_55%_45%_at_50%_-5%,rgba(255,255,255,0.08),transparent)]" />
 
-          {/* Clean Headline */}
-          <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            Train warranty claims, <br />
+        <motion.div {...fadeUp} className="relative mx-auto max-w-4xl">
+          <h1 className="bg-gradient-to-b from-white via-white to-[#71717a] bg-clip-text text-5xl font-extrabold leading-[1.04] tracking-tighter text-transparent sm:text-7xl">
+            Train warranty claims,
+            <br />
             filed in 15 seconds.
           </h1>
 
-          {/* Simple Subtitle */}
-          <p className="mx-auto mt-5 max-w-xl text-base text-[#999] leading-relaxed">
-            Snap a photo of the damaged train part. Speak what went wrong in your own language (Telugu, Hindi, English). Hashi Setu writes the official claim and speaks Japanese out loud to the OEM.
+          <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-[#a1a1aa]">
+            Photograph the failed part, describe the fault in your own language, and get a bilingual claim PDF the OEM accepts.
           </p>
 
-          {/* Simple Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
             <button
               onClick={() => onEnter('capture')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#00c2ff] px-7 py-3 text-sm font-bold text-black hover:bg-[#34d4ff] transition-all shadow-lg active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-[#d4d4d8] cursor-pointer"
             >
-              <span>Create a Claim</span>
+              Create a claim
               <Icon name="arrowRight" className="h-4 w-4" />
             </button>
-
-            {onOpenVoiceTranslator && (
-              <button
-                type="button"
-                onClick={onOpenVoiceTranslator}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-[#00c2ff]/40 bg-[#00c2ff]/10 px-6 py-3 text-sm font-semibold text-[#00c2ff] hover:bg-[#00c2ff]/20 transition-all cursor-pointer shadow-[0_0_20px_rgba(0,194,255,0.15)]"
-              >
-                <Icon name="mic" className="h-4 w-4" />
-                <span>Voice Bridge (Telugu &rarr; Japanese)</span>
-              </button>
-            )}
-
             <button
               onClick={() => openPrintableVoucher(activeScenario)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-[#262626] bg-[#111] px-6 py-3 text-sm font-medium text-white hover:bg-[#1a1a1a] transition-all cursor-pointer"
+              className="group inline-flex items-center gap-1.5 text-sm font-medium text-[#a1a1aa] transition-colors hover:text-white cursor-pointer"
             >
-              <span>Download Sample PDF</span>
+              View sample claim PDF
+              <Icon name="chevronRight" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </button>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* ── 3 COMMON TRAIN FAILURES (Interactive) ───────────────────── */}
-      <section id="examples" className="py-14 px-6 border-t border-[#1a1a1a] bg-[#080808]">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white">
-              Try 3 real failure examples
-            </h2>
-            <p className="mt-1 text-xs text-[#888]">
-              Click an example to see its details and download the claim PDF.
-            </p>
-          </div>
+      {/* ── How it works ────────────────────────────────────────────── */}
+      <section className="border-t border-white/5 px-6 py-28 sm:py-36">
+        <motion.div {...fadeUp} className="mx-auto max-w-5xl">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">How it works.</h2>
+          <p className="mt-3 text-sm text-[#71717a]">Three steps from depot floor to claim settlement.</p>
 
-          {/* 3 Simple Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {STEPS.map((step) => (
+              <div
+                key={step.num}
+                className="rounded-3xl border border-white/5 bg-[#0d0d0d] p-8 transition-colors hover:border-white/10"
+              >
+                <span className="font-mono text-4xl font-bold tracking-tight text-[#3f3f46]">{step.num}</span>
+                <h3 className="mt-8 text-lg font-bold tracking-tight">{step.title}</h3>
+                <p className="mt-2.5 text-sm leading-relaxed text-[#a1a1aa]">{step.body}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ── Real examples ───────────────────────────────────────────── */}
+      <section className="border-t border-white/5 px-6 py-28 sm:py-36">
+        <motion.div {...fadeUp} className="mx-auto max-w-5xl">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">Real examples.</h2>
+          <p className="mt-3 text-sm text-[#71717a]">Pick one to inspect the claim, or open it in the app.</p>
+
+          {/* Scenario selector */}
+          <div className="mt-12 grid grid-cols-1 gap-3 md:grid-cols-3">
             {FAILURE_SCENARIOS.map((sc) => {
               const isSelected = activeScenarioId === sc.id
               return (
@@ -145,144 +154,95 @@ export default function Landing({
                   key={sc.id}
                   type="button"
                   onClick={() => setActiveScenarioId(sc.id)}
-                  className={`p-4 rounded-xl text-left border transition-all cursor-pointer ${
+                  className={`rounded-2xl border p-5 text-left transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-[#00c2ff] bg-[#0c1824] ring-1 ring-[#00c2ff]'
-                      : 'border-[#1e1e1e] bg-[#0e0e0e] hover:border-[#2a2a2a]'
+                      ? 'border-white/70 bg-white/[0.05]'
+                      : 'border-white/5 bg-[#0d0d0d] hover:border-white/15'
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono text-[#888]">Example {sc.id}</span>
-                    <span className="font-mono font-bold text-emerald-400">
+                    <span className="font-mono text-[#71717a]">{sc.faultCode}</span>
+                    <span className="font-mono font-semibold text-white">
                       ₹{(sc.amountInr / 100000).toFixed(1)}L
                     </span>
                   </div>
-                  <h3 className="font-bold text-sm text-white mt-2">{sc.equipment}</h3>
-                  <p className="text-xs text-[#00c2ff] mt-0.5">{sc.oemName}</p>
-                  <p className="text-xs text-[#777] mt-2 line-clamp-2">{sc.symptom}</p>
+                  <h3 className="mt-3 text-sm font-bold tracking-tight">{sc.equipment}</h3>
+                  <p className="mt-0.5 text-xs text-[#71717a]">{sc.oemName}</p>
                 </button>
               )
             })}
           </div>
 
-          {/* Selected Example Detail Box */}
-          <div className="mt-6 rounded-xl border border-[#222] bg-[#0e0e0e] p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1a1a1a] pb-4">
+          {/* Claim document preview */}
+          <motion.div
+            key={activeScenario.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mt-6 overflow-hidden rounded-3xl border border-white/8 bg-[#0b0b0b]"
+          >
+            <div className="flex flex-col gap-5 border-b border-white/5 p-7 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 className="text-lg font-bold text-white">
-                  {activeScenario.equipment}
-                </h3>
-                <p className="text-xs text-[#888] mt-0.5">
-                  Made by {activeScenario.oemName} · Serial: <span className="font-mono text-white">{activeScenario.serialNo}</span>
+                <h3 className="text-xl font-bold tracking-tight">{activeScenario.equipment}</h3>
+                <p className="mt-1 text-xs text-[#71717a]">
+                  {activeScenario.oemName} · Serial{' '}
+                  <span className="font-mono text-[#d4d4d8]">{activeScenario.serialNo}</span>
                 </p>
               </div>
-
-              <div className="flex items-center gap-2.5">
+              <div className="flex shrink-0 items-center gap-3">
                 <button
                   onClick={() => openPrintableVoucher(activeScenario)}
-                  className="rounded-lg border border-[#262626] bg-[#161616] px-4 py-2 text-xs font-semibold text-white hover:bg-[#222] cursor-pointer"
+                  className="rounded-full border border-white/15 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-white/5 cursor-pointer"
                 >
                   Download PDF
                 </button>
                 <button
                   onClick={() => handleLaunchScenario(activeScenario.id)}
-                  className="rounded-lg bg-[#00c2ff] px-4 py-2 text-xs font-bold text-black hover:bg-[#34d4ff] cursor-pointer"
+                  className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-black transition-colors hover:bg-[#d4d4d8] cursor-pointer"
                 >
-                  Test this claim in App →
+                  Open in app
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5 text-xs">
-              <div className="rounded-lg bg-[#141414] p-3.5 border border-[#1f1f1f]">
-                <p className="text-[#888] font-semibold text-[11px]">Voice note recorded:</p>
-                <p className="mt-1.5 italic text-white">"{activeScenario.transcript[0]?.source}"</p>
-                <p className="mt-1.5 text-[#00c2ff]">→ {activeScenario.transcript[0]?.translation}</p>
+            <div className="grid gap-x-10 gap-y-6 p-7 text-sm md:grid-cols-2">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#71717a]">Fault code</p>
+                <p className="mt-1.5 font-mono text-white">{activeScenario.faultCode}</p>
               </div>
-
-              <div className="rounded-lg bg-[#141414] p-3.5 border border-[#1f1f1f]">
-                <p className="text-[#888] font-semibold text-[11px]">What broke:</p>
-                <p className="mt-1.5 text-neutral-300 leading-relaxed">{activeScenario.failureDescription}</p>
-                <p className="mt-2 text-emerald-400 font-mono text-[10px]">Error code: {activeScenario.faultCode}</p>
-              </div>
-
-              <div className="rounded-lg bg-[#141414] p-3.5 border border-[#1f1f1f]">
-                <p className="text-[#888] font-semibold text-[11px]">Claim amount:</p>
-                <p className="mt-1 text-xl font-bold font-mono text-white">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#71717a]">Claim amount</p>
+                <p className="mt-1.5 font-mono text-white">
                   ₹{activeScenario.amountInr.toLocaleString('en-IN')}
+                  <span className="text-[#71717a]"> · ¥{activeScenario.amountJpy.toLocaleString('ja-JP')}</span>
                 </p>
-                <p className="text-[#00c2ff] font-mono text-[11px]">¥{activeScenario.amountJpy.toLocaleString('ja-JP')} JPY</p>
-                <p className="mt-1 text-[#777] text-[10px]">Includes new part + depot labor</p>
+              </div>
+              <div className="md:col-span-2">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#71717a]">What broke</p>
+                <p className="mt-1.5 leading-relaxed text-[#d4d4d8]">{activeScenario.failureDescription}</p>
+              </div>
+              <div className="md:col-span-2">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#71717a]">Reported by technician</p>
+                <p className="mt-1.5 leading-relaxed text-[#a1a1aa]">
+                  “{activeScenario.transcript[0]?.source}”
+                  {activeScenario.transcript[0]?.translation && (
+                    <>
+                      {' '}— <span className="text-white">{activeScenario.transcript[0]?.translation}</span>
+                    </>
+                  )}
+                </p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS (3 Simple Steps) ──────────────────────────── */}
-      <section id="how-it-works" className="py-16 px-6 border-t border-[#1a1a1a]">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-white">How it works</h2>
-            <p className="mt-1 text-xs text-[#888]">Three simple steps from depot floor to claim settlement.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5">
-              <span className="font-mono text-xs font-bold text-[#00c2ff]">Step 1</span>
-              <h3 className="font-bold text-sm text-white mt-2">Take a photo & voice note</h3>
-              <p className="mt-2 text-xs text-[#888] leading-relaxed">
-                Photograph the serial plate on the train part. Describe the issue in Tamil, Hindi, or English.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5">
-              <span className="font-mono text-xs font-bold text-[#00c2ff]">Step 2</span>
-              <h3 className="font-bold text-sm text-white mt-2">Instant warranty match</h3>
-              <p className="mt-2 text-xs text-[#888] leading-relaxed">
-                The system reads the serial number, error code, and checks if the part is still under manufacturer warranty.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-5">
-              <span className="font-mono text-xs font-bold text-[#00c2ff]">Step 3</span>
-              <h3 className="font-bold text-sm text-white mt-2">Download official claim PDF</h3>
-              <p className="mt-2 text-xs text-[#888] leading-relaxed">
-                Get a clean bilingual Japanese-English claim document with inspector stamp ready to send to the manufacturer.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── RESULTS ─────────────────────────────────────────────────── */}
-      <section id="results" className="py-12 px-6 border-t border-[#1a1a1a] bg-[#080808]">
-        <div className="mx-auto max-w-4xl">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="rounded-xl border border-[#1a1a1a] bg-[#0e0e0e] p-4">
-              <p className="text-2xl sm:text-3xl font-black text-white font-mono">₹1.84 Cr</p>
-              <p className="mt-1 text-xs text-[#888]">Warranty recovered</p>
-            </div>
-            <div className="rounded-xl border border-[#1a1a1a] bg-[#0e0e0e] p-4">
-              <p className="text-2xl sm:text-3xl font-black text-[#00c2ff] font-mono">15 sec</p>
-              <p className="mt-1 text-xs text-[#888]">Time to create claim</p>
-            </div>
-            <div className="rounded-xl border border-[#1a1a1a] bg-[#0e0e0e] p-4">
-              <p className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">100%</p>
-              <p className="mt-1 text-xs text-[#888]">Manufacturer accepted</p>
-            </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
-      <footer className="border-t border-[#1a1a1a] py-8 px-6 text-center text-xs text-[#666]">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <span className="font-bold text-white">HASHI SETU 橋・सेतु</span>
-          <span>·</span>
-          <span>Connecting Indian Metro Depots with Japanese Train Manufacturers</span>
+      <footer className="border-t border-white/5 px-6 py-10">
+        <div className="mx-auto flex max-w-5xl flex-col gap-2 text-xs text-[#71717a] sm:flex-row sm:items-center sm:justify-between">
+          <span>Hashi Setu — warranty claims for Indian metro depots</span>
+          <span>© 2026 Hashi Setu</span>
         </div>
-        <p>© 2026 Hashi Setu. All rights reserved.</p>
       </footer>
     </div>
   )
