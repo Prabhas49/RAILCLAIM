@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Icon } from '../components/ui/Icon'
+import { Select } from '../components/ui/Select'
 import type { ViewId } from '../types'
 import { addPersistentPhoto } from '../lib/evidenceStore'
 import { FAILURE_SCENARIOS, getScenario } from '../data/mock'
@@ -542,7 +543,7 @@ export default function Capture({
     list.forEach((file, idx) => {
       handleSlotPhotoUpload(idx, file)
     })
-    setUploadToast(`Processing ${list.length} images. Extracting preset warranty data...`)
+    setUploadToast(`Processing ${list.length} images. Extracting warranty telemetry data...`)
     setTimeout(() => setUploadToast(null), 4000)
   }
 
@@ -610,7 +611,7 @@ export default function Capture({
 
       {/* Toast Notification */}
       {uploadToast && (
-        <div className="fixed top-6 right-8 z-50 flex items-center gap-3 rounded-lg border border-[#00c2ff]/40 bg-[#061424] px-4 py-3 text-xs text-[#00c2ff] shadow-2xl backdrop-blur-md">
+        <div className="fixed top-6 right-8 z-50 flex items-center gap-3 rounded-lg border border-[#FFFFFF]/40 bg-[#14120a] px-4 py-3 text-xs text-[#FFFFFF] shadow-2xl backdrop-blur-md">
           <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
@@ -643,67 +644,22 @@ export default function Capture({
                 Capture field evidence
               </h1>
               <p className="mt-1.5 text-sm text-[#a1a1aa]">
-                Record voice audio and upload your 3 depot images to extract verified warranty presets.
+                Record voice audio and upload depot inspection images to extract verified warranty telemetry.
               </p>
             </div>
 
-            <div className="self-start md:self-auto">
-              <div className="inline-flex items-center gap-2 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-3.5 py-1.5 text-xs text-[#d1d5db]">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-                <span className="font-medium">Auto-saving draft</span>
-              </div>
-            </div>
-          </div>
-
-          {/* ── 3 FAILURE PRESETS (MOCK DATA 1, 2, 3) ───────────────────── */}
-          <div className="mt-6 rounded-xl border border-[#222] bg-[#0c0c0c] p-4 shadow-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1c1c1c]">
-              <div>
-                <span className="font-mono text-[10px] uppercase font-bold tracking-wider text-[#00c2ff]">
-                  Select Pre-Configured Railway Failure Scenario (1, 2, or 3)
-                </span>
-                <p className="text-xs text-[#a1a1aa] mt-0.5">
-                  Uploading Image 1, 2, or 3 auto-populates compliant Japanese OEM telemetry and generates an official warranty claim.
-                </p>
-              </div>
+            <div className="self-start md:self-auto flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => openPrintableVoucher(getScenario(activeScenarioId))}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#00c2ff] px-4 py-2 text-xs font-bold text-black hover:bg-[#3cd3ff] transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
               >
                 <span>⎙ Download OEM Warranty Claim PDF</span>
               </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-              {FAILURE_SCENARIOS.map((sc) => {
-                const isSelected = activeScenarioId === sc.id
-                return (
-                  <button
-                    key={sc.id}
-                    type="button"
-                    onClick={() => applyScenario(sc.id)}
-                    className={`text-left p-3 rounded-lg border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'border-[#00c2ff] bg-[#091b29] shadow-md shadow-[#00c2ff]/10 ring-1 ring-[#00c2ff]'
-                        : 'border-[#222] bg-[#141414] hover:border-[#333]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                        isSelected ? 'bg-[#00c2ff] text-black' : 'bg-[#222] text-[#888]'
-                      }`}>
-                        Image / Type {sc.id}
-                      </span>
-                      <span className="text-[10px] text-emerald-400 font-mono font-bold">
-                        ₹{(sc.amountInr / 100000).toFixed(1)}L (¥{(sc.amountJpy / 10000).toFixed(0)}万)
-                      </span>
-                    </div>
-                    <p className="font-bold text-white text-xs mt-1.5 leading-snug">{sc.equipment}</p>
-                    <p className="text-[10px] text-[#888] mt-0.5">{sc.oemName} · {sc.faultCode}</p>
-                  </button>
-                )
-              })}
+              <div className="inline-flex items-center gap-2 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-3.5 py-2 text-xs text-[#d1d5db]">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                <span className="font-medium">Auto-saving draft</span>
+              </div>
             </div>
           </div>
 
@@ -721,7 +677,7 @@ export default function Capture({
                   <div
                     className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold transition-all ${
                       isActive
-                        ? 'bg-[#00c2ff] text-black shadow-[0_0_10px_rgba(0,194,255,0.4)]'
+                        ? 'bg-white text-black shadow-[0_0_10px_rgba(245,158,11,0.3)]'
                         : isCompleted
                         ? 'bg-emerald-500 text-black'
                         : 'border border-[#262626] bg-[#141414] text-[#71717a]'
@@ -742,7 +698,7 @@ export default function Capture({
                   {isActive && (
                     <motion.div
                       layoutId="activeStepUnderline"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#00c2ff]"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-white"
                       transition={{ duration: 0.2 }}
                     />
                   )}
@@ -774,8 +730,8 @@ export default function Capture({
               </div>
 
               <h2 className="text-2xl font-bold text-white">Equipment details</h2>
-              <p className="mt-1 text-sm text-[#a1a1aa] mb-7">
-                These values are preset and automatically confirmed when you upload the equipment nameplate.
+              <p className="text-xs text-[#a1a1aa] mt-1">
+                These values are automatically extracted and confirmed when you upload the equipment nameplate.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -783,11 +739,20 @@ export default function Capture({
                   <label className="block text-xs font-semibold text-[#a1a1aa] mb-2">
                     Equipment type <span className="text-white">*</span>
                   </label>
-                  <input
-                    type="text"
+                  <Select
                     value={equipmentType}
-                    onChange={(e) => setEquipmentType(e.target.value)}
-                    className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm text-white font-medium focus:border-white focus:outline-none"
+                    onChange={setEquipmentType}
+                    options={[
+                      'Traction Motor',
+                      'Door System',
+                      'Brake System',
+                      'HVAC Unit',
+                      'Pantograph',
+                      'Bogie',
+                      'Coupler',
+                      'Signaling Unit',
+                      'Other',
+                    ].map((o) => ({ value: o }))}
                   />
                 </div>
 
@@ -907,7 +872,7 @@ export default function Capture({
                     type="text"
                     value={faultCode}
                     onChange={(e) => setFaultCode(e.target.value)}
-                    className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm font-mono font-bold text-amber-400 focus:border-white focus:outline-none"
+                    className="w-full rounded-lg border border-[#262626] bg-[#000000] px-4 py-3 text-sm font-mono font-bold text-white focus:border-white focus:outline-none"
                   />
                 </div>
 
@@ -1092,12 +1057,12 @@ export default function Capture({
                   </div>
 
                   {audioError && (
-                    <div className="mt-4 flex items-center justify-between rounded-lg bg-amber-950/40 border border-amber-800/50 p-3 text-xs text-amber-300">
+                    <div className="mt-4 flex items-center justify-between rounded-lg bg-white/10 border border-white/20 p-3 text-xs text-neutral-300">
                       <span>⚠ {audioError} (You can use the "Use sample field audio" option to proceed)</span>
                       <button
                         type="button"
                         onClick={() => setAudioError(null)}
-                        className="text-amber-400 hover:text-white ml-2 cursor-pointer"
+                        className="text-white hover:text-white ml-2 cursor-pointer"
                       >
                         ✕
                       </button>
@@ -1118,7 +1083,7 @@ export default function Capture({
                         Visual Evidence (3 Angles)
                       </h3>
                       <p className="text-xs text-[#a1a1aa]">
-                        Upload your 3 inspection images. Preset warranty OCR parameters will automatically bind.
+                        Upload your 3 inspection images. Warranty OCR parameters will automatically bind.
                       </p>
                     </div>
                   </div>
@@ -1141,13 +1106,13 @@ export default function Capture({
                       <span>Upload 3 images</span>
                     </button>
 
-                    {/* 1-click Preset Loader */}
+                    {/* Sample Loader */}
                     <button
                       type="button"
                       onClick={loadAllPresetSamples}
                       className="rounded-lg border border-[#262626] bg-[#141414] px-3.5 py-2 text-xs font-semibold text-[#a1a1aa] hover:text-white hover:border-neutral-500 transition-all cursor-pointer"
                     >
-                      Load preset samples
+                      Load sample inspection
                     </button>
 
                     {uploadedCount > 0 && (
@@ -1244,7 +1209,7 @@ export default function Capture({
                               {preset.targetDescription}
                             </p>
                             <span className="mt-2 inline-block text-[10px] font-mono text-[#a1a1aa] bg-[#141414] border border-[#262626] px-2 py-0.5 rounded">
-                              Preset: {preset.presetTag}
+                              Target: {preset.presetTag}
                             </span>
                           </div>
                         )}
@@ -1280,7 +1245,7 @@ export default function Capture({
                 <button
                   type="button"
                   onClick={() => setCurrentStep(4)}
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#00c2ff] px-6 py-2.5 text-sm font-extrabold text-black shadow-md transition-all hover:bg-[#25ccff] active:scale-[0.98] cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-2.5 text-sm font-extrabold text-black shadow-md transition-all hover:bg-neutral-200 active:scale-[0.98] cursor-pointer"
                 >
                   <Icon name="sparkles" className="h-4 w-4" />
                   <span>Analyze claim</span>
@@ -1327,7 +1292,7 @@ export default function Capture({
                   <button
                     type="button"
                     onClick={handleSendForReview}
-                    className="inline-flex items-center gap-2 rounded-lg bg-[#00c2ff] px-5 py-2.5 text-xs font-extrabold text-black hover:bg-[#25ccff] transition-all shadow-md active:scale-95 cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-xs font-extrabold text-black hover:bg-neutral-200 transition-all shadow-md active:scale-95 cursor-pointer"
                   >
                     <svg className="h-3.5 w-3.5 rotate-45 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
@@ -1343,7 +1308,7 @@ export default function Capture({
                   <span className="text-[11px] font-bold tracking-wider uppercase text-[#71717a]">
                     WARRANTY CLAIM · AI DRAFT
                   </span>
-                  <span className="rounded border border-[#00c2ff]/60 bg-[#00c2ff]/10 px-3 py-1 text-xs font-semibold text-[#00c2ff]">
+                  <span className="rounded border border-[#FFFFFF]/60 bg-white/10 px-3 py-1 text-xs font-semibold text-[#FFFFFF]">
                     Under Engineer Review
                   </span>
                 </div>
@@ -1353,14 +1318,14 @@ export default function Capture({
                 </h2>
 
                 {/* Amber Warning Banner */}
-                <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-amber-600/50 bg-amber-950/20 px-4 py-3 text-xs text-amber-300">
+                <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-xs text-neutral-300">
                   <div className="flex items-center gap-2.5 font-bold">
-                    <svg className="h-4 w-4 shrink-0 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-4 w-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <span>AI-GENERATED DRAFT — HUMAN ENGINEER REVIEW REQUIRED</span>
                   </div>
-                  <span className="font-mono text-[11px] text-amber-400 font-semibold tracking-wide">
+                  <span className="font-mono text-[11px] text-white font-semibold tracking-wide">
                     GPT-5.4 — AI-GENERATED
                   </span>
                 </div>
@@ -1412,9 +1377,9 @@ export default function Capture({
                   <button
                     type="button"
                     onClick={handleTriggerAiAnalysis}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#262626] bg-[#141414] px-3.5 py-1.5 text-xs font-semibold text-white hover:border-[#00c2ff]/60 hover:text-[#00c2ff] transition-colors shadow-sm cursor-pointer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#262626] bg-[#141414] px-3.5 py-1.5 text-xs font-semibold text-white hover:border-[#FFFFFF]/60 hover:text-[#FFFFFF] transition-colors shadow-sm cursor-pointer"
                   >
-                    <Icon name="sparkles" className="h-3.5 w-3.5 text-[#00c2ff]" />
+                    <Icon name="sparkles" className="h-3.5 w-3.5 text-[#FFFFFF]" />
                     <span>{isAnalyzingAi ? 'Analyzing...' : 'Analyze claim'}</span>
                   </button>
                 </div>
@@ -1434,7 +1399,7 @@ export default function Capture({
                   </div>
                   <div>
                     <p className="text-xs text-[#71717a]">Evidence completeness</p>
-                    <p className="text-sm font-bold text-[#00c2ff] mt-0.5">{completenessScore}%</p>
+                    <p className="text-sm font-bold text-[#FFFFFF] mt-0.5">{completenessScore}%</p>
                   </div>
                 </div>
               </div>
@@ -1448,7 +1413,7 @@ export default function Capture({
                   <button
                     type="button"
                     onClick={() => setShowMissingInfoModal(true)}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#00c2ff] hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#FFFFFF] hover:underline cursor-pointer"
                   >
                     <span>View missing information</span>
                     <span aria-hidden="true">&gt;</span>
@@ -1523,7 +1488,7 @@ export default function Capture({
                 <button
                   type="button"
                   onClick={handleSendForReview}
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#00c2ff] px-6 py-2.5 text-sm font-extrabold text-black hover:bg-[#25ccff] transition-all shadow-md active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-2.5 text-sm font-extrabold text-black hover:bg-neutral-200 transition-all shadow-md active:scale-95 cursor-pointer"
                 >
                   <span>Send for engineer review</span>
                   <Icon name="arrowRight" className="h-4 w-4" />
@@ -1539,7 +1504,7 @@ export default function Capture({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
           <div className="w-full max-w-lg rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-6 shadow-2xl text-white">
             <div className="flex items-center justify-between border-b border-[#1e1e1e] pb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#00c2ff]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#FFFFFF]">
                 Evidence Completeness Breakdown
               </span>
               <button
@@ -1616,7 +1581,7 @@ export default function Capture({
             </div>
 
             <div className="mt-4 rounded-lg bg-[#000000] p-4 border border-[#1e1e1e] space-y-3 text-xs">
-              <p className="text-[#71717a] font-bold">Preset Parameters Extracted:</p>
+              <p className="text-[#71717a] font-bold">OCR Parameters Extracted:</p>
               {evidencePhotos[activePhotoModal].annotations.map((a) => (
                 <div key={a.id} className="flex justify-between items-center rounded bg-[#0a0a0a] p-3 border border-[#1e1e1e]">
                   <div>
