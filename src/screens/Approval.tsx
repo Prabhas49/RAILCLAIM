@@ -3,6 +3,8 @@ import { getScenario } from '../data/mock'
 import { getDraft, patchDraft, markSubmitted } from '../lib/claimStore'
 import { openPrintableVoucher } from '../components/OemPdfVoucher'
 import { speakJapanese } from '../lib/translator'
+import { getSession } from '../lib/auth'
+import { logAuditEvent } from '../lib/auditLog'
 
 const inputCls =
   'w-full rounded-lg border border-[#262626] bg-black px-3.5 py-2 font-mono text-sm font-bold text-white outline-none focus:border-white'
@@ -52,6 +54,13 @@ export default function Approval({ onDone }: { onDone: () => void }) {
     setTimeout(() => {
       const rec = markSubmitted({ ...draft, ...fields }, fields.manufacturer)
       patchDraft({ status: 'approved' })
+      logAuditEvent({
+        actor: getSession()?.name ?? 'Engineer',
+        action: 'Approved & dispatched to OEM',
+        detail: `${fields.equipmentType} (${fields.faultCode}) sent to ${fields.manufacturer} · receipt ${rec.id}`,
+        kind: 'human',
+        claimId: draft.id,
+      })
       setReceipt(`ACK-${rec.id}-${Date.now().toString().slice(-4)}`)
       setSending(false)
       setDone(true)
