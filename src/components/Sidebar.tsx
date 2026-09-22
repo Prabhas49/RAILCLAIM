@@ -35,10 +35,10 @@ export function Sidebar({
       {/* ── Brand Header ────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 px-2 py-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
         <div className="h-8 w-8 rounded-[6px] bg-[#00C2FF] flex items-center justify-center font-black text-black text-xs tracking-tight shadow-sm">
-          RC
+          HS
         </div>
         <span className="font-extrabold tracking-tight text-white text-sm">
-          RAILCLAIM AI
+          HASHI SETU
         </span>
       </div>
 

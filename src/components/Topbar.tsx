@@ -21,7 +21,7 @@ export function Topbar({ currentView = 'dashboard' }: { currentView?: ViewId; ru
     <header className="h-16 px-8 border-b border-[#1e1e1e] bg-black flex items-center justify-between select-none">
       {/* ── Breadcrumbs ────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 font-mono text-xs font-semibold tracking-wider text-[#71717a]">
-        <span>RAILCLAIM AI</span>
+        <span>HASHI SETU</span>
         <span>&gt;</span>
         <span className="text-white font-bold">{currentTitle}</span>
       </div>
