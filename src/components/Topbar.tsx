@@ -18,10 +18,12 @@ const VIEW_TITLES: Record<ViewId, string> = {
 export function Topbar({
   currentView = 'dashboard',
   onNavigate,
+  onOpenVoiceTranslator,
 }: {
   currentView?: ViewId
   running?: boolean
   onNavigate?: (v: ViewId) => void
+  onOpenVoiceTranslator?: () => void
 }) {
   const currentTitle = VIEW_TITLES[currentView] ?? 'DASHBOARD'
   const [showProfile, setShowProfile] = useState(false)
@@ -42,7 +44,23 @@ export function Topbar({
       </div>
 
       {/* ── Right Navigation & User Controls ────────────────────────── */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 md:gap-4">
+        {/* Voice to Japanese Live Speech Button */}
+        <button
+          type="button"
+          onClick={onOpenVoiceTranslator}
+          className="inline-flex items-center gap-2 rounded-full border border-[#00C2FF]/40 bg-[#00C2FF]/10 px-3 py-1 md:px-3.5 md:py-1.5 text-xs font-semibold text-[#00C2FF] hover:bg-[#00C2FF]/20 hover:border-[#00C2FF] transition-all shadow-[0_0_15px_rgba(0,194,255,0.15)] group cursor-pointer"
+          title="Speak in Telugu/English -> Speaks in Japanese out loud"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00C2FF] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00C2FF]"></span>
+          </span>
+          <Icon name="mic" className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
+          <span>Voice to Japanese</span>
+          <span className="text-[10px] opacity-80 font-mono hidden md:inline">音声通訳</span>
+        </button>
+
         {/* Switch to Public Landing Page button */}
         {onNavigate && (
           <button

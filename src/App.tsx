@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Sidebar } from './components/Sidebar'
 import { Topbar } from './components/Topbar'
+import { VoiceTranslatorModal } from './components/VoiceTranslatorModal'
 import Landing from './screens/Landing'
 import Dashboard from './screens/Dashboard'
 import Claims from './screens/Claims'
@@ -26,6 +27,7 @@ export default function App() {
   const [view, setView] = useState<ViewId>(viewFromHash)
   const [running, setRunning] = useState(false)
   const [selectedScenarioId, setSelectedScenarioId] = useState<'1' | '2' | '3'>('1')
+  const [voiceModalOpen, setVoiceModalOpen] = useState(false)
 
   useEffect(() => {
     const sync = () => setView(viewFromHash())
@@ -64,19 +66,35 @@ export default function App() {
                 setSelectedScenarioId(id)
                 navigate('capture')
               }}
+              onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
             />
           </motion.div>
         </AnimatePresence>
+
+        <VoiceTranslatorModal
+          isOpen={voiceModalOpen}
+          onClose={() => setVoiceModalOpen(false)}
+        />
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-black text-white flex select-none">
-      <Sidebar current={view} onNavigate={navigate} running={running} />
+      <Sidebar
+        current={view}
+        onNavigate={navigate}
+        running={running}
+        onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col bg-black">
-        <Topbar currentView={view} running={running} onNavigate={navigate} />
+        <Topbar
+          currentView={view}
+          running={running}
+          onNavigate={navigate}
+          onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
+        />
 
         <main className="px-6 md:px-8 py-8 w-full max-w-[1400px]">
           <AnimatePresence mode="wait">
@@ -109,6 +127,11 @@ export default function App() {
           </AnimatePresence>
         </main>
       </div>
+
+      <VoiceTranslatorModal
+        isOpen={voiceModalOpen}
+        onClose={() => setVoiceModalOpen(false)}
+      />
     </div>
   )
 }

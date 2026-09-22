@@ -26,10 +26,12 @@ const SYSTEM_NAV: NavItem[] = [
 export function Sidebar({
   current,
   onNavigate,
+  onOpenVoiceTranslator,
 }: {
   current: ViewId
   onNavigate: (v: ViewId) => void
   running?: boolean
+  onOpenVoiceTranslator?: () => void
 }) {
   return (
     <aside className="w-[230px] shrink-0 min-h-screen bg-black border-r border-[#1e1e1e] flex flex-col p-4 select-none">
@@ -127,6 +129,33 @@ export function Sidebar({
 
       {/* Bottom spacer */}
       <div className="flex-1" />
+
+      {/* ── Voice Bridge Card ─────────────────────────────────────── */}
+      <div className="mt-4 p-3 rounded-xl bg-gradient-to-b from-[#111620] to-[#0d1017] border border-[#00c2ff]/30 shadow-lg">
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            </span>
+            <span className="text-[10px] font-mono font-bold tracking-wider text-white">
+              VOICE BRIDGE
+            </span>
+          </div>
+          <span className="text-[9px] font-mono text-[#00c2ff]">Telugu/EN &rarr; JA</span>
+        </div>
+        <p className="text-[10px] text-[#718295] leading-snug mb-2.5">
+          Speak in Telugu or English &bull; Instant Japanese voice readout
+        </p>
+        <button
+          type="button"
+          onClick={onOpenVoiceTranslator}
+          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-[#00c2ff] text-black font-bold text-xs hover:bg-[#33d0ff] transition-all shadow-[0_0_15px_rgba(0,194,255,0.3)]"
+        >
+          <Icon name="mic" className="h-3.5 w-3.5" />
+          <span>Launch Voice Bridge</span>
+        </button>
+      </div>
     </aside>
   )
 }

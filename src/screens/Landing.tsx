@@ -8,9 +8,14 @@ import type { ViewId } from '../types'
 interface LandingProps {
   onEnter: (v: ViewId, scenario?: '1' | '2' | '3') => void
   onSelectScenario?: (id: '1' | '2' | '3') => void
+  onOpenVoiceTranslator?: () => void
 }
 
-export default function Landing({ onEnter, onSelectScenario }: LandingProps) {
+export default function Landing({
+  onEnter,
+  onSelectScenario,
+  onOpenVoiceTranslator,
+}: LandingProps) {
   const [activeScenarioId, setActiveScenarioId] = useState<'1' | '2' | '3'>('1')
   const activeScenario = getScenario(activeScenarioId)
 
@@ -43,13 +48,28 @@ export default function Landing({ onEnter, onSelectScenario }: LandingProps) {
             <a href="#results" className="hover:text-white transition-colors">Results</a>
           </nav>
 
-          <button
-            onClick={() => onEnter('dashboard')}
-            className="inline-flex items-center gap-2 rounded-full bg-[#00c2ff] px-5 py-2 text-xs font-bold text-black transition-all hover:bg-[#38d4ff] shadow-md active:scale-95 cursor-pointer"
-          >
-            <span>Open App</span>
-            <Icon name="arrowRight" className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-2.5">
+            {onOpenVoiceTranslator && (
+              <button
+                type="button"
+                onClick={onOpenVoiceTranslator}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#00c2ff]/40 bg-[#00c2ff]/10 px-3 py-1.5 text-xs font-semibold text-[#00c2ff] hover:bg-[#00c2ff]/20 transition-all shadow-[0_0_15px_rgba(0,194,255,0.15)]"
+                title="Speak in Telugu/English -> Speaks in Japanese out loud"
+              >
+                <Icon name="mic" className="h-3.5 w-3.5" />
+                <span>Voice to Japanese</span>
+                <span className="text-[10px] opacity-75 font-mono hidden sm:inline">音声通訳</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => onEnter('dashboard')}
+              className="inline-flex items-center gap-2 rounded-full bg-[#00c2ff] px-4 sm:px-5 py-2 text-xs font-bold text-black transition-all hover:bg-[#38d4ff] shadow-md active:scale-95 cursor-pointer"
+            >
+              <span>Open App</span>
+              <Icon name="arrowRight" className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -70,7 +90,7 @@ export default function Landing({ onEnter, onSelectScenario }: LandingProps) {
 
           {/* Simple Subtitle */}
           <p className="mx-auto mt-5 max-w-xl text-base text-[#999] leading-relaxed">
-            Snap a photo of the damaged train part. Speak what went wrong in your own language. Hashi Setu writes the official claim and gives you a ready-to-send PDF.
+            Snap a photo of the damaged train part. Speak what went wrong in your own language (Telugu, Hindi, English). Hashi Setu writes the official claim and speaks Japanese out loud to the OEM.
           </p>
 
           {/* Simple Buttons */}
@@ -82,6 +102,17 @@ export default function Landing({ onEnter, onSelectScenario }: LandingProps) {
               <span>Create a Claim</span>
               <Icon name="arrowRight" className="h-4 w-4" />
             </button>
+
+            {onOpenVoiceTranslator && (
+              <button
+                type="button"
+                onClick={onOpenVoiceTranslator}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-[#00c2ff]/40 bg-[#00c2ff]/10 px-6 py-3 text-sm font-semibold text-[#00c2ff] hover:bg-[#00c2ff]/20 transition-all cursor-pointer shadow-[0_0_20px_rgba(0,194,255,0.15)]"
+              >
+                <Icon name="mic" className="h-4 w-4" />
+                <span>Voice Bridge (Telugu &rarr; Japanese)</span>
+              </button>
+            )}
 
             <button
               onClick={() => openPrintableVoucher(activeScenario)}
