@@ -47,7 +47,7 @@ export default function Landing({
   const handleLaunchScenario = (id: '1' | '2' | '3') => {
     setActiveScenarioId(id)
     onSelectScenario?.(id)
-    onEnter('capture', id)
+    onEnter('create', id)
   }
 
   return (
@@ -101,7 +101,7 @@ export default function Landing({
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
             <button
-              onClick={() => onEnter('capture')}
+              onClick={() => onEnter('create')}
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-[#d4d4d8] cursor-pointer"
             >
               Create a claim

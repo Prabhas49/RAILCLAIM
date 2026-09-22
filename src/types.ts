@@ -119,11 +119,9 @@ export type ViewId =
   | 'login'
   | 'dashboard'
   | 'claims'
-  | 'capture'
+  | 'create'
+  | 'approval'
   | 'evidence'
-  | 'pipeline'
-  | 'review'
-  | 'oem'
   | 'audit'
   | 'analytics'
 

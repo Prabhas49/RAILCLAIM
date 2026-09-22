@@ -1,4 +1,3 @@
-import { Icon } from './ui/Icon'
 import type { ViewId } from '../types'
 
 interface HackathonWorkflowBarProps {
@@ -7,11 +6,9 @@ interface HackathonWorkflowBarProps {
 }
 
 const STAGES: { id: ViewId; label: string; step: string }[] = [
-  { id: 'capture', label: '1. Incident Capture', step: '01' },
-  { id: 'pipeline', label: '2. Neural Pipeline', step: '02' },
-  { id: 'review', label: '3. Verify & Sign-Off', step: '03' },
-  { id: 'oem', label: '4. OEM Dispatch', step: '04' },
-  { id: 'audit', label: '5. Audit Ledger', step: '05' },
+  { id: 'create', label: '1. Create claim', step: '01' },
+  { id: 'approval', label: '2. Approval & dispatch', step: '02' },
+  { id: 'audit', label: '3. Audit ledger', step: '03' },
 ]
 
 export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkflowBarProps) {
@@ -39,17 +36,15 @@ export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkf
   return (
     <div className="mb-8 rounded-2xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 shadow-sm">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Left: Hackathon Jury Badge & Context */}
         <div className="flex items-center gap-3">
           <span className="rounded-full bg-white px-3 py-1 font-mono text-[10px] font-bold uppercase text-black tracking-wider">
-            JURY DEMO FLOW
+            SIMPLIFIED FLOW
           </span>
           <span className="font-mono text-xs text-neutral-400 hidden sm:inline">
-            Autonomous Depot → OEM Claim Lifecycle
+            Create → Approve → Dispatch
           </span>
         </div>
 
-        {/* Center: Stepper (if in a workflow view) */}
         {isWorkflowView && (
           <div className="flex items-center gap-1.5 overflow-x-auto py-1">
             {STAGES.map((s, idx) => {
@@ -67,7 +62,7 @@ export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkf
                       : 'text-neutral-500 hover:text-white'
                   }`}
                 >
-                  {isPast ? <Icon name="check" className="h-3 w-3" /> : <span>{s.step}</span>}
+                  <span>{s.step}</span>
                   <span className="hidden lg:inline">{s.label.replace(/^\d+\.\s*/, '')}</span>
                 </button>
               )
@@ -75,7 +70,6 @@ export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkf
           </div>
         )}
 
-        {/* Right: Quick Action Controls */}
         <div className="flex items-center gap-2 font-mono text-xs self-end md:self-auto">
           {isWorkflowView && currentIndex > 0 && (
             <button
@@ -95,10 +89,10 @@ export function HackathonWorkflowBar({ currentView, onNavigate }: HackathonWorkf
             </button>
           ) : (
             <button
-              onClick={() => onNavigate('capture')}
+              onClick={() => onNavigate('create')}
               className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-black hover:bg-neutral-200 transition-colors font-bold shadow-sm"
             >
-              <span>Start 5-Step Demo →</span>
+              <span>Start Demo →</span>
             </button>
           )}
         </div>

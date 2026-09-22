@@ -63,7 +63,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
           </p>
         </div>
         <button
-          onClick={() => onNavigate('capture')}
+          onClick={() => onNavigate('create')}
           className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-black transition-colors hover:bg-neutral-200 cursor-pointer self-start"
         >
           <span className="text-lg leading-none font-black">+</span>
@@ -106,7 +106,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
         <div className="divide-y divide-[#1e1e1e]">
           {hasActiveDraft && draft && (
             <button
-              onClick={() => onNavigate(draft.status === 'review' ? 'review' : 'capture')}
+              onClick={() => onNavigate(draft.status === 'review' || draft.status === 'pending_approval' ? 'approval' : 'create')}
               className="w-full flex flex-col sm:flex-row sm:items-center justify-between py-3.5 px-2 hover:bg-[#111111] rounded-lg transition-colors cursor-pointer gap-2 text-left"
             >
               <div className="flex items-center gap-3">
@@ -125,7 +125,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
                   ₹{draft.amountInr.toLocaleString('en-IN')}
                 </p>
                 <span className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase bg-white text-black">
-                  {draft.status === 'review' ? 'Under review' : 'Draft'}
+                  {draft.status === 'review' || draft.status === 'pending_approval' ? 'Under review' : 'Draft'}
                 </span>
               </div>
             </button>
@@ -161,7 +161,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
             <div className="py-10 text-center">
               <p className="text-sm text-[#a1a1aa]">No active claims from you yet.</p>
               <button
-                onClick={() => onNavigate('capture')}
+                onClick={() => onNavigate('create')}
                 className="mt-3 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition-colors cursor-pointer"
               >
                 Create your first claim

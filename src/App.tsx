@@ -8,18 +8,16 @@ import Login from './screens/Login'
 import { getSession, logout, type AuthUser } from './lib/auth'
 import Dashboard from './screens/Dashboard'
 import Claims from './screens/Claims'
-import Capture from './screens/Capture'
+import CreateClaim from './screens/CreateClaim'
+import Approval from './screens/Approval'
 import EvidenceStorage from './screens/EvidenceStorage'
-import Pipeline from './screens/Pipeline'
-import Review from './screens/Review'
-import OemOutput from './screens/OemOutput'
 import AuditTrail from './screens/AuditTrail'
 import Analytics from './screens/Analytics'
 import type { ViewId } from './types'
 
-// The one true spine: create → process → review → dispatch → back to work.
-const SPINE: ViewId[] = ['capture', 'pipeline', 'review', 'oem']
-const KNOWN: ViewId[] = [...SPINE, 'dashboard', 'claims', 'evidence', 'analytics', 'audit', 'landing', 'login']
+// The one true spine: create → approve/dispatch → audit.
+const SPINE: ViewId[] = ['create', 'approval', 'audit']
+const KNOWN: ViewId[] = ['dashboard', 'claims', ...SPINE, 'evidence', 'analytics', 'landing', 'login']
 
 function viewFromHash(): ViewId {
   const raw = window.location.hash.replace(/^#\/?/, '')
@@ -29,10 +27,9 @@ function viewFromHash(): ViewId {
 
 export default function App() {
   const [view, setView] = useState<ViewId>(viewFromHash)
-  const [running, setRunning] = useState(false)
-  const [selectedScenarioId, setSelectedScenarioId] = useState<'1' | '2' | '3'>('1')
   const [voiceModalOpen, setVoiceModalOpen] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(() => getSession())
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
     const sync = () => setView(viewFromHash())
@@ -40,24 +37,18 @@ export default function App() {
     return () => window.removeEventListener('hashchange', sync)
   }, [])
 
-  const navigate = useCallback((next: ViewId, scenario?: '1' | '2' | '3') => {
-    if (scenario) setSelectedScenarioId(scenario)
+  const navigate = useCallback((next: ViewId) => {
     setView(next)
+    setMobileNavOpen(false)
     window.location.hash = `/${next}`
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0 })
   }, [])
-
-  /** Advance along the capture→dispatch spine; land on Dashboard afterwards. */
-  const advance = useCallback(() => {
-    const i = SPINE.indexOf(view)
-    const nextView = i === -1 || i === SPINE.length - 1 ? 'dashboard' : SPINE[i + 1]
-    navigate(nextView)
-  }, [view, navigate])
 
   const handleLogout = useCallback(() => {
     logout()
     setUser(null)
     setView('landing')
+    setMobileNavOpen(false)
     window.location.hash = '/landing'
   }, [])
 
@@ -74,10 +65,6 @@ export default function App() {
           >
             <Landing
               onEnter={navigate}
-              onSelectScenario={(id) => {
-                setSelectedScenarioId(id)
-                navigate('capture')
-              }}
               onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
             />
           </motion.div>
@@ -98,26 +85,76 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-black text-white flex select-none">
-      <Sidebar
-        current={view}
-        onNavigate={navigate}
-        running={running}
-        onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
-        user={user}
-        onLogout={handleLogout}
-      />
+      {/* Desktop sidebar */}
+      <div className="hidden md:block">
+        <Sidebar
+          current={view}
+          onNavigate={navigate}
+          onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
+          user={user}
+          onLogout={handleLogout}
+        />
+      </div>
+
+      {/* Mobile drawer sidebar */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-[60] md:hidden">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <motion.div
+            initial={{ x: -260 }}
+            animate={{ x: 0 }}
+            transition={{ type: 'tween', duration: 0.2 }}
+            className="absolute left-0 top-0 bottom-0"
+          >
+            <Sidebar
+              current={view}
+              onNavigate={navigate}
+              onOpenVoiceTranslator={() => {
+                setMobileNavOpen(false)
+                setVoiceModalOpen(true)
+              }}
+              user={user}
+              onLogout={handleLogout}
+            />
+          </motion.div>
+        </div>
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col bg-black">
+        {/* Mobile header with hamburger */}
+        <div className="md:hidden sticky top-0 z-50 border-b border-[#1e1e1e] bg-black/90 backdrop-blur-md flex items-center gap-3 px-4 h-14">
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen(true)}
+            className="p-2 -ml-2 text-white cursor-pointer"
+            aria-label="Open navigation"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+          <span className="font-extrabold tracking-tight text-sm">HASHI SETU</span>
+          <button
+            type="button"
+            onClick={() => navigate('create')}
+            className="ml-auto rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-black cursor-pointer"
+          >
+            + Claim
+          </button>
+        </div>
+
         <Topbar
           currentView={view}
-          running={running}
           onNavigate={navigate}
           onOpenVoiceTranslator={() => setVoiceModalOpen(true)}
           user={user}
           onLogout={handleLogout}
         />
 
-        <main className="px-6 md:px-8 py-8 w-full max-w-[1400px]">
+        <main className="px-4 sm:px-6 md:px-8 py-6 md:py-8 w-full max-w-[1400px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={view}
@@ -127,26 +164,10 @@ export default function App() {
               transition={{ duration: 0.15 }}
             >
               {view === 'dashboard' && <Dashboard onNavigate={navigate} />}
-              {view === 'claims' && (
-                <Claims
-                  onNavigate={navigate}
-                  onSelectClaim={() => navigate('review')}
-                />
-              )}
-              {view === 'capture' && (
-                <Capture
-                  onAnalyse={() => navigate('pipeline')}
-                  onNavigate={navigate}
-                  selectedScenarioId={selectedScenarioId}
-                  onSelectScenario={setSelectedScenarioId}
-                />
-              )}
+              {view === 'claims' && <Claims onNavigate={navigate} />}
+              {view === 'create' && <CreateClaim onSubmit={navigate} />}
+              {view === 'approval' && <Approval onDone={() => navigate('dashboard')} />}
               {view === 'evidence' && <EvidenceStorage onNavigate={navigate} />}
-              {view === 'pipeline' && (
-                <Pipeline onRunningChange={setRunning} onContinue={() => navigate('review')} />
-              )}
-              {view === 'review' && <Review onContinue={advance} />}
-              {view === 'oem' && <OemOutput onContinue={advance} />}
               {view === 'analytics' && <Analytics onNavigate={navigate} />}
               {view === 'audit' && <AuditTrail onBack={() => navigate('dashboard')} />}
             </motion.div>

@@ -8,11 +8,9 @@ const VIEW_TITLES: Record<ViewId, string> = {
   login: 'SIGN IN',
   dashboard: 'DASHBOARD',
   claims: 'CLAIMS',
-  capture: 'NEW CLAIM',
+  create: 'NEW CLAIM',
+  approval: 'APPROVAL',
   evidence: 'EVIDENCE VAULT',
-  pipeline: 'SIGNALS',
-  review: 'CLAIMS',
-  oem: 'OEM DISPATCH',
   audit: 'CRYPTOGRAPHIC AUDIT',
   analytics: 'ANALYTICS',
 }
@@ -36,7 +34,7 @@ export function Topbar({
   const [showNotifications, setShowNotifications] = useState(false)
 
   return (
-    <header className="h-16 px-6 md:px-8 border-b border-[#1e1e1e] bg-black flex items-center justify-between select-none relative z-30">
+    <header className="h-16 px-6 md:px-8 border-b border-[#1e1e1e] bg-black items-center justify-between select-none relative z-30 hidden md:flex">
       {/* ── Breadcrumbs ────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 font-mono text-xs font-semibold tracking-wider text-[#71717a]">
         <button
@@ -49,12 +47,12 @@ export function Topbar({
         <span className="text-white font-bold">{currentTitle}</span>
       </div>
 
-      {/* ── Right Navigation & User Controls ────────────────────────── */}
+      {/* ── Right Navigation & User Controls (desktop only) ────────────────────────── */}
       <div className="flex items-center gap-3 md:gap-4">
         {/* Voice bridge */}
         <button
           type="button"
-          onClick={onOpenVoiceTranslator}
+          onClick={() => (onOpenVoiceTranslator ? onOpenVoiceTranslator() : onNavigate?.('create'))}
           className="inline-flex items-center gap-2 rounded-full border border-[#2a2a2a] bg-[#111] px-3 py-1.5 text-xs font-medium text-[#a1a1aa] hover:text-white hover:border-[#444] transition-colors cursor-pointer"
         >
           <Icon name="mic" className="h-3.5 w-3.5" />

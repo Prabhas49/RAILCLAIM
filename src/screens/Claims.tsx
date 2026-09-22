@@ -156,7 +156,7 @@ export default function Claims({
         </div>
         <button
           type="button"
-          onClick={() => onNavigate('capture')}
+          onClick={() => onNavigate('create')}
           className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-black hover:bg-neutral-200 transition-colors cursor-pointer self-start"
         >
           <span className="text-lg leading-none font-black">+</span>
@@ -244,7 +244,7 @@ export default function Claims({
                 <tr
                   key={claim.id}
                   onClick={() => {
-                    if (claim.live) onNavigate('review')
+                    if (claim.live) onNavigate('approval')
                     else onSelectClaim?.()
                   }}
                   className="group hover:bg-[#111111] transition-colors cursor-pointer"

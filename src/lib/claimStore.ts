@@ -16,7 +16,7 @@ export interface DraftPhoto {
 export interface ClaimDraft {
   id: string
   scenarioId: '1' | '2' | '3'
-  status: 'draft' | 'review' | 'submitted'
+  status: 'draft' | 'review' | 'submitted' | 'pending_approval' | 'approved'
   updatedAt: string
   // Equipment
   equipmentType: string
@@ -37,6 +37,11 @@ export interface ClaimDraft {
   photos: DraftPhoto[]
   hasVoiceNote: boolean
   voiceSeconds: number
+  voiceTranscript?: string
+  voiceJapanese?: string
+  voiceRomaji?: string
+  voiceAudioDataUrl?: string
+  voiceJapaneseAudioDataUrl?: string
 }
 
 export interface SubmittedClaim {
