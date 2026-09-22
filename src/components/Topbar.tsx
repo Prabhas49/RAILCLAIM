@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Icon } from './ui/Icon'
-import type { AuthUser } from '../lib/auth'
+import { canApprove, type AuthUser } from '../lib/auth'
+import { getSubmittedClaims } from '../lib/claimStore'
+import { getPendingInbox, markClaimSeen } from '../lib/inbox'
 import type { ViewId } from '../types'
 
 const VIEW_TITLES: Record<ViewId, string> = {
@@ -32,6 +34,27 @@ export function Topbar({
   const currentTitle = VIEW_TITLES[currentView] ?? 'DASHBOARD'
   const [showProfile, setShowProfile] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [notifTick, setNotifTick] = useState(0)
+
+  // Live depot → engineer alerts, persistent across logins (same browser).
+  useEffect(() => {
+    const refresh = () => setNotifTick((t) => t + 1)
+    window.addEventListener('focus', refresh)
+    window.addEventListener('hs-inbox-sync', refresh)
+    window.addEventListener('hs-claim-sync', refresh)
+    window.addEventListener('hs-audit-sync', refresh)
+    return () => {
+      window.removeEventListener('focus', refresh)
+      window.removeEventListener('hs-inbox-sync', refresh)
+      window.removeEventListener('hs-claim-sync', refresh)
+      window.removeEventListener('hs-audit-sync', refresh)
+    }
+  }, [])
+
+  const engineer = canApprove(user)
+  const pending = engineer && notifTick >= 0 ? getPendingInbox() : null
+  const recentFiled = notifTick >= 0 ? getSubmittedClaims().slice(0, 2) : []
+  const liveCount = (pending?.unseen ? 1 : 0) + recentFiled.length
 
   return (
     <header className="h-16 px-6 md:px-8 border-b border-[#1e1e1e] bg-black items-center justify-between select-none relative z-30 hidden md:flex">
@@ -88,33 +111,53 @@ export function Topbar({
             title="Depot notifications"
           >
             <Icon name="bell" className="h-4 w-4" />
-            <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-white animate-pulse" />
+            {liveCount > 0 && (
+              <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-white animate-pulse" />
+            )}
           </button>
 
           {showNotifications && (
             <div className="absolute right-0 mt-3 w-80 rounded-xl border border-[#222] bg-[#0c0c0c] p-4 shadow-2xl text-xs z-50">
               <div className="flex items-center justify-between border-b border-[#1f1f1f] pb-2">
                 <span className="font-bold text-white uppercase tracking-wider text-[10px]">
-                  Depot Notifications
+                  Notifications
                 </span>
-                <span className="text-[10px] text-[#FFFFFF] font-mono">3 New</span>
+                <span className="text-[10px] text-[#FFFFFF] font-mono">
+                  {liveCount > 0 ? `${liveCount} New` : 'All caught up'}
+                </span>
               </div>
               <div className="mt-3 space-y-2.5">
-                <div className="rounded-lg bg-[#141414] p-2.5 border border-[#1f1f1f]">
-                  <p className="font-bold text-white text-[11px]">Mitsubishi Electric ACK</p>
-                  <p className="text-[10px] text-[#888] mt-0.5">Claim HS-2026-0881 received · Melco-WS Token Valid</p>
-                  <span className="text-[9px] text-[#555] font-mono">4 mins ago</span>
-                </div>
-                <div className="rounded-lg bg-[#141414] p-2.5 border border-[#1f1f1f]">
-                  <p className="font-bold text-white text-[11px]">Brake Pressure Alert</p>
-                  <p className="text-[10px] text-[#888] mt-0.5">BCU-80 main reservoir drop &lt; 6.4 bar logged</p>
-                  <span className="text-[9px] text-[#555] font-mono">22 mins ago</span>
-                </div>
-                <div className="rounded-lg bg-[#141414] p-2.5 border border-[#1f1f1f]">
-                  <p className="font-bold text-white text-[11px]">Cryptographic Seal Verified</p>
-                  <p className="text-[10px] text-[#888] mt-0.5">SHA-256 ledger validated for KMRL Muttom shift</p>
-                  <span className="text-[9px] text-[#555] font-mono">1 hr ago</span>
-                </div>
+                {pending?.unseen && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      markClaimSeen(pending.draft.id)
+                      setShowNotifications(false)
+                      onNavigate?.('approval')
+                    }}
+                    className="w-full rounded-lg border border-white/50 bg-white/[0.06] p-2.5 text-left shadow-[0_0_16px_rgba(255,255,255,0.15)] cursor-pointer"
+                  >
+                    <p className="font-bold text-white text-[11px]">
+                      <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                      New claim needs review · {pending.draft.id}
+                    </p>
+                    <p className="text-[10px] text-[#888] mt-0.5">
+                      {pending.draft.equipmentType} — {pending.draft.faultSummary}
+                    </p>
+                  </button>
+                )}
+                {recentFiled.map((s) => (
+                  <div key={s.id} className="rounded-lg bg-[#141414] p-2.5 border border-[#1f1f1f]">
+                    <p className="font-bold text-white text-[11px]">Dispatched to {s.oem}</p>
+                    <p className="text-[10px] text-[#888] mt-0.5">Claim {s.id} · ₹{s.amountInr.toLocaleString('en-IN')}</p>
+                    <span className="text-[9px] text-[#555] font-mono">{s.date}</span>
+                  </div>
+                ))}
+                {liveCount === 0 && (
+                  <p className="py-4 text-center text-[11px] text-[#71717a]">
+                    Nothing new. Filed claims will ping you here.
+                  </p>
+                )}
               </div>
             </div>
           )}

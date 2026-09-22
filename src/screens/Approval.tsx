@@ -5,6 +5,8 @@ import { openPrintableVoucher } from '../components/OemPdfVoucher'
 import { speakJapanese } from '../lib/translator'
 import { getSession } from '../lib/auth'
 import { logAuditEvent } from '../lib/auditLog'
+import { markClaimSeen } from '../lib/inbox'
+import { useEffect } from 'react'
 
 const inputCls =
   'w-full rounded-lg border border-[#262626] bg-black px-3.5 py-2 font-mono text-sm font-bold text-white outline-none focus:border-white'
@@ -20,6 +22,12 @@ export default function Approval({ onDone }: { onDone: () => void }) {
   const [done, setDone] = useState(false)
   const [receipt, setReceipt] = useState('')
   const [sending, setSending] = useState(false)
+
+  // Engineer opened it — clear the "new claim" alert everywhere.
+  useEffect(() => {
+    if (draft) markClaimSeen(draft.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (!draft || !fields) {
     return <div className="py-24 text-center text-white"><h1 className="text-2xl font-bold">No claim waiting</h1><p className="mt-2 text-sm text-[#a1a1aa]">Create a claim first.</p></div>

@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Icon } from '../components/ui/Icon'
 import { getDraft, getSubmittedClaims } from '../lib/claimStore'
 import { canApprove, getSession } from '../lib/auth'
+import { getPendingInbox, markClaimSeen } from '../lib/inbox'
 import type { ViewId } from '../types'
 
 const DEMO_COUNTS = {
@@ -16,6 +17,27 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
 
   const hasActiveDraft = Boolean(draft && draft.status !== 'submitted')
   const totalSubmitted = submitted.length + DEMO_COUNTS.submitted
+
+  // Glowing "new claim" banner for engineers: re-check on focus so a claim
+  // filed by the depot account lights up when the engineer logs in.
+  const [inboxTick, setInboxTick] = useState(0)
+  useEffect(() => {
+    const refresh = () => setInboxTick((t) => t + 1)
+    window.addEventListener('focus', refresh)
+    window.addEventListener('hs-inbox-sync', refresh)
+    window.addEventListener('hs-claim-sync', refresh)
+    return () => {
+      window.removeEventListener('focus', refresh)
+      window.removeEventListener('hs-inbox-sync', refresh)
+      window.removeEventListener('hs-claim-sync', refresh)
+    }
+  }, [])
+  const pendingInbox = useMemo(
+    () => (canApprove(getSession()) ? getPendingInbox() : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [inboxTick, draft],
+  )
+  const showNewClaimBanner = Boolean(pendingInbox?.unseen)
 
   const stats = [
     {
@@ -71,6 +93,39 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
           <span>Create new claim</span>
         </button>
       </div>
+
+      {/* ── New-claim alert (engineers only) ─────────────────────────── */}
+      {showNewClaimBanner && pendingInbox && (
+        <button
+          type="button"
+          onClick={() => {
+            markClaimSeen(pendingInbox.draft.id)
+            onNavigate('approval')
+          }}
+          className="relative mt-6 flex w-full items-center gap-4 overflow-hidden rounded-xl border border-white/60 bg-white/[0.06] p-5 text-left shadow-[0_0_32px_rgba(255,255,255,0.18)] transition-transform hover:scale-[1.005] cursor-pointer"
+        >
+          <span className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <span className="relative flex h-3 w-3 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-white" />
+          </span>
+          <span className="relative min-w-0 flex-1">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#a1a1aa]">
+              New claim just came in · {pendingInbox.draft.id}
+            </span>
+            <span className="mt-0.5 block truncate text-sm font-bold text-white">
+              {pendingInbox.draft.equipmentType} — {pendingInbox.draft.faultSummary}
+            </span>
+            <span className="mt-0.5 block text-xs text-[#a1a1aa]">
+              {pendingInbox.draft.photos.length} photo(s)
+              {pendingInbox.draft.hasVoiceNote ? ' · voice note with Japanese translation' : ''} · check it out
+            </span>
+          </span>
+          <span className="relative shrink-0 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black">
+            Review now →
+          </span>
+        </button>
+      )}
 
       {/* ── Stat Cards ──────────────────────────────────────────────────── */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
