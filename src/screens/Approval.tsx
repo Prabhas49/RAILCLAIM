@@ -15,8 +15,6 @@ export default function Approval({ onDone }: { onDone: () => void }) {
     componentId: draft.componentId, faultCode: draft.faultCode,
     faultSummary: draft.faultSummary, depot: draft.depot, faultDate: draft.faultDate,
   } : null)
-  const [approved, setApproved] = useState(false)
-  const [pdfReady, setPdfReady] = useState(false)
   const [done, setDone] = useState(false)
   const [receipt, setReceipt] = useState('')
   const [sending, setSending] = useState(false)
@@ -46,17 +44,11 @@ export default function Approval({ onDone }: { onDone: () => void }) {
       : scenario.transcript,
   } as any
 
-  /** Step 1: engineer checks everything, then generates the PDF. */
-  const generatePdf = () => {
-    if (!approved) return
-    openPrintableVoucher(voucherScenario)
-    setPdfReady(true)
-  }
-
-  /** Step 2: after reviewing the PDF, send the claim to the OEM in Japan. */
-  const sendToOem = () => {
-    if (!approved || !pdfReady || sending || done) return
+  /** Single decision: approve → PDF opens → claim filed to the OEM. */
+  const approveAndSend = () => {
+    if (sending || done) return
     setSending(true)
+    openPrintableVoucher(voucherScenario)
     setTimeout(() => {
       const rec = markSubmitted({ ...draft, ...fields }, fields.manufacturer)
       patchDraft({ status: 'approved' })
@@ -69,8 +61,8 @@ export default function Approval({ onDone }: { onDone: () => void }) {
   return (
     <div className="mx-auto max-w-6xl pb-16 text-white">
       <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#71717a]">Engineer approval // {draft.id}</p>
-      <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight">Review, generate, send to OEM</h1>
-      <p className="mt-1 font-mono text-xs text-[#a1a1aa]">Check fault + info + photos + both voices → Generate PDF → Send to OEM Japan.</p>
+      <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight">Review & send to OEM</h1>
+      <p className="mt-1 font-mono text-xs text-[#a1a1aa]">Check fault + info + photos + both voices → one click generates the PDF and files it.</p>
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Evidence: fault type + info + photos + both voices */}
@@ -129,24 +121,21 @@ export default function Approval({ onDone }: { onDone: () => void }) {
                 : <input value={fields[k]} onChange={(e) => set(k, e.target.value)} className={inputCls} />}
             </label>
           ))}
-          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#262626] bg-black p-4 text-sm font-semibold">
-            <input type="checkbox" checked={approved} onChange={(e) => setApproved(e.target.checked)} className="h-5 w-5 accent-white" />
-            I checked the fault, info, photos and both voice notes — approve.
-          </label>
           {!done ? (
             <div className="space-y-3">
-              <button onClick={generatePdf} disabled={!approved} className="w-full rounded-xl bg-white py-4 text-sm font-extrabold text-black hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed">
-                ⎙ {pdfReady ? 'Regenerate PDF' : 'Generate PDF'} →
-              </button>
-              {pdfReady && <p className="font-mono text-[11px] text-emerald-400">✓ PDF generated — review it, then send below.</p>}
               <button
-                onClick={sendToOem}
-                disabled={!approved || !pdfReady || sending}
-                className="w-full rounded-xl border border-white/25 bg-black py-4 text-sm font-extrabold text-white hover:bg-[#141414] disabled:opacity-30 disabled:cursor-not-allowed"
+                onClick={approveAndSend}
+                disabled={sending}
+                className="w-full rounded-xl bg-white py-4 text-sm font-extrabold text-black hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-wait"
               >
-                {sending ? 'Sending to OEM…' : '✈ Send to OEM in Japan'}
+                {sending ? 'Generating PDF & sending…' : '⎙ Approve, generate PDF & send to OEM →'}
               </button>
-              {!pdfReady && <p className="font-mono text-[11px] text-[#71717a]">Generate the PDF first — Send unlocks after.</p>}
+              <button
+                onClick={() => openPrintableVoucher(voucherScenario)}
+                className="w-full rounded-xl border border-white/15 bg-transparent py-2.5 text-xs font-semibold text-[#a1a1aa] hover:text-white"
+              >
+                Preview PDF only (doesn't file the claim)
+              </button>
             </div>
           ) : (
             <div className="rounded-xl border border-emerald-800/50 bg-emerald-950/30 p-5 font-mono text-xs">

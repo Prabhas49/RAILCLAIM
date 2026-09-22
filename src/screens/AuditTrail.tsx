@@ -76,7 +76,7 @@ export default function AuditTrail({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* ── Block-by-Block Audit Chain ──────────────────────────────── */}
-      <div className="relative border-l-2 border-[#1e1e1e] ml-4 space-y-6 pl-6 py-2">
+      <div className="relative border-l-2 border-[#1e1e1e] ml-2 sm:ml-4 space-y-6 pl-4 sm:pl-6 py-2">
         {list.map((event, idx) => {
           const cfg = KIND_CONFIG[event.kind] ?? {
             label: event.kind.toUpperCase(),

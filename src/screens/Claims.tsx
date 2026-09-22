@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import type { ViewId } from '../types'
 import { getDraft, getSubmittedClaims } from '../lib/claimStore'
+import { canApprove, getSession } from '../lib/auth'
 
 interface ClaimRow {
   id: string
@@ -219,8 +220,50 @@ export default function Claims({
         </div>
       </div>
 
-      {/* ── Table ───────────────────────────────────────────────────────── */}
-      <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] overflow-hidden shadow-sm">
+      {/* ── Table (desktop) / Cards (mobile) ─────────────────────────── */}
+      {/* Mobile: stacked claim cards */}
+      <div className="mt-6 space-y-3 md:hidden">
+        {filteredClaims.length === 0 ? (
+          <div className="rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] py-12 text-center text-xs text-[#71717a]">
+            No claims found matching the filter criteria.
+          </div>
+        ) : (
+          filteredClaims.map((claim) => (
+            <button
+              key={claim.id}
+              type="button"
+              onClick={() => {
+                if (claim.live) onNavigate(canApprove(getSession()) ? 'approval' : 'create')
+                else onSelectClaim?.()
+              }}
+              className="w-full rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 text-left transition-colors hover:border-[#333] cursor-pointer"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-mono text-xs font-bold text-white inline-flex items-center gap-2">
+                  {claim.id}
+                  {claim.live && (
+                    <span className="rounded bg-white px-1.5 py-0.5 text-[9px] font-bold text-black">YOUR DRAFT</span>
+                  )}
+                </span>
+                <span
+                  className={`inline-flex items-center px-2.5 py-1 rounded-[4px] text-[10px] font-medium ${statusBadge(claim.status)}`}
+                >
+                  {claim.status}
+                </span>
+              </div>
+              <p className="mt-2 text-sm font-semibold text-white">{claim.equipment}</p>
+              <p className="mt-0.5 text-xs text-[#a1a1aa] line-clamp-2">{claim.fault}</p>
+              <div className="mt-2.5 pt-2.5 border-t border-[#1a1a1a] flex items-center justify-between text-[11px] text-[#71717a]">
+                <span>{claim.date}</span>
+                <span>{claim.engineer}</span>
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="mt-6 hidden md:block rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] overflow-x-auto shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#1e1e1e] text-[11px] font-semibold tracking-wider text-[#71717a] uppercase">
@@ -244,7 +287,7 @@ export default function Claims({
                 <tr
                   key={claim.id}
                   onClick={() => {
-                    if (claim.live) onNavigate('approval')
+                    if (claim.live) onNavigate(canApprove(getSession()) ? 'approval' : 'create')
                     else onSelectClaim?.()
                   }}
                   className="group hover:bg-[#111111] transition-colors cursor-pointer"
@@ -294,7 +337,7 @@ export default function Claims({
         </table>
       </div>
 
-      <p className="mt-3 text-[11px] text-[#71717a]">
+      <p className="mt-3 hidden md:block text-[11px] text-[#71717a]">
         Demo rows shown for context — your draft and dispatched claims always appear at the top.
       </p>
     </div>

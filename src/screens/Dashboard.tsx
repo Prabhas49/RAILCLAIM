@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Icon } from '../components/ui/Icon'
 import { getDraft, getSubmittedClaims } from '../lib/claimStore'
+import { canApprove, getSession } from '../lib/auth'
 import type { ViewId } from '../types'
 
 const DEMO_COUNTS = {
@@ -106,7 +107,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
         <div className="divide-y divide-[#1e1e1e]">
           {hasActiveDraft && draft && (
             <button
-              onClick={() => onNavigate(draft.status === 'review' || draft.status === 'pending_approval' ? 'approval' : 'create')}
+              onClick={() => onNavigate(canApprove(getSession()) && (draft.status === 'review' || draft.status === 'pending_approval') ? 'approval' : 'create')}
               className="w-full flex flex-col sm:flex-row sm:items-center justify-between py-3.5 px-2 hover:bg-[#111111] rounded-lg transition-colors cursor-pointer gap-2 text-left"
             >
               <div className="flex items-center gap-3">

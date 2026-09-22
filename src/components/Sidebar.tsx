@@ -1,6 +1,6 @@
 import { cx } from '../lib/cx'
 import { Icon, type IconName } from './ui/Icon'
-import type { AuthUser } from '../lib/auth'
+import { canApprove, type AuthUser } from '../lib/auth'
 import type { ViewId } from '../types'
 
 interface NavItem {
@@ -36,6 +36,12 @@ export function Sidebar({
   user?: AuthUser | null
   onLogout?: () => void
 }) {
+  // Depot crew only files claims + checks evidence. Approval/Dispatch,
+  // Analytics and Audit are engineer-only.
+  const engineer = canApprove(user)
+  const workspaceNav = WORKSPACE_NAV.filter((item) => engineer || (item.id !== 'analytics' && item.id !== 'approval'))
+  const systemNav = SYSTEM_NAV.filter((item) => engineer || (item.id !== 'approval' && item.id !== 'audit'))
+
   const isActive = (item: NavItem) => {
     if (item.id === 'claims') return current === 'claims' || current === 'approval'
     return item.viewId === current
@@ -60,7 +66,7 @@ export function Sidebar({
         </p>
 
         <nav className="mt-2 space-y-1">
-          {WORKSPACE_NAV.map((item) => (
+          {workspaceNav.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -91,7 +97,7 @@ export function Sidebar({
         </p>
 
         <nav className="mt-2 space-y-1">
-          {SYSTEM_NAV.map((item) => (
+          {systemNav.map((item) => (
             <button
               key={item.id}
               type="button"

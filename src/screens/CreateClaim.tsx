@@ -3,6 +3,7 @@ import { getScenario } from '../data/mock'
 import { getOrInitDraft, patchDraft, type ClaimDraft } from '../lib/claimStore'
 import { addPersistentPhoto } from '../lib/evidenceStore'
 import { translateToJapanese, speakJapanese } from '../lib/translator'
+import { canApprove, getSession } from '../lib/auth'
 import type { ViewId } from '../types'
 
 const inputCls =
@@ -179,7 +180,8 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
   const submit = () => {
     if (!draft.equipmentType || !draft.faultSummary) { say('Equipment + fault summary required.'); return }
     patchDraft({ status: 'pending_approval' })
-    onSubmit('approval')
+    // Depot crew files and goes back to tracking; engineers jump straight into approval.
+    onSubmit(canApprove(getSession()) ? 'approval' : 'claims')
   }
 
   return (

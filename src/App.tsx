@@ -5,7 +5,7 @@ import { Topbar } from './components/Topbar'
 import { VoiceTranslatorModal } from './components/VoiceTranslatorModal'
 import Landing from './screens/Landing'
 import Login from './screens/Login'
-import { getSession, logout, type AuthUser } from './lib/auth'
+import { canApprove, getSession, logout, type AuthUser } from './lib/auth'
 import Dashboard from './screens/Dashboard'
 import Claims from './screens/Claims'
 import CreateClaim from './screens/CreateClaim'
@@ -14,6 +14,28 @@ import EvidenceStorage from './screens/EvidenceStorage'
 import AuditTrail from './screens/AuditTrail'
 import Analytics from './screens/Analytics'
 import type { ViewId } from './types'
+
+function DeniedCard({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="mx-auto max-w-md py-24 text-center text-white">
+      <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#71717a]">
+        Engineer only
+      </p>
+      <h1 className="mt-2 text-2xl font-extrabold">Not for depot accounts</h1>
+      <p className="mt-2 text-sm text-[#a1a1aa]">
+        Approval, dispatch, analytics and audit are restricted to engineers.
+        Depot crew files claims and tracks evidence.
+      </p>
+      <button
+        type="button"
+        onClick={onBack}
+        className="mt-6 rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-black hover:bg-neutral-200"
+      >
+        Back to dashboard
+      </button>
+    </div>
+  )
+}
 
 // The one true spine: create → approve/dispatch → audit.
 const SPINE: ViewId[] = ['create', 'approval', 'audit']
@@ -37,11 +59,24 @@ export default function App() {
     return () => window.removeEventListener('hashchange', sync)
   }, [])
 
+  // Depot crew can file + track claims but never approve/dispatch.
+  // Engineer-only views bounce them back to the dashboard.
+  const ENGINEER_ONLY: ViewId[] = ['approval', 'analytics', 'audit']
+
   const navigate = useCallback((next: ViewId) => {
-    setView(next)
-    setMobileNavOpen(false)
-    window.location.hash = `/${next}`
-    window.scrollTo({ top: 0 })
+    setUser((u) => {
+      if (ENGINEER_ONLY.includes(next) && !canApprove(u)) {
+        setView('dashboard')
+        window.location.hash = '/dashboard'
+        window.scrollTo({ top: 0 })
+        return u
+      }
+      setView(next)
+      setMobileNavOpen(false)
+      window.location.hash = `/${next}`
+      window.scrollTo({ top: 0 })
+      return u
+    })
   }, [])
 
   const handleLogout = useCallback(() => {
@@ -166,10 +201,22 @@ export default function App() {
               {view === 'dashboard' && <Dashboard onNavigate={navigate} />}
               {view === 'claims' && <Claims onNavigate={navigate} />}
               {view === 'create' && <CreateClaim onSubmit={navigate} />}
-              {view === 'approval' && <Approval onDone={() => navigate('dashboard')} />}
+              {view === 'approval' && (canApprove(user) ? (
+                <Approval onDone={() => navigate('dashboard')} />
+              ) : (
+                <DeniedCard onBack={() => navigate('dashboard')} />
+              ))}
               {view === 'evidence' && <EvidenceStorage onNavigate={navigate} />}
-              {view === 'analytics' && <Analytics onNavigate={navigate} />}
-              {view === 'audit' && <AuditTrail onBack={() => navigate('dashboard')} />}
+              {view === 'analytics' && (canApprove(user) ? (
+                <Analytics onNavigate={navigate} />
+              ) : (
+                <DeniedCard onBack={() => navigate('dashboard')} />
+              ))}
+              {view === 'audit' && (canApprove(user) ? (
+                <AuditTrail onBack={() => navigate('dashboard')} />
+              ) : (
+                <DeniedCard onBack={() => navigate('dashboard')} />
+              ))}
             </motion.div>
           </AnimatePresence>
         </main>

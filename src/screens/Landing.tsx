@@ -84,7 +84,7 @@ export default function Landing({
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden px-6 pb-28 pt-44 text-center sm:pb-36 sm:pt-52">
+      <section className="relative overflow-hidden px-4 sm:px-6 pb-20 pt-32 text-center sm:pb-36 sm:pt-52">
         {/* soft top glow */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(ellipse_55%_45%_at_50%_-5%,rgba(255,255,255,0.08),transparent)]" />
 
@@ -119,7 +119,7 @@ export default function Landing({
       </section>
 
       {/* ── How it works ────────────────────────────────────────────── */}
-      <section className="border-t border-white/5 px-6 py-28 sm:py-36">
+      <section className="border-t border-white/5 px-4 sm:px-6 py-16 sm:py-36">
         <motion.div {...fadeUp} className="mx-auto max-w-5xl">
           <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">How it works.</h2>
           <p className="mt-3 text-sm text-[#71717a]">Three steps from depot floor to claim settlement.</p>
@@ -140,7 +140,7 @@ export default function Landing({
       </section>
 
       {/* ── Real examples ───────────────────────────────────────────── */}
-      <section className="border-t border-white/5 px-6 py-28 sm:py-36">
+      <section className="border-t border-white/5 px-4 sm:px-6 py-16 sm:py-36">
         <motion.div {...fadeUp} className="mx-auto max-w-5xl">
           <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">Real examples.</h2>
           <p className="mt-3 text-sm text-[#71717a]">Pick one to inspect the claim, or open it in the app.</p>
