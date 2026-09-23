@@ -11,11 +11,22 @@
     text-rendering: optimizeLegibility;
     background-color: #000000;
     color: #FFFFFF;
+    /* Light theme: invert the monochrome dark palette globally.
+       Photos/videos are counter-inverted so evidence images stay accurate. */
+    filter: invert(1) hue-rotate(180deg);
   }
   body {
     background-color: #000000;
     color: #FFFFFF;
+    /* fix: html filter creates a containing block that breaks fixed positioning inside body */
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  img,
+  video,
+  iframe,
+  canvas,
+  [data-no-invert] {
+    filter: invert(1) hue-rotate(180deg);
   }
   ::selection {
     background-color: #FFFFFF;
@@ -23,7 +34,7 @@
   }
 }
 
-/* Minimalist dark scrollbar */
+/* Minimalist scrollbar (inverts to light with the theme) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

@@ -93,10 +93,10 @@ export default function App() {
         <AnimatePresence mode="wait">
           <motion.div
             key="landing"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 26 }}
           >
             <Landing
               onEnter={navigate}
@@ -193,10 +193,10 @@ export default function App() {
           <AnimatePresence mode="wait">
             <motion.div
               key={view}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15 }}
+              initial={{ opacity: 0, y: 16, scale: 0.995 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.995 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 28 }}
             >
               {view === 'dashboard' && <Dashboard onNavigate={navigate} />}
               {view === 'claims' && <Claims onNavigate={navigate} />}
