@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getScenario } from '../data/mock'
 import { EQUIPMENT_FAULT_INFO, PHOTO_DETECTION_ORDER } from '../data/equipmentFaults'
 import { getOrInitDraft, patchDraft, type ClaimDraft } from '../lib/claimStore'
@@ -40,6 +40,23 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
     setDraft((d) => ({ ...d, ...p }))
     patchDraft(p)
   }
+
+  // Info stays nil until a photo is uploaded — only the AI detection fills it.
+  const [bootstrapped, setBootstrapped] = useState(false)
+  useEffect(() => {
+    if (bootstrapped) return
+    setBootstrapped(true)
+    if (draft.photos.length === 0) {
+      update({
+        equipmentType: '', model: '', serialNumber: '', faultCode: '',
+        classification: '', componentId: '', faultSummary: '', manufacturer: '',
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Fake "AI fault analysis" overlay state.
+  const [analyzing, setAnalyzing] = useState<{ step: string; photo: string } | null>(null)
 
   // Each equipment type brings its own fault profile — error code,
   // classification, component ID, model and symptom all change together.
@@ -180,22 +197,41 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
   const stopVoice = () => mrRef.current?.stop()
 
   const handlePhotos = (files: File[]) => {
-    files.slice(0, 3).forEach((file, i) => {
+    const list = Array.from(files).slice(0, 3)
+    list.forEach((file, i) => {
       const reader = new FileReader()
       reader.onload = async (e) => {
         const compressed = await compressImage(e.target?.result as string)
         const slot = draft.photos.length + i
-        // Fake AI analysis of this photo slot → auto-fill equipment + fault info.
         const ai = fakeAiDetectPhoto(slot)
-        const photos = [...draft.photos, { slot: slot + 1, name: file.name, dataUrl: compressed, tag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence }]
-        update({
-          photos: photos.slice(0, 5),
-          ...(slot === 0 && ai.info ? { equipmentType: ai.detected, ...ai.info } : {}),
-          ...(slot === 0 ? { serialNumber: ai.ocrSerial || draft.serialNumber } : {}),
-        })
-        if (slot === 0) {
-          say(`AI analyzed "${file.name}" — detected ${ai.detected} nameplate (OCR ${ai.confidence}%). Claim info auto-filled.`)
+
+        // Fake AI analysis popup, in order: nameplate scan → code match → fill.
+        const steps = [
+          'Scanning image…',
+          'Running OCR on nameplate…',
+          `Matching equipment → ${ai.detected}…`,
+          'Mapping fault code & classification…',
+          'Auto-filling claim fields…',
+        ]
+        for (const step of steps) {
+          setAnalyzing({ step, photo: file.name })
+          await new Promise((r) => setTimeout(r, 450))
         }
+        setAnalyzing(null)
+
+        const photos = [...draft.photos, { slot: slot + 1, name: file.name, dataUrl: compressed, tag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence }]
+        if (ai.info) {
+          update({
+            photos: photos.slice(0, 5),
+            equipmentType: ai.detected,
+            ...ai.info,
+            manufacturer: ai.info.oem,
+          })
+        } else {
+          update({ photos: photos.slice(0, 5) })
+        }
+        say(`AI detected ${ai.detected} (OCR ${ai.confidence}%) — claim info filled from this photo.`)
+
         addPersistentPhoto({
           id: `UP-${Date.now()}-${i}`, name: file.name, claimId: draft.id, dataUrl: compressed,
           fileSize: `${(file.size / 1048576).toFixed(1)} MB`,
@@ -203,7 +239,6 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
           hash: `0x${Math.random().toString(16).slice(2, 8)}...vault`,
           ocrTag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence, isUserUploaded: true,
         })
-        say(`Photo "${file.name}" attached.`)
       }
       reader.readAsDataURL(file)
     })
@@ -230,23 +265,42 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
       <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight">New Warranty Claim</h1>
       <p className="mt-1 text-sm text-[#a1a1aa]">Capture the failure once — RailClaim AI prepares the rest for OEM review.</p>
 
-      {/* Stepper like design: 1 Asset Information → 2 Technician Report */}
+      {/* Stepper like design: 1 Evidence Photos → 2 Asset Information → 3 Technician Report */}
       <div className="mt-6 flex items-center gap-3 sm:gap-4 overflow-x-auto">
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border border-sky-400/60 bg-sky-400/10 text-xs sm:text-sm font-bold text-sky-300">1</span>
-          <span className="text-xs sm:text-sm font-bold text-white whitespace-nowrap">Asset Information</span>
+          <span className="text-xs sm:text-sm font-bold text-white whitespace-nowrap">Evidence Photos</span>
         </div>
         <div className="h-px min-w-4 flex-1 bg-[#262626]" />
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border border-[#333] bg-[#141414] text-xs sm:text-sm font-bold text-[#a1a1aa]">2</span>
+          <span className="text-xs sm:text-sm font-semibold text-[#a1a1aa] whitespace-nowrap">Asset Information</span>
+        </div>
+        <div className="h-px min-w-4 flex-1 bg-[#262626]" />
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border border-[#333] bg-[#141414] text-xs sm:text-sm font-bold text-[#a1a1aa]">3</span>
           <span className="text-xs sm:text-sm font-semibold text-[#a1a1aa] whitespace-nowrap">Technician Report</span>
         </div>
       </div>
       <p className="mt-3 font-mono text-xs text-[#71717a]">Draft <span className="text-white">{draft.id}</span> · auto-saved</p>
 
-      {/* 1 · Asset Information — dropdowns as in reference */}
+      {/* 1 · Evidence Photos — AI fills everything from these */}
+      <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 sm:p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold uppercase tracking-wider">1 · Evidence Photos ({draft.photos.length})</h2>
+          <button onClick={() => fileRef.current?.click()} className="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black">Upload photos</button>
+        </div>
+        <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => e.target.files && handlePhotos(Array.from(e.target.files))} />
+        <p className="mt-2 text-xs text-[#71717a]">Upload in order — 1st photo nameplate → AI detects the equipment and fills the claim automatically.</p>
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {draft.photos.map((p) => <img key={p.slot + p.name} src={p.dataUrl} alt={p.name} className="aspect-video w-full rounded-lg border border-[#262626] object-cover" />)}
+          {draft.photos.length === 0 && <p className="col-span-2 sm:col-span-3 text-xs text-[#71717a]">No photos yet — nameplate, fault screen, depot context.</p>}
+        </div>
+      </div>
+
+      {/* 2 · Asset Information — auto-filled by AI after photo upload */}
       <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 sm:p-6 space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider">1 · Asset Information</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wider">2 · Asset Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
             <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]"><span className="mr-1 text-rose-400">*</span>Equipment type</span>
@@ -285,9 +339,9 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
         </div>
       </div>
 
-      {/* 2 · Technician Report — fault + voice + photos */}
+      {/* 3 · Technician Report — fault + voice */}
       <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 sm:p-6 space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider">2 · Technician Report</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wider">3 · Technician Report</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
             <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]"><span className="mr-1 text-rose-400">*</span>Depot</span>
@@ -366,18 +420,23 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
         </div>
       </div>
 
-      {/* Photos */}
-      <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 sm:p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold uppercase tracking-wider">Photos ({draft.photos.length})</h2>
-          <button onClick={() => fileRef.current?.click()} className="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black">Upload photos</button>
+      {/* Fake AI analyzing overlay */}
+      {analyzing && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl border border-[#262626] bg-[#0c0c0c] p-6 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <div className="h-3 w-3 rounded-full bg-white animate-ping" />
+              <h3 className="text-sm font-extrabold uppercase tracking-wider">Analyzing fault…</h3>
+            </div>
+            <p className="mt-3 font-mono text-xs text-neutral-300">{analyzing.step}</p>
+            <p className="mt-1 font-mono text-[11px] text-[#71717a]">Source: {analyzing.photo}</p>
+            <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-[#1e1e1e]">
+              <div className="h-full w-1/2 animate-pulse rounded-full bg-white" />
+            </div>
+            <p className="mt-3 font-mono text-[10px] text-[#71717a]">RailClaim AI · vision + OCR + fault taxonomy mapping</p>
+          </div>
         </div>
-        <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => e.target.files && handlePhotos(Array.from(e.target.files))} />
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {draft.photos.map((p) => <img key={p.slot + p.name} src={p.dataUrl} alt={p.name} className="aspect-video w-full rounded-lg border border-[#262626] object-cover" />)}
-          {draft.photos.length === 0 && <p className="col-span-2 sm:col-span-3 text-xs text-[#71717a]">No photos yet — nameplate, fault screen, depot context.</p>}
-        </div>
-      </div>
+      )}
 
       <button onClick={submit} className="mt-6 w-full rounded-xl bg-white py-3.5 text-sm font-extrabold text-black hover:bg-neutral-200">
         Submit for approval →
