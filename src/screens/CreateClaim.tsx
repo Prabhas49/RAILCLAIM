@@ -57,6 +57,9 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
 
   // Fake "AI fault analysis" overlay state.
   const [analyzing, setAnalyzing] = useState<{ step: string; photo: string } | null>(null)
+  // Upload counter so each new photo walks the detection order, even though
+  // only the latest photo is kept.
+  const uploadCount = useRef(0)
 
   // Each equipment type brings its own fault profile — error code,
   // classification, component ID, model and symptom all change together.
@@ -197,51 +200,51 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
   const stopVoice = () => mrRef.current?.stop()
 
   const handlePhotos = (files: File[]) => {
-    const list = Array.from(files).slice(0, 3)
-    list.forEach((file, i) => {
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        const compressed = await compressImage(e.target?.result as string)
-        const slot = draft.photos.length + i
-        const ai = fakeAiDetectPhoto(slot)
+    // Only the latest photo counts: uploading a new one discards the previous.
+    const file = Array.from(files)[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      const compressed = await compressImage(e.target?.result as string)
+      const ai = fakeAiDetectPhoto(uploadCount.current++)
 
-        // Fake AI analysis popup, in order: nameplate scan → code match → fill.
-        const steps = [
-          'Scanning image…',
-          'Running OCR on nameplate…',
-          `Matching equipment → ${ai.detected}…`,
-          'Mapping fault code & classification…',
-          'Auto-filling claim fields…',
-        ]
-        for (const step of steps) {
-          setAnalyzing({ step, photo: file.name })
-          await new Promise((r) => setTimeout(r, 450))
-        }
-        setAnalyzing(null)
-
-        const photos = [...draft.photos, { slot: slot + 1, name: file.name, dataUrl: compressed, tag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence }]
-        if (ai.info) {
-          update({
-            photos: photos.slice(0, 5),
-            equipmentType: ai.detected,
-            ...ai.info,
-            manufacturer: ai.info.oem,
-          })
-        } else {
-          update({ photos: photos.slice(0, 5) })
-        }
-        say(`AI detected ${ai.detected} (OCR ${ai.confidence}%) — claim info filled from this photo.`)
-
-        addPersistentPhoto({
-          id: `UP-${Date.now()}-${i}`, name: file.name, claimId: draft.id, dataUrl: compressed,
-          fileSize: `${(file.size / 1048576).toFixed(1)} MB`,
-          uploadTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          hash: `0x${Math.random().toString(16).slice(2, 8)}...vault`,
-          ocrTag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence, isUserUploaded: true,
-        })
+      // Fake AI analysis popup, in order: nameplate scan → code match → fill.
+      const steps = [
+        'Scanning image…',
+        'Running OCR on nameplate…',
+        `Matching equipment → ${ai.detected}…`,
+        'Mapping fault code & classification…',
+        'Auto-filling claim fields…',
+      ]
+      for (const step of steps) {
+        setAnalyzing({ step, photo: file.name })
+        await new Promise((r) => setTimeout(r, 450))
       }
-      reader.readAsDataURL(file)
-    })
+      setAnalyzing(null)
+
+      // Discard the old photo — only this one is kept.
+      const photos = [{ slot: 1, name: file.name, dataUrl: compressed, tag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence }]
+      if (ai.info) {
+        update({
+          photos,
+          equipmentType: ai.detected,
+          ...ai.info,
+          manufacturer: ai.info.oem,
+        })
+      } else {
+        update({ photos })
+      }
+      say(`AI detected ${ai.detected} (OCR ${ai.confidence}%) — claim info filled from this photo.`)
+
+      addPersistentPhoto({
+        id: `UP-${Date.now()}`, name: file.name, claimId: draft.id, dataUrl: compressed,
+        fileSize: `${(file.size / 1048576).toFixed(1)} MB`,
+        uploadTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        hash: `0x${Math.random().toString(16).slice(2, 8)}...vault`,
+        ocrTag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence, isUserUploaded: true,
+      })
+    }
+    reader.readAsDataURL(file)
   }
 
   const submit = () => {
