@@ -289,12 +289,27 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
       <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 sm:p-6 space-y-4">
         <h2 className="text-sm font-bold uppercase tracking-wider">2 · Technician Report</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input className={inputCls} placeholder="Depot" value={draft.depot} onChange={(e) => update({ depot: e.target.value })} />
-          <input className={inputCls} placeholder="Classification" value={draft.classification} onChange={(e) => update({ classification: e.target.value })} />
-          <input className={inputCls} placeholder="Component ID" value={draft.componentId} onChange={(e) => update({ componentId: e.target.value })} />
-          <input className={inputCls} placeholder="Fault summary" value={draft.faultSummary} onChange={(e) => update({ faultSummary: e.target.value })} />
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]"><span className="mr-1 text-rose-400">*</span>Depot</span>
+            <input className={inputCls} placeholder="e.g. Lasya Depot" value={draft.depot} onChange={(e) => update({ depot: e.target.value })} />
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]"><span className="mr-1 text-rose-400">*</span>Classification</span>
+            <input className={inputCls} placeholder="e.g. Bearing Vibration" value={draft.classification} onChange={(e) => update({ classification: e.target.value })} />
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]">Component ID</span>
+            <input className={inputCls + ' font-mono'} placeholder="e.g. TM-04-A" value={draft.componentId} onChange={(e) => update({ componentId: e.target.value })} />
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]"><span className="mr-1 text-rose-400">*</span>Fault summary</span>
+            <input className={inputCls} placeholder="Short fault summary" value={draft.faultSummary} onChange={(e) => update({ faultSummary: e.target.value })} />
+          </label>
         </div>
-        <textarea className={inputCls} rows={3} placeholder="Fault summary / symptom *" value={draft.faultSummary} onChange={(e) => update({ faultSummary: e.target.value })} />
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]"><span className="mr-1 text-rose-400">*</span>Detailed fault description / symptom</span>
+          <textarea className={inputCls} rows={3} placeholder="Describe what happened, when, and any readings observed…" value={draft.faultSummary} onChange={(e) => update({ faultSummary: e.target.value })} />
+        </label>
       </div>
 
       {/* Voice note: OG voice + Japanese translated voice */}

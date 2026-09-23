@@ -25,7 +25,7 @@ function normalizeVoucherData(scenario: any) {
     oemId: (scenario.oemId || 'mitsubishi') as string,
     oemHq: scenario.oemHq || 'Japan',
     operator: scenario.operator || 'Kochi Metro Rail Ltd',
-    depot: scenario.depot || 'Muttom Depot',
+    depot: scenario.depot || 'Lasya Depot',
     faultCode: scenario.faultCode || profile.faultCode,
     classification: scenario.classification || profile.classification,
     jisCode: profile.jisCode,

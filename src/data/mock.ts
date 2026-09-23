@@ -629,7 +629,7 @@ export const FAILURE_SCENARIOS: FailureScenario[] = [
     oemName: 'Mitsubishi Electric Transportation Systems',
     oemHq: 'Kobe, Japan',
     operator: 'Kochi Metro Rail Ltd',
-    depot: 'Muttom Depot',
+    depot: 'Lasya Depot',
     claimId: 'HS-2026-0881',
     faultCode: 'E-TM-204',
     jisCode: 'JIS E-4001',
