@@ -42,12 +42,17 @@ export default function Approval({ onDone }: { onDone: () => void }) {
   const voucherScenario = {
     ...scenario,
     claimId: draft.id,
+    equipmentType: fields.equipmentType,
     equipment: fields.equipmentType,
     model: fields.model,
     serialNo: fields.serialNumber,
+    serialNumber: fields.serialNumber,
     faultCode: fields.faultCode,
+    classification: draft.classification,
     failureDescription: fields.faultSummary,
+    faultSummary: fields.faultSummary,
     oemName: fields.manufacturer,
+    depot: fields.depot,
     // Engineer hears the real voices; the PDF carries the real words too.
     transcript: draft.voiceTranscript || draft.voiceJapanese
       ? [{ id: 'v1', source: draft.voiceTranscript || '(no transcript)', translation: draft.voiceJapanese || '(translation pending)', terms: [], startMs: 0 }]

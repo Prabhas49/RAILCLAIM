@@ -1,12 +1,51 @@
 import React from 'react'
 import type { FailureScenario } from '../data/mock'
+import { EQUIPMENT_FAULT_INFO } from '../data/equipmentFaults'
 
 interface OemPdfVoucherProps {
   scenario: FailureScenario
   onClose?: () => void
 }
 
-export function openPrintableVoucher(scenario: FailureScenario) {
+/**
+ * Normalizes whatever the caller passes (a FailureScenario or a plain
+ * draft-shaped object with an equipmentType) into the fields the PDF needs.
+ * Per-equipment PDFs: every equipment pulls its own fault code, JIS standard,
+ * root cause, warranty clause and itemized costs from EQUIPMENT_FAULT_INFO.
+ */
+function normalizeVoucherData(scenario: any) {
+  const equipment = scenario.equipmentType || scenario.equipment || 'Traction Motor'
+  const profile = EQUIPMENT_FAULT_INFO[equipment] ?? EQUIPMENT_FAULT_INFO['Other']
+  return {
+    claimId: scenario.claimId,
+    equipment,
+    model: scenario.model || profile.model,
+    serialNo: scenario.serialNo || scenario.serialNumber || profile.serialNo,
+    oemName: scenario.oemName || profile.oem,
+    oemId: (scenario.oemId || 'mitsubishi') as string,
+    oemHq: scenario.oemHq || 'Japan',
+    operator: scenario.operator || 'Kochi Metro Rail Ltd',
+    depot: scenario.depot || 'Muttom Depot',
+    faultCode: scenario.faultCode || profile.faultCode,
+    classification: scenario.classification || profile.classification,
+    jisCode: profile.jisCode,
+    jisStandardLabel: profile.jisStandardLabel,
+    failureDescription: scenario.failureDescription || scenario.faultSummary || profile.faultSummary,
+    rootCause: scenario.rootCause || profile.rootCause,
+    warrantyClause: scenario.warrantyClause || profile.warrantyClause,
+    warrantyContract: scenario.warrantyContract || profile.warrantyContract,
+    confidence: scenario.confidence ?? profile.confidence,
+    language: scenario.language || 'English',
+    crew: scenario.crew || 'Depot Crew',
+    costs: scenario.costs || profile.costs,
+    amountInr: scenario.amountInr || profile.amountInr,
+    amountJpy: scenario.amountJpy || profile.amountJpy,
+    transcript: scenario.transcript || [],
+  }
+}
+
+export function openPrintableVoucher(scenario: any) {
+  const data = normalizeVoucherData(scenario)
   const printWindow = window.open('', '_blank', 'width=900,height=1100')
   if (!printWindow) {
     alert('Please allow popups to download/print the OEM Warranty Claim PDF.')
@@ -18,7 +57,7 @@ export function openPrintableVoucher(scenario: FailureScenario) {
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>OEM_Warranty_Claim_${scenario.claimId}.pdf</title>
+  <title>OEM_Warranty_Claim_${data.claimId}_${data.equipment.replace(/\s+/g, '_')}.pdf</title>
   <style>
     @page {
       size: A4 portrait;
@@ -224,13 +263,13 @@ export function openPrintableVoucher(scenario: FailureScenario) {
         <div class="brand-title">HASHI SETU 橋・सेतु</div>
         <div class="brand-sub">BILATERAL JAPAN-INDIA ROLLING STOCK WARRANTY PLATFORM</div>
         <div style="font-size: 9px; color: #6b7280; margin-top: 2px;">
-          OPERATING AUTHORITY: <strong>${scenario.operator}</strong> (${scenario.depot})
+          OPERATING AUTHORITY: <strong>${data.operator}</strong> (${data.depot})
         </div>
       </td>
       <td style="text-align: right; vertical-align: top;">
-        <div style="font-weight: bold; font-size: 12px; color: #111;">VOUCHER REF: ${scenario.claimId}</div>
+        <div style="font-weight: bold; font-size: 12px; color: #111;">VOUCHER REF: ${data.claimId}</div>
         <div style="font-size: 9px; color: #6b7280;">DISPATCH DATE: 2026-09-22 09:45 JST / 06:15 IST</div>
-        <div style="font-size: 9px; color: #dc2626; font-weight: bold; margin-top: 2px;">JIS E-4001 / JIS E-5006 COMPLIANT</div>
+        <div style="font-size: 9px; color: #dc2626; font-weight: bold; margin-top: 2px;">${data.jisStandardLabel}</div>
       </td>
     </tr>
   </table>
@@ -241,31 +280,30 @@ export function openPrintableVoucher(scenario: FailureScenario) {
   </div>
 
   <div class="grid-2">
-    <div class="col">
-      <div class="sec-header">
+    <div class="col">        <div class="sec-header">
         <span>1. SUPPLIER & CONTRACT RECIPIENT</span>
         <span>受取先情報</span>
       </div>
       <table class="data-table">
         <tr>
           <th>OEM Supplier</th>
-          <td><strong>${scenario.oemName}</strong></td>
+          <td><strong>${data.oemName}</strong></td>
         </tr>
         <tr>
           <th>Headquarters</th>
-          <td>${scenario.oemHq}</td>
+          <td>${data.oemHq}</td>
         </tr>
         <tr>
           <th>Warranty Contract</th>
-          <td>JICA-METRO-WARR-2024-C08</td>
+          <td>${data.warrantyContract}</td>
         </tr>
         <tr>
           <th>Applicable Clause</th>
-          <td><strong>${scenario.warrantyClause}</strong></td>
+          <td><strong>${data.warrantyClause}</strong></td>
         </tr>
         <tr>
           <th>Portal Endpoint</th>
-          <td>https://supplier.${scenario.oemId}-rail.jp/api/v3/warranty</td>
+          <td>https://supplier.${data.oemId}-rail.jp/api/v3/warranty</td>
         </tr>
       </table>
     </div>
@@ -278,15 +316,19 @@ export function openPrintableVoucher(scenario: FailureScenario) {
       <table class="data-table">
         <tr>
           <th>Equipment Name</th>
-          <td><strong>${scenario.equipment}</strong></td>
+          <td><strong>${data.equipment}</strong></td>
+        </tr>
+        <tr>
+          <th>Fault Classification</th>
+          <td>${data.classification}</td>
         </tr>
         <tr>
           <th>Model / Part No</th>
-          <td>${scenario.model}</td>
+          <td>${data.model}</td>
         </tr>
         <tr>
           <th>Serial Number (OCR)</th>
-          <td><strong style="color:#0369a1;">${scenario.serialNo}</strong></td>
+          <td><strong style="color:#0369a1;">${data.serialNo}</strong></td>
         </tr>
         <tr>
           <th>Trainset / Car No</th>
@@ -307,17 +349,17 @@ export function openPrintableVoucher(scenario: FailureScenario) {
   <table class="data-table" style="margin-bottom: 8px;">
     <tr>
       <th style="width: 20%;">Primary Fault Code</th>
-      <td style="width: 30%;"><strong style="color:#dc2626;">${scenario.faultCode}</strong> (${scenario.jisCode})</td>
+      <td style="width: 30%;"><strong style="color:#dc2626;">${data.faultCode}</strong> (${data.jisCode})</td>
       <th style="width: 20%;">AI Validation Match</th>
-      <td style="width: 30%; font-weight: bold; color: #16a34a;">${Math.round(scenario.confidence * 100)}% JIS Standard Fit</td>
+      <td style="width: 30%; font-weight: bold; color: #16a34a;">${Math.round(data.confidence * 100)}% JIS Standard Fit</td>
     </tr>
     <tr>
       <th>Defect Description</th>
-      <td colspan="3">${scenario.failureDescription}</td>
+      <td colspan="3">${data.failureDescription}</td>
     </tr>
     <tr>
       <th>Technical Root Cause</th>
-      <td colspan="3">${scenario.rootCause}</td>
+      <td colspan="3">${data.rootCause}</td>
     </tr>
   </table>
 
@@ -326,9 +368,9 @@ export function openPrintableVoucher(scenario: FailureScenario) {
     <span>現地保全音声データ照合</span>
   </div>
   <div class="transcript-box">
-    <div class="transcript-label">VERIFIED FIELD LOG // ${scenario.language.toUpperCase()} TELEMETRY (${scenario.crew})</div>
-    <div class="transcript-source">"${scenario.transcript[0]?.source || ''}"</div>
-    <div class="transcript-trans">➔ English/Japanese Translation: "${scenario.transcript[0]?.translation || ''}"</div>
+    <div class="transcript-label">VERIFIED FIELD LOG // ${data.language.toUpperCase()} TELEMETRY (${data.crew})</div>
+    <div class="transcript-source">"${data.transcript[0]?.source || ''}"</div>
+    <div class="transcript-trans">➔ English/Japanese Translation: "${data.transcript[0]?.translation || ''}"</div>
   </div>
 
   <div class="sec-header">
@@ -346,27 +388,27 @@ export function openPrintableVoucher(scenario: FailureScenario) {
     </thead>
     <tbody>
       <tr>
-        <td>OEM Core Replacement / Subassembly Unit (${scenario.model})</td>
+        <td>OEM Core Replacement / Subassembly Unit (${data.model})</td>
         <td>BOM-REP-01</td>
-        <td class="num">₹${scenario.costs.partReplacementInr.toLocaleString('en-IN')}</td>
-        <td class="num">¥${scenario.costs.partReplacementJpy.toLocaleString('ja-JP')}</td>
+        <td class="num">₹${data.costs.partReplacementInr.toLocaleString('en-IN')}</td>
+        <td class="num">¥${data.costs.partReplacementJpy.toLocaleString('ja-JP')}</td>
       </tr>
       <tr>
         <td>Depot Certified Rolling Stock Labor & Bogie Drop (48 Man-Hours)</td>
         <td>LBR-OPS-22</td>
-        <td class="num">₹${scenario.costs.laborInr.toLocaleString('en-IN')}</td>
-        <td class="num">¥${scenario.costs.laborJpy.toLocaleString('ja-JP')}</td>
+        <td class="num">₹${data.costs.laborInr.toLocaleString('en-IN')}</td>
+        <td class="num">¥${data.costs.laborJpy.toLocaleString('ja-JP')}</td>
       </tr>
       <tr>
-        <td>Demurrage & JIS E-4001 Diagnostic Recalibration Testing</td>
+        <td>Demurrage & JIS Diagnostic Recalibration Testing</td>
         <td>TEST-CERT-09</td>
-        <td class="num">₹${scenario.costs.testingInr.toLocaleString('en-IN')}</td>
-        <td class="num">¥${scenario.costs.testingJpy.toLocaleString('ja-JP')}</td>
+        <td class="num">₹${data.costs.testingInr.toLocaleString('en-IN')}</td>
+        <td class="num">¥${data.costs.testingJpy.toLocaleString('ja-JP')}</td>
       </tr>
       <tr class="total-row">
         <td colspan="2" style="text-transform: uppercase;">Total Indemnity Claimed (請求合計金額)</td>
-        <td class="num">₹${scenario.amountInr.toLocaleString('en-IN')}</td>
-        <td class="num">¥${scenario.amountJpy.toLocaleString('ja-JP')}</td>
+        <td class="num">₹${data.amountInr.toLocaleString('en-IN')}</td>
+        <td class="num">¥${data.amountJpy.toLocaleString('ja-JP')}</td>
       </tr>
     </tbody>
   </table>
@@ -415,6 +457,7 @@ export default function OemPdfVoucherModal({
   scenario,
   onClose,
 }: OemPdfVoucherProps) {
+  const data = normalizeVoucherData(scenario)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="relative w-full max-w-4xl rounded-2xl border border-[#262626] bg-[#0c0c0c] p-6 shadow-2xl text-white my-8">
@@ -451,10 +494,10 @@ export default function OemPdfVoucherModal({
                 BILATERAL WARRANTY RECOVERY
               </p>
               <h3 className="text-xl font-extrabold text-white mt-1">
-                {scenario.operator} ↔ {scenario.oemName}
+                {data.operator} ↔ {data.oemName}
               </h3>
               <p className="text-xs text-[#71717a] mt-0.5">
-                Voucher Ref: <span className="font-mono text-white">{scenario.claimId}</span> · Depot: {scenario.depot}
+                Voucher Ref: <span className="font-mono text-white">{data.claimId}</span> · Depot: {data.depot}
               </p>
             </div>
             <div className="text-right">
@@ -472,10 +515,10 @@ export default function OemPdfVoucherModal({
               <span className="text-[10px] font-mono text-[#71717a] uppercase font-bold">
                 Equipment & Serial Identification
               </span>
-              <p className="text-sm font-bold text-white mt-1">{scenario.equipment}</p>
-              <p className="text-xs text-[#FFFFFF] font-mono mt-0.5">Part: {scenario.model} · Serial: {scenario.serialNo}</p>
+              <p className="text-sm font-bold text-white mt-1">{data.equipment}</p>
+              <p className="text-xs text-[#FFFFFF] font-mono mt-0.5">Part: {data.model} · Serial: {data.serialNo}</p>
               <p className="text-xs text-[#888] mt-2 leading-relaxed">
-                Warranty Clause: <strong className="text-neutral-200">{scenario.warrantyClause}</strong>
+                Warranty Clause: <strong className="text-neutral-200">{data.warrantyClause}</strong>
               </p>
             </div>
 
@@ -483,10 +526,10 @@ export default function OemPdfVoucherModal({
               <span className="text-[10px] font-mono text-[#71717a] uppercase font-bold">
                 Defect & Telemetry Verification
               </span>
-              <p className="text-sm font-bold text-white mt-1">Fault Code: {scenario.faultCode}</p>
-              <p className="text-xs text-[#aaa] mt-0.5">{scenario.failureDescription}</p>
+              <p className="text-sm font-bold text-white mt-1">Fault Code: {data.faultCode}</p>
+              <p className="text-xs text-[#aaa] mt-0.5">{data.failureDescription}</p>
               <p className="text-xs text-[#71717a] font-mono mt-2">
-                Acoustic Log ({scenario.language}): "{scenario.transcript[0]?.source}"
+                Acoustic Log ({data.language}): "{data.transcript[0]?.source}"
               </p>
             </div>
           </div>
@@ -498,10 +541,10 @@ export default function OemPdfVoucherModal({
               </span>
               <div className="flex items-baseline gap-3 mt-1">
                 <span className="text-2xl font-black text-white font-mono">
-                  ₹{scenario.amountInr.toLocaleString('en-IN')}
+                  ₹{data.amountInr.toLocaleString('en-IN')}
                 </span>
                 <span className="text-sm font-bold text-[#FFFFFF] font-mono">
-                  (¥{scenario.amountJpy.toLocaleString('ja-JP')})
+                  (¥{data.amountJpy.toLocaleString('ja-JP')})
                 </span>
               </div>
             </div>

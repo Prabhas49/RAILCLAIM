@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { getScenario } from '../data/mock'
+import { EQUIPMENT_FAULT_INFO, PHOTO_DETECTION_ORDER } from '../data/equipmentFaults'
 import { getOrInitDraft, patchDraft, type ClaimDraft } from '../lib/claimStore'
 import { addPersistentPhoto } from '../lib/evidenceStore'
 import { translateToJapanese, speakJapanese } from '../lib/translator'
@@ -38,6 +39,27 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
   const update = (p: Partial<ClaimDraft>) => {
     setDraft((d) => ({ ...d, ...p }))
     patchDraft(p)
+  }
+
+  // Each equipment type brings its own fault profile — error code,
+  // classification, component ID, model and symptom all change together.
+  const handleEquipmentChange = (equipmentType: string) => {
+    const info = EQUIPMENT_FAULT_INFO[equipmentType]
+    update(info ? { equipmentType, ...info } : { equipmentType })
+  }
+
+  // Fake "AI photo analysis": photo #1 is treated as the nameplate shot of the
+  // first equipment in the detection order, photo #2 the next, etc. We fake the
+  // OCR read + equipment match and auto-fill the claim from it.
+  const fakeAiDetectPhoto = (photoIndex: number) => {
+    const detected = PHOTO_DETECTION_ORDER[photoIndex] ?? 'Traction Motor'
+    const info = EQUIPMENT_FAULT_INFO[detected]
+    return {
+      detected,
+      info,
+      ocrSerial: info?.serialNo || '',
+      confidence: Math.min(99, 97 - photoIndex * 2),
+    }
   }
 
   // voice state
@@ -162,15 +184,24 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
       const reader = new FileReader()
       reader.onload = async (e) => {
         const compressed = await compressImage(e.target?.result as string)
-        const slot = draft.photos.length + i + 1
-        const photos = [...draft.photos, { slot, name: file.name, dataUrl: compressed, tag: draft.serialNumber, confidence: 96 }]
-        update({ photos: photos.slice(0, 5) })
+        const slot = draft.photos.length + i
+        // Fake AI analysis of this photo slot → auto-fill equipment + fault info.
+        const ai = fakeAiDetectPhoto(slot)
+        const photos = [...draft.photos, { slot: slot + 1, name: file.name, dataUrl: compressed, tag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence }]
+        update({
+          photos: photos.slice(0, 5),
+          ...(slot === 0 && ai.info ? { equipmentType: ai.detected, ...ai.info } : {}),
+          ...(slot === 0 ? { serialNumber: ai.ocrSerial || draft.serialNumber } : {}),
+        })
+        if (slot === 0) {
+          say(`AI analyzed "${file.name}" — detected ${ai.detected} nameplate (OCR ${ai.confidence}%). Claim info auto-filled.`)
+        }
         addPersistentPhoto({
           id: `UP-${Date.now()}-${i}`, name: file.name, claimId: draft.id, dataUrl: compressed,
           fileSize: `${(file.size / 1048576).toFixed(1)} MB`,
           uploadTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           hash: `0x${Math.random().toString(16).slice(2, 8)}...vault`,
-          ocrTag: draft.serialNumber, confidence: 96, isUserUploaded: true,
+          ocrTag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence, isUserUploaded: true,
         })
         say(`Photo "${file.name}" attached.`)
       }
@@ -219,7 +250,7 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
             <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]"><span className="mr-1 text-rose-400">*</span>Equipment type</span>
-            <select className={inputCls} value={EQUIPMENT_OPTIONS.includes(draft.equipmentType) ? draft.equipmentType : ''} onChange={(e) => update({ equipmentType: e.target.value })}>
+            <select className={inputCls} value={EQUIPMENT_OPTIONS.includes(draft.equipmentType) ? draft.equipmentType : ''} onChange={(e) => handleEquipmentChange(e.target.value)}>
               <option value="" disabled>Select equipment</option>
               {EQUIPMENT_OPTIONS.map((o) => <option key={o} value={o} className="bg-black">{o}</option>)}
             </select>
