@@ -9,6 +9,7 @@ export interface EquipmentClaimProfile {
   faultSummary: string
   model: string
   serialNo: string
+  trainset: string
   oem: string
   jisCode: string
   jisStandardLabel: string
@@ -31,21 +32,22 @@ export interface EquipmentClaimProfile {
 export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
   'Traction Motor': {
     faultCode: 'E-TM-204',
-    classification: 'Bearing Vibration',
+    classification: 'Armature Winding Flashover',
     componentId: 'TM-04-A',
-    faultSummary: 'Abnormal bearing vibration > 7.2 mm/s RMS with stator insulation degradation at high acceleration.',
+    faultSummary: 'Catastrophic armature end-winding burst at commutator end — copper conductors torn and fanned outward, insulation burnt and carbonized, winding banding destroyed.',
     model: 'MB-5085-A',
     serialNo: 'MB5085-2274-K',
+    trainset: 'Train Set 04 · Metro-104',
     oem: 'Mitsubishi Electric',
     jisCode: 'JIS E-4001',
     jisStandardLabel: 'JIS E-4001 COMPLIANT',
-    rootCause: 'Premature non-drive-end bearing race spalling causing rotor eccentricity and stator thermal insulation breakdown.',
+    rootCause: 'Armature winding insulation failure resulting in turn-to-turn short circuit and commutator flashover, producing excessive fault current and electromagnetic forces that mechanically displaced and damaged the end windings. Observed defect: severe armature end-winding damage at commutator end with copper conductors displaced, insulation destruction and winding lashing/banding destroyed. Secondary damage: end-winding deformation, possible commutator surface damage and brush gear damage — armature replacement or complete rewind required.',
     warrantyClause: 'Clause 8.2 (Rotary Electrical Machinery Early Failure)',
     warrantyContract: 'JICA-METRO-WARR-2024-C08',
-    amountInr: 2450000,
-    amountJpy: 4350000,
+    amountInr: 4820000,
+    amountJpy: 8560000,
     confidence: 0.96,
-    costs: { partReplacementInr: 1850000, partReplacementJpy: 3280000, laborInr: 360000, laborJpy: 640000, testingInr: 240000, testingJpy: 430000 },
+    costs: { partReplacementInr: 3600000, partReplacementJpy: 6390000, laborInr: 780000, laborJpy: 1385000, testingInr: 440000, testingJpy: 785000 },
   },
   'Door System': {
     faultCode: 'E-DR-118',
@@ -54,6 +56,7 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     faultSummary: 'Door fails to lock at station stop — obstruction sensor reports repeated false clearing, actuator intermittent.',
     model: 'HS-DO-3300',
     serialNo: 'HSDO33-1180-D',
+    trainset: 'Train Set 11 · Metro-211',
     oem: 'Hitachi Rail',
     jisCode: 'JIS E-4105',
     jisStandardLabel: 'JIS E-4105 COMPLIANT',
@@ -72,6 +75,7 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     faultSummary: 'Main reservoir pneumatic pressure drops below 6.4 bar during station brake self-test; solenoid valve leaking.',
     model: 'BCU-80-MK2',
     serialNo: 'NAB-HIT-9941-B',
+    trainset: 'Train Set 02 · Metro-152',
     oem: 'Hitachi Rail',
     jisCode: 'JIS E-4112',
     jisStandardLabel: 'JIS E-4112 COMPLIANT',
@@ -90,6 +94,7 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     faultSummary: 'HVAC compressor trips on high head pressure during peak saloon cooling load; condenser airflow restricted.',
     model: 'HR-HV-2200',
     serialNo: 'HRHV22-0477-H',
+    trainset: 'Train Set 07 · Metro-307',
     oem: 'Toshiba Infrastructure',
     jisCode: 'JIS E-5006',
     jisStandardLabel: 'JIS E-5006 COMPLIANT',
@@ -108,6 +113,7 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     faultSummary: 'Excessive contact strip wear with arcing damage on collector strip; catenary contact pressure out of tolerance.',
     model: 'PT-4500-S',
     serialNo: 'PT45-0771-P',
+    trainset: 'Train Set 09 · Metro-409',
     oem: 'Kawasaki Heavy Industries',
     jisCode: 'JIS E-4007',
     jisStandardLabel: 'JIS E-4007 COMPLIANT',
@@ -126,6 +132,7 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     faultSummary: 'Axle box bearing temperature exceeds 95°C alarm threshold on axle 4; grease degradation suspected.',
     model: 'BG-9200-M',
     serialNo: 'BG92-3114-M',
+    trainset: 'Train Set 05 · Metro-505',
     oem: 'Kawasaki Heavy Industries',
     jisCode: 'JIS E-4009',
     jisStandardLabel: 'JIS E-4009 COMPLIANT',
@@ -144,6 +151,7 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     faultSummary: 'Semi-permanent coupler fails to engage locking head fully during shunting; misalignment beyond ±4 mm tolerance.',
     model: 'CP-2800-S',
     serialNo: 'CP28-0932-S',
+    trainset: 'Train Set 12 · Metro-612',
     oem: 'Hitachi Rail',
     jisCode: 'JIS E-4011',
     jisStandardLabel: 'JIS E-4011 COMPLIANT',
@@ -162,6 +170,7 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     faultSummary: 'Onboard ATC unit loses track-circuit communication intermittently; balise telegram errors logged at low speed.',
     model: 'SG-ATC-6100',
     serialNo: 'SGAT61-5011-A',
+    trainset: 'Train Set 03 · Metro-703',
     oem: 'Toshiba Infrastructure',
     jisCode: 'JIS E-6401',
     jisStandardLabel: 'JIS E-6401 COMPLIANT',
@@ -180,6 +189,7 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     faultSummary: 'Fault observed during depot inspection — details pending technician review.',
     model: '',
     serialNo: '',
+    trainset: '',
     oem: 'Other',
     jisCode: 'JIS E-4001',
     jisStandardLabel: 'JIS E-4001 COMPLIANT',
