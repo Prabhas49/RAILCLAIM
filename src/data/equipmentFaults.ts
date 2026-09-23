@@ -199,4 +199,9 @@ export const PHOTO_DETECTION_ORDER = [
   'Brake System',
   'HVAC Unit',
   'Door System',
+  'Pantograph',
+  'Bogie',
+  'Coupler',
+  'Signaling Unit',
+  'Other',
 ] as const
