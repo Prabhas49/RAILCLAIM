@@ -4,7 +4,8 @@ import { Icon } from '../components/ui/Icon'
 import { getDraft, getSubmittedClaims } from '../lib/claimStore'
 import { canApprove, getSession } from '../lib/auth'
 import { getPendingInbox, markClaimSeen } from '../lib/inbox'
-import { getRecoveredTotalInr, getOemResponses } from '../lib/oemResponses'
+import { getRecoveredTotalInr, getOemResponses, disputeClaim, markOemSeen } from '../lib/oemResponses'
+import { startAutoPilot, AUTOPILOT_SCRIPT } from '../lib/autoPilot'
 import { runDemo } from '../lib/demoMode'
 import type { ViewId } from '../types'
 
@@ -46,11 +47,39 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
   const recovered = useMemo(() => 3820000 + getRecoveredTotalInr(), [inboxTick])
   const oemDecided = useMemo(() => getOemResponses().filter((r) => r.state === 'decided').length, [inboxTick])
 
+  const [autopilot, setAutopilot] = useState<{ step: number; label: string } | null>(null)
+
   const handleDemo = () => {
     const id = runDemo()
     setInboxTick((t) => t + 1)
     setTimeout(() => onNavigate('claims'), 400)
   }
+
+  /** Hands-free presentation mode: full arc incl. dispute → reconsideration. */
+  const handleAutoPilot = () => {
+    startAutoPilot()
+    setInboxTick((t) => t + 1)
+    AUTOPILOT_SCRIPT.forEach((step, i) => {
+      window.setTimeout(() => setAutopilot({ step: i, label: step.label }), step.at)
+    })
+    window.setTimeout(() => setAutopilot(null), 36000)
+    setTimeout(() => onNavigate('claims'), 1200)
+  }
+
+  // Auto-pilot: when the (forced) rejection lands, show the dispute banner.
+  useEffect(() => {
+    const onRejected = () => {
+      const rejected = getOemResponses().find((r) => r.state === 'decided' && r.decision === 'rejected' && !r.reconsidered)
+      if (!rejected) return
+      const rebuttal = disputeClaim(rejected.claimId)
+      setDispute({ claim: rejected, rebuttal })
+      setInboxTick((t) => t + 1)
+    }
+    window.addEventListener('hs-autopilot-rejected', onRejected)
+    return () => window.removeEventListener('hs-autopilot-rejected', onRejected)
+  }, [])
+
+  const [dispute, setDispute] = useState<null | { claim: { claimId: string; oem: string; equipment: string; amountInr: number }; rebuttal: string }>(null)
 
   const stats = [
     {
@@ -127,13 +156,66 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
               : 'This quarter across all depots · OEM decisions credit here automatically'}
           </p>
         </div>
-        <button
-          onClick={handleDemo}
-          className="shrink-0 rounded-xl bg-white px-5 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-neutral-200 transition-colors cursor-pointer"
-        >
-          ▶ Run 60-second demo
-        </button>
+        <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+          <button
+            onClick={handleDemo}
+            className="rounded-xl bg-white px-5 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-neutral-200 transition-colors cursor-pointer"
+          >
+            ▶ Run 60-second demo
+          </button>
+          <button
+            onClick={handleAutoPilot}
+            className="rounded-xl border-2 border-[#06D6A0] bg-transparent px-5 py-3 text-xs font-black uppercase tracking-wider text-[#06D6A0] hover:bg-[#06D6A0]/10 transition-colors cursor-pointer"
+          >
+            🎬 Auto-pilot story mode
+          </button>
+        </div>
       </motion.div>
+
+      {/* ── Auto-pilot step ticker ─────────────────────────────────── */}
+      {autopilot && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-6 left-1/2 z-[70] -translate-x-1/2 rounded-full border border-[#06D6A0]/40 bg-black px-6 py-3 font-mono text-xs font-bold text-[#06D6A0] shadow-2xl"
+          data-no-invert
+        >
+          <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-[#06D6A0]" />
+          {autopilot.label}
+        </motion.div>
+      )}
+
+      {/* ── Dispute mode banner ───────────────────────────────────── */}
+      {dispute && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 rounded-xl border border-[#FF4D6D]/40 bg-[#2B1218]/60 p-5"
+        >
+          <p className="font-mono text-[10px] font-black uppercase tracking-widest text-[#FF4D6D]">
+            ⚔ OEM rejected {dispute.claim.claimId} — dispute mode engaged
+          </p>
+          <p className="mt-1 text-sm font-bold text-white">
+            {dispute.claim.oem} said the damage was "outside permitted operating conditions". We disagree.
+          </p>
+          <p className="mt-2 rounded-lg border border-[#262626] bg-black p-3 font-mono text-[11px] leading-relaxed text-[#a1a1aa]">
+            {dispute.rebuttal}
+          </p>
+          <p className="mt-2 font-mono text-[10px] text-[#f59e0b]">
+            Rebuttal transmitted · OEM reassessing under JIS review protocol… watch the bell 🔔
+          </p>
+          <button
+            onClick={() => {
+              markOemSeen(dispute.claim.claimId)
+              setDispute(null)
+              onNavigate('claims')
+            }}
+            className="mt-3 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black"
+          >
+            Track the dispute →
+          </button>
+        </motion.div>
+      )}
 
       {/* ── New-claim alert (engineers only) ─────────────────────────── */}
       {showNewClaimBanner && pendingInbox && (

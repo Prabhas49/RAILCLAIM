@@ -176,10 +176,19 @@ export function Topbar({
                     } ${!r.seen ? 'shadow-[0_0_16px_rgba(255,255,255,0.15)]' : ''}`}
                   >
                     <p className="font-bold text-white text-[11px]">
-                      {r.decision === 'approved' ? '✓' : r.decision === 'partial' ? '◐' : '✕'} {r.oem} responded · {r.claimId}
+                      {r.reconsidered
+                        ? `⚔ Dispute WON · ${r.claimId}`
+                        : r.decision === 'approved' ? '✓' : r.decision === 'partial' ? '◐' : '✕'}
+                      {r.reconsidered ? ` ${r.oem} reconsidered` : ` ${r.oem} responded · ${r.claimId}`}
                     </p>
                     <p className="text-[10px] text-[#a1a1aa] mt-0.5">
-                      {r.decision === 'approved' ? `Approved in full — ₹${(r.recoveredInr ?? 0).toLocaleString('en-IN')}` : r.decision === 'partial' ? `Partial approval (60%) — ₹${(r.recoveredInr ?? 0).toLocaleString('en-IN')}` : 'Rejected — see reason letter'}
+                      {r.reconsidered
+                        ? `${r.reconsidered === 'approved' ? 'Approved in full' : 'Approved at 85%'} — ₹${(r.reconsideredInr ?? 0).toLocaleString('en-IN')} credited after dispute`
+                        : r.decision === 'approved'
+                          ? `Approved in full — ₹${(r.recoveredInr ?? 0).toLocaleString('en-IN')}`
+                          : r.decision === 'partial'
+                            ? `Partial approval (60%) — ₹${(r.recoveredInr ?? 0).toLocaleString('en-IN')}`
+                            : 'Rejected — see reason letter'}
                     </p>
                   </button>
                 ))}

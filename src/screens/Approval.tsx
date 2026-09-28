@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { getScenario } from '../data/mock'
 import { getDraft, patchDraft, markSubmitted } from '../lib/claimStore'
 import { openPrintableVoucher } from '../components/OemPdfVoucher'
+import OemTransmissionOverlay from '../components/OemTransmissionOverlay'
 import { speakJapanese } from '../lib/translator'
 import { getSession } from '../lib/auth'
 import { logAuditEvent } from '../lib/auditLog'
@@ -22,6 +23,7 @@ export default function Approval({ onDone }: { onDone: () => void }) {
   const [done, setDone] = useState(false)
   const [receipt, setReceipt] = useState('')
   const [sending, setSending] = useState(false)
+  const [transmitting, setTransmitting] = useState(false)
 
   // Engineer opened it — clear the "new claim" alert everywhere.
   useEffect(() => {
@@ -59,10 +61,14 @@ export default function Approval({ onDone }: { onDone: () => void }) {
       : scenario.transcript,
   } as any
 
-  /** Single decision: approve → PDF opens → claim filed to the OEM. */
+  /** Single decision: approve → transmission animation → PDF opens → claim filed. */
   const approveAndSend = () => {
     if (sending || done) return
     setSending(true)
+    setTransmitting(true)
+  }
+
+  const finishTransmission = () => {
     openPrintableVoucher(voucherScenario)
     setTimeout(() => {
       const rec = markSubmitted({ ...draft, ...fields }, fields.manufacturer)
@@ -77,11 +83,27 @@ export default function Approval({ onDone }: { onDone: () => void }) {
       setReceipt(`ACK-${rec.id}-${Date.now().toString().slice(-4)}`)
       setSending(false)
       setDone(true)
-    }, 1200)
+    }, 400)
   }
 
   return (
     <div className="mx-auto max-w-6xl pb-16 text-white">
+      <OemTransmissionOverlay
+        payload={
+          transmitting
+            ? {
+                claimId: draft.id,
+                oem: fields.manufacturer,
+                equipment: fields.equipmentType,
+                amountInr: draft.amountInr,
+                onFinish: () => {
+                  setTransmitting(false)
+                  finishTransmission()
+                },
+              }
+            : null
+        }
+      />
       <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#71717a]">Engineer approval // {draft.id}</p>
       <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight">Review & send to OEM</h1>
       <p className="mt-1 font-mono text-xs text-[#a1a1aa]">Check fault + info + photos + both voices → one click generates the PDF and files it.</p>

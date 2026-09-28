@@ -19,6 +19,9 @@ export interface OemResponse {
   reasonEn?: string
   arrivedAt: string
   seen: boolean
+  disputed?: boolean
+  reconsidered?: OemDecision
+  reconsideredInr?: number
 }
 
 const KEY = 'HS_OEM_RESPONSES_V1'
@@ -98,13 +101,52 @@ export function getOemResponses(): OemResponse[] {
   return read()
 }
 
+/**
+ * Depot disputes a rejection/partial. The app auto-assembles a rebuttal
+ * (JIS clause + telemetry + SHA-verified hashes), and the OEM 'reconsiders'
+ * after a short delay — usually flipping to (partial) approval.
+ */
+export function disputeClaim(claimId: string): string {
+  const list = read()
+  const target = list.find((r) => r.claimId === claimId)
+  if (!target || target.decision === 'approved' || target.reconsidered) return ''
+  write(list.map((r) => (r.claimId === claimId ? { ...r, disputed: true } : r)))
+
+  const rebuttal = `REBUTTAL ${claimId}: Failure signature matches ${target.equipment} warranty clause; telemetry within permitted operating envelope; evidence integrity cryptographically verified (SHA-256). Requesting reassessment.`
+
+  window.setTimeout(() => {
+    const roll = Math.random()
+    const flipped: OemDecision = roll < 0.65 ? 'approved' : 'partial'
+    const recovered = flipped === 'approved' ? target.amountInr : Math.round(target.amountInr * 0.85)
+    write(
+      read().map((r) =>
+        r.claimId === claimId
+          ? {
+              ...r,
+              reconsidered: flipped,
+              reconsideredInr: recovered,
+              reasonEn: `RECONSIDERED → ${flipped === 'approved' ? 'APPROVED in full' : 'APPROVED at 85%'}: rebuttal evidence (verified hash chain + telemetry envelope) accepted per JIS review protocol.`,
+              reasonJp: flipped === 'approved'
+                ? '再審査の結果、保証請求を全額承認しました。'
+                : '再審査の結果、請求額の85%を承認しました。',
+              arrivedAt: new Date().toISOString(),
+              seen: false,
+            }
+          : r,
+      ),
+    )
+  }, 12000)
+
+  return rebuttal
+}
+
 export function markOemSeen(claimId: string) {
   write(read().map((r) => (r.claimId === claimId ? { ...r, seen: true } : r)))
 }
 
-/** Total INR actually recovered from decided OEM responses. */
+/** Total INR actually recovered from decided OEM responses (incl. reconsiderations). */
 export function getRecoveredTotalInr(): number {
-  return read().reduce((sum, r) => sum + (r.recoveredInr ?? 0), 0)
+  return read().reduce((sum, r) => sum + (r.reconsideredInr ?? r.recoveredInr ?? 0), 0)
 }
 
 export function getUnseenOemCount(): number {
