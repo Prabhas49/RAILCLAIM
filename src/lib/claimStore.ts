@@ -4,6 +4,7 @@
 // One claim-ID scheme: HS-2026-NNNN.
 
 import type { FailureScenario } from '../data/mock'
+import { scheduleOemResponse } from './oemResponses'
 
 export interface DraftPhoto {
   slot: number
@@ -147,6 +148,7 @@ export function markSubmitted(draft: ClaimDraft, oemName: string): SubmittedClai
     const list = [claim, ...getSubmittedClaims()]
     localStorage.setItem(SUBMITTED_KEY, JSON.stringify(list))
     saveDraft({ ...draft, status: 'submitted' })
+    scheduleOemResponse({ id: claim.id, equipment: claim.equipment, oem: claim.oem, amountInr: claim.amountInr })
     window.dispatchEvent(new CustomEvent('hs-claim-sync'))
   } catch (e) {
     console.warn('Submit save failed:', e)

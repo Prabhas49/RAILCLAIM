@@ -1,5 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { ViewId } from '../types'
+import { getSubmittedClaims } from '../lib/claimStore'
+import { getOemResponses, getRecoveredTotalInr } from '../lib/oemResponses'
+import { EQUIPMENT_FAULT_INFO } from '../data/equipmentFaults'
 
 export default function Analytics({
   onNavigate,
@@ -7,6 +10,24 @@ export default function Analytics({
   onNavigate?: (v: ViewId) => void
 }) {
   const [hoveredBar, setHoveredBar] = useState<number | null>(null)
+  const [hoveredEquip, setHoveredEquip] = useState<string | null>(null)
+
+  // Real data: spend by equipment from submitted claims + OEM recovery stats.
+  const submitted = useMemo(() => getSubmittedClaims(), [])
+  const oem = useMemo(() => getOemResponses(), [])
+  const decided = oem.filter((r) => r.state === 'decided')
+  const recovered = getRecoveredTotalInr()
+  const avgApproval = decided.length
+    ? Math.round((decided.filter((d) => d.decision === 'approved' || d.decision === 'partial').length / decided.length) * 100)
+    : 92
+
+  const spendByEquipment = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const s of submitted) map.set(s.equipment, (map.get(s.equipment) ?? 0) + s.amountInr)
+    const entries = [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5)
+    const max = Math.max(1, ...entries.map(([, v]) => v))
+    return entries.map(([k, v]) => ({ equipment: k, amount: v, pct: Math.round((v / max) * 100) }))
+  }, [submitted])
 
   // 12 bars — Oct 2025 → Sep 2026
   const monthlyData = [
@@ -160,6 +181,51 @@ export default function Analytics({
         </div>
       </div>
 
+      {/* ── Spend by equipment (real submitted claims) ─────────────── */}
+      {spendByEquipment.length > 0 && (
+        <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-7 shadow-sm">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
+                WHERE THE MONEY GOES
+              </p>
+              <h2 className="mt-1 text-2xl font-bold text-white tracking-tight">
+                Claim spend by equipment
+              </h2>
+            </div>
+            <div className="text-right">
+              <span className="text-2xl font-extrabold text-[#06D6A0]">
+                ₹{(recovered / 100000).toFixed(1)}L
+              </span>
+              <p className="text-[10px] font-medium text-[#a1a1aa]">recovered live</p>
+            </div>
+          </div>
+          <div className="mt-6 space-y-3">
+            {spendByEquipment.map((row) => (
+              <div
+                key={row.equipment}
+                className="group cursor-pointer"
+                onMouseEnter={() => setHoveredEquip(row.equipment)}
+                onMouseLeave={() => setHoveredEquip(null)}
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-white">{row.equipment}</span>
+                  <span className="font-mono text-[#a1a1aa]">
+                    ₹{row.amount.toLocaleString('en-IN')}
+                  </span>
+                </div>
+                <div className="mt-1.5 h-2.5 w-full rounded-full bg-[#1e1e1e] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-white transition-all duration-500 group-hover:brightness-110"
+                    style={{ width: `${row.pct}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Lower Breakdown Section ─────────────────────────────────── */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Metric 1 */}
@@ -167,12 +233,14 @@ export default function Analytics({
           <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#71717a]">
             DISPUTE AVOIDANCE
           </p>
-          <p className="mt-2 text-3xl font-extrabold text-white">99.4%</p>
+          <p className="mt-2 text-3xl font-extrabold text-white">{avgApproval}%</p>
           <p className="mt-1 text-xs text-[#a1a1aa]">
-            Claims accepted on first submission without OEM dispute
+            {decided.length > 0
+              ? `${decided.length} live OEM decision${decided.length === 1 ? '' : 's'} — fully or partially approved`
+              : 'Claims accepted on first submission without OEM dispute'}
           </p>
           <div className="mt-4 h-1.5 w-full bg-[#1e1e1e] rounded-full overflow-hidden">
-            <div className="h-full bg-[#10b981] rounded-full" style={{ width: '99.4%' }} />
+            <div className="h-full bg-[#10b981] rounded-full" style={{ width: `${avgApproval}%` }} />
           </div>
         </div>
 

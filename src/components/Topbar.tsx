@@ -3,6 +3,7 @@ import { Icon } from './ui/Icon'
 import { canApprove, type AuthUser } from '../lib/auth'
 import { getSubmittedClaims } from '../lib/claimStore'
 import { getPendingInbox, markClaimSeen } from '../lib/inbox'
+import { getOemResponses, markOemSeen } from '../lib/oemResponses'
 import type { ViewId } from '../types'
 
 const VIEW_TITLES: Record<ViewId, string> = {
@@ -43,18 +44,22 @@ export function Topbar({
     window.addEventListener('hs-inbox-sync', refresh)
     window.addEventListener('hs-claim-sync', refresh)
     window.addEventListener('hs-audit-sync', refresh)
+    window.addEventListener('hs-oem-sync', refresh)
     return () => {
       window.removeEventListener('focus', refresh)
       window.removeEventListener('hs-inbox-sync', refresh)
       window.removeEventListener('hs-claim-sync', refresh)
       window.removeEventListener('hs-audit-sync', refresh)
+      window.removeEventListener('hs-oem-sync', refresh)
     }
   }, [])
 
   const engineer = canApprove(user)
   const pending = engineer && notifTick >= 0 ? getPendingInbox() : null
   const recentFiled = notifTick >= 0 ? getSubmittedClaims().slice(0, 2) : []
-  const liveCount = (pending?.unseen ? 1 : 0) + recentFiled.length
+  const oemDecisions = notifTick >= 0 ? getOemResponses().filter((r) => r.state === 'decided') : []
+  const unseenOem = oemDecisions.filter((r) => !r.seen).length
+  const liveCount = (pending?.unseen ? 1 : 0) + recentFiled.length + unseenOem
 
   return (
     <header className="h-16 px-6 md:px-8 border-b border-[#1e1e1e] bg-black items-center justify-between select-none relative z-30 hidden md:flex">
@@ -152,6 +157,31 @@ export function Topbar({
                     <p className="text-[10px] text-[#888] mt-0.5">Claim {s.id} · ₹{s.amountInr.toLocaleString('en-IN')}</p>
                     <span className="text-[9px] text-[#555] font-mono">{s.date}</span>
                   </div>
+                ))}
+                {oemDecisions.slice(0, 3).map((r) => (
+                  <button
+                    key={r.claimId}
+                    type="button"
+                    onClick={() => {
+                      markOemSeen(r.claimId)
+                      setShowNotifications(false)
+                      onNavigate?.('claims')
+                    }}
+                    className={`w-full rounded-lg p-2.5 border text-left cursor-pointer ${
+                      r.decision === 'approved'
+                        ? 'bg-[#0C271E] border-[#06D6A0]/30'
+                        : r.decision === 'partial'
+                          ? 'bg-[#241a08] border-[#f59e0b]/30'
+                          : 'bg-[#2B1218] border-[#FF4D6D]/30'
+                    } ${!r.seen ? 'shadow-[0_0_16px_rgba(255,255,255,0.15)]' : ''}`}
+                  >
+                    <p className="font-bold text-white text-[11px]">
+                      {r.decision === 'approved' ? '✓' : r.decision === 'partial' ? '◐' : '✕'} {r.oem} responded · {r.claimId}
+                    </p>
+                    <p className="text-[10px] text-[#a1a1aa] mt-0.5">
+                      {r.decision === 'approved' ? `Approved in full — ₹${(r.recoveredInr ?? 0).toLocaleString('en-IN')}` : r.decision === 'partial' ? `Partial approval (60%) — ₹${(r.recoveredInr ?? 0).toLocaleString('en-IN')}` : 'Rejected — see reason letter'}
+                    </p>
+                  </button>
                 ))}
                 {liveCount === 0 && (
                   <p className="py-4 text-center text-[11px] text-[#71717a]">

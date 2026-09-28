@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
 import { Icon } from '../components/ui/Icon'
 import { getDraft, getSubmittedClaims } from '../lib/claimStore'
 import { canApprove, getSession } from '../lib/auth'
 import { getPendingInbox, markClaimSeen } from '../lib/inbox'
+import { getRecoveredTotalInr, getOemResponses } from '../lib/oemResponses'
+import { runDemo } from '../lib/demoMode'
 import type { ViewId } from '../types'
 
 const DEMO_COUNTS = {
@@ -26,10 +29,12 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
     window.addEventListener('focus', refresh)
     window.addEventListener('hs-inbox-sync', refresh)
     window.addEventListener('hs-claim-sync', refresh)
+    window.addEventListener('hs-oem-sync', refresh)
     return () => {
       window.removeEventListener('focus', refresh)
       window.removeEventListener('hs-inbox-sync', refresh)
       window.removeEventListener('hs-claim-sync', refresh)
+      window.removeEventListener('hs-oem-sync', refresh)
     }
   }, [])
   const pendingInbox = useMemo(
@@ -38,6 +43,14 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
     [inboxTick, draft],
   )
   const showNewClaimBanner = Boolean(pendingInbox?.unseen)
+  const recovered = useMemo(() => 3820000 + getRecoveredTotalInr(), [inboxTick])
+  const oemDecided = useMemo(() => getOemResponses().filter((r) => r.state === 'decided').length, [inboxTick])
+
+  const handleDemo = () => {
+    const id = runDemo()
+    setInboxTick((t) => t + 1)
+    setTimeout(() => onNavigate('claims'), 400)
+  }
 
   const stats = [
     {
@@ -93,6 +106,34 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
           <span>Create new claim</span>
         </button>
       </div>
+
+      {/* ── Cost-saved counter + demo launcher ───────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 rounded-2xl border border-[#06D6A0]/30 bg-gradient-to-r from-[#0C271E] via-[#0a0a0a] to-[#0a0a0a] p-5"
+      >
+        <div className="flex-1">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#06D6A0]">
+            Warranty money recovered
+          </p>
+          <p className="mt-1 font-mono text-3xl font-black text-white">
+            ₹{recovered.toLocaleString('en-IN')}
+          </p>
+          <p className="mt-0.5 text-xs text-[#a1a1aa]">
+            {oemDecided > 0
+              ? `${oemDecided} OEM decision${oemDecided === 1 ? '' : 's'} received — approvals credited live`
+              : 'This quarter across all depots · OEM decisions credit here automatically'}
+          </p>
+        </div>
+        <button
+          onClick={handleDemo}
+          className="shrink-0 rounded-xl bg-white px-5 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-neutral-200 transition-colors cursor-pointer"
+        >
+          ▶ Run 60-second demo
+        </button>
+      </motion.div>
 
       {/* ── New-claim alert (engineers only) ─────────────────────────── */}
       {showNewClaimBanner && pendingInbox && (

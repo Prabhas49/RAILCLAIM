@@ -149,6 +149,7 @@ export default function Claims({
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('All statuses')
   const [openDropdown, setOpenDropdown] = useState<'status' | null>(null)
+  const [dcrEquipment, setDcrEquipment] = useState<string | null>(null)
 
   const filteredClaims = useMemo(() => {
     return rows.filter((c) => {
@@ -362,7 +363,16 @@ export default function Claims({
                         return <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${w.badgeClass}`}>🛡 {w.label}</span>
                       })()}
                       {chronicCodes.has(claim.equipment) && (
-                        <span className="rounded-full bg-[#261d0d] px-2 py-0.5 text-[9px] font-bold text-[#f59e0b] border border-[#f59e0b]/30">⚠ Chronic — escalate</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setDcrEquipment(claim.equipment)
+                          }}
+                          className="rounded-full bg-[#261d0d] px-2 py-0.5 text-[9px] font-bold text-[#f59e0b] border border-[#f59e0b]/30 hover:brightness-125 cursor-pointer"
+                        >
+                          ⚠ Chronic — escalate
+                        </button>
                       )}
                       {claim.submittedAt && claim.oem && (() => {
                         const sla = slaChip({ submittedAt: claim.submittedAt, oem: claim.oem } as SubmittedClaim)
@@ -403,6 +413,44 @@ export default function Claims({
       <p className="mt-3 hidden md:block text-[11px] text-[#71717a]">
         Demo rows shown for context — your draft and dispatched claims always appear at the top.
       </p>
+
+      {/* ── Design Change Request report (chronic defect escalation) ── */}
+      {dcrEquipment && (() => {
+        const cases = rows.filter((r) => r.equipment === dcrEquipment)
+        const profile = EQUIPMENT_FAULT_INFO[dcrEquipment]
+        const totalCost = cases.reduce((sum, c) => sum + (submitted.find((s) => s.equipment === dcrEquipment)?.amountInr ?? profile?.amountInr ?? 0), 0)
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setDcrEquipment(null)}>
+            <div className="w-full max-w-lg rounded-2xl border border-[#262626] bg-[#0a0a0a] p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#f59e0b]">
+                    Design Change Request · DCR-{new Date().getFullYear()}-001
+                  </p>
+                  <h3 className="mt-1 text-lg font-extrabold text-white">Chronic defect escalation — {dcrEquipment}</h3>
+                </div>
+                <button onClick={() => setDcrEquipment(null)} className="text-[#71717a] hover:text-white">✕</button>
+              </div>
+              <div className="mt-4 space-y-2 font-mono text-xs text-[#a1a1aa]">
+                <p>Occurrences on record: <span className="font-bold text-white">{cases.length}</span></p>
+                <p>Recurring fault code: <span className="font-bold text-white">{profile?.faultCode ?? '—'}</span></p>
+                <p>Affected classification: <span className="font-bold text-white">{profile?.classification ?? '—'}</span></p>
+                <p>Cumulative warranty exposure: <span className="font-bold text-white">₹{totalCost.toLocaleString('en-IN')}</span></p>
+              </div>
+              <p className="mt-4 rounded-lg border border-[#262626] bg-[#0c0c0c] p-3 text-xs leading-relaxed text-[#a1a1aa]">
+                <strong className="text-white">Recommendation:</strong> With {cases.length} recurrent failures of the same fault signature across the fleet, this meets the chronic-defect threshold for a formal Design Change Request to {profile?.oem ?? 'the OEM'}. Attach the DCR to the next quarterly reliability review and request a root-cause corrective action (RCCA) plan with a design-level fix, not repeated part replacement.
+              </p>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="mt-4 w-full rounded-lg bg-white py-2.5 text-xs font-bold text-black hover:bg-neutral-200"
+              >
+                ⎙ Print DCR report
+              </button>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
