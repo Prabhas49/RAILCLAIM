@@ -1,7 +1,27 @@
 import { useState, useMemo } from 'react'
 import type { ViewId } from '../types'
-import { getDraft, getSubmittedClaims } from '../lib/claimStore'
+import { getDraft, getSubmittedClaims, type SubmittedClaim } from '../lib/claimStore'
 import { canApprove, getSession } from '../lib/auth'
+import { getWarrantyStatus, EQUIPMENT_FAULT_INFO } from '../data/equipmentFaults'
+
+/** OEM response SLA in days, keyed by the OEM's first word (matches EQUIPMENT_FAULT_INFO names). */
+const OEM_SLA_DAYS: Record<string, number> = {
+  Mitsubishi: 14,
+  Hitachi: 10,
+  Toshiba: 12,
+  Kawasaki: 16,
+}
+function slaFor(oem: string): number {
+  return OEM_SLA_DAYS[oem.split(' ')[0]] ?? 14
+}
+function slaChip(s: SubmittedClaim): { label: string; cls: string } {
+  const sla = slaFor(s.oem)
+  const elapsed = Math.floor((Date.now() - new Date(s.submittedAt).getTime()) / 86400000)
+  const left = sla - elapsed
+  if (left <= 0) return { label: `SLA breached · ${-left}d over`, cls: 'bg-[#2B1218] text-[#FF4D6D] border border-[#FF4D6D]/30' }
+  if (left <= 3) return { label: `SLA ${left}d left`, cls: 'bg-[#241a08] text-[#f59e0b] border border-[#f59e0b]/30' }
+  return { label: `SLA ${left}d left of ${sla}d`, cls: 'bg-[#0C271E] text-[#06D6A0] border border-[#06D6A0]/30' }
+}
 
 interface ClaimRow {
   id: string
@@ -11,6 +31,9 @@ interface ClaimRow {
   status: 'Draft in progress' | 'Under Engineer Review' | 'Missing Information' | 'Submitted to OEM'
   engineer: string
   live?: boolean
+  submittedAt?: string
+  oem?: string
+  faultCode?: string
 }
 
 const DEMO_CLAIMS: ClaimRow[] = [
@@ -82,6 +105,15 @@ export default function Claims({
   const draft = useMemo(() => getDraft(), [])
   const submitted = useMemo(() => getSubmittedClaims(), [])
 
+  // Chronic fault flag: same error code seen 3+ times across live+filed claims.
+  const chronicCodes = useMemo(() => {
+    const counts = new Map<string, number>()
+    if (draft?.faultCode) counts.set(draft.faultCode, 1)
+    for (const s of submitted) counts.set(s.equipment, (counts.get(s.equipment) ?? 0) + 1)
+    for (const d of DEMO_CLAIMS) counts.set(d.equipment, (counts.get(d.equipment) ?? 0) + 1)
+    return new Set([...counts.entries()].filter(([, n]) => n >= 3).map(([k]) => k))
+  }, [draft, submitted])
+
   const rows: ClaimRow[] = useMemo(() => {
     const live: ClaimRow[] = []
     if (draft && draft.status !== 'submitted') {
@@ -98,6 +130,7 @@ export default function Claims({
           draft.status === 'review' ? 'Under Engineer Review' : 'Draft in progress',
         engineer: 'You',
         live: true,
+        faultCode: draft.faultCode,
       })
     }
     const filed: ClaimRow[] = submitted.map((s) => ({
@@ -107,6 +140,8 @@ export default function Claims({
       date: s.date,
       status: 'Submitted to OEM',
       engineer: 'You',
+      submittedAt: s.submittedAt,
+      oem: s.oem,
     }))
     return [...live, ...filed, ...DEMO_CLAIMS]
   }, [draft, submitted])
@@ -253,6 +288,20 @@ export default function Claims({
               </div>
               <p className="mt-2 text-sm font-semibold text-white">{claim.equipment}</p>
               <p className="mt-0.5 text-xs text-[#a1a1aa] line-clamp-2">{claim.fault}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {(() => {
+                  const w = getWarrantyStatus(claim.equipment)
+                  if (!w) return null
+                  return <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${w.badgeClass}`}>🛡 {w.label}</span>
+                })()}
+                {chronicCodes.has(claim.equipment) && (
+                  <span className="rounded-full bg-[#261d0d] px-2 py-0.5 text-[9px] font-bold text-[#f59e0b] border border-[#f59e0b]/30">⚠ Chronic — escalate</span>
+                )}
+                {claim.submittedAt && claim.oem && (() => {
+                  const sla = slaChip({ submittedAt: claim.submittedAt, oem: claim.oem } as SubmittedClaim)
+                  return <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${sla.cls}`}>⏳ {sla.label}</span>
+                })()}
+              </div>
               <div className="mt-2.5 pt-2.5 border-t border-[#1a1a1a] flex items-center justify-between text-[11px] text-[#71717a]">
                 <span>{claim.date}</span>
                 <span>{claim.engineer}</span>
@@ -306,6 +355,20 @@ export default function Claims({
                   <td className="py-4 px-6">
                     <p className="text-xs font-semibold text-white">{claim.equipment}</p>
                     <p className="mt-0.5 text-xs text-[#a1a1aa]">{claim.fault}</p>
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {(() => {
+                        const w = getWarrantyStatus(claim.equipment)
+                        if (!w) return null
+                        return <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${w.badgeClass}`}>🛡 {w.label}</span>
+                      })()}
+                      {chronicCodes.has(claim.equipment) && (
+                        <span className="rounded-full bg-[#261d0d] px-2 py-0.5 text-[9px] font-bold text-[#f59e0b] border border-[#f59e0b]/30">⚠ Chronic — escalate</span>
+                      )}
+                      {claim.submittedAt && claim.oem && (() => {
+                        const sla = slaChip({ submittedAt: claim.submittedAt, oem: claim.oem } as SubmittedClaim)
+                        return <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${sla.cls}`}>⏳ {sla.label}</span>
+                      })()}
+                    </div>
                   </td>
 
                   <td className="py-4 px-6 text-xs text-[#d1d5db]">{claim.date}</td>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getScenario } from '../data/mock'
-import { EQUIPMENT_FAULT_INFO, PHOTO_DETECTION_ORDER } from '../data/equipmentFaults'
+import { EQUIPMENT_FAULT_INFO, PHOTO_DETECTION_ORDER, getWarrantyStatus } from '../data/equipmentFaults'
 import { getOrInitDraft, patchDraft, type ClaimDraft } from '../lib/claimStore'
 import { addPersistentPhoto } from '../lib/evidenceStore'
 import { translateToJapanese, speakJapanese } from '../lib/translator'
@@ -65,7 +65,7 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
   // classification, component ID, model and symptom all change together.
   const handleEquipmentChange = (equipmentType: string) => {
     const info = EQUIPMENT_FAULT_INFO[equipmentType]
-    update(info ? { equipmentType, ...info } : { equipmentType })
+    update(info ? { equipmentType, ...info, trainset: info.trainset || draft.trainset } : { equipmentType })
   }
 
   // Fake "AI photo analysis": photo #1 is treated as the nameplate shot of the
@@ -229,6 +229,7 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
           photos,
           equipmentType: ai.detected,
           ...ai.info,
+          trainset: ai.info.trainset || draft.trainset,
           manufacturer: ai.info.oem,
         })
       } else {
@@ -304,6 +305,18 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
       {/* 2 · Asset Information — auto-filled by AI after photo upload */}
       <div className="mt-6 rounded-xl border border-[#1e1e1e] bg-[#0a0a0a] p-4 sm:p-6 space-y-4">
         <h2 className="text-sm font-bold uppercase tracking-wider">2 · Asset Information</h2>
+        {(() => {
+          const w = draft.equipmentType ? getWarrantyStatus(draft.equipmentType) : null
+          if (!w) return null
+          return (
+            <div className={`flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5 text-xs font-bold ${w.badgeClass}`}>
+              <span>🛡 {w.label} · {Math.abs(w.daysRemaining).toLocaleString()} day{Math.abs(w.daysRemaining) === 1 ? '' : 's'} {w.state === 'expired' ? 'past coverage' : 'remaining'}</span>
+              {w.state === 'expired' && (
+                <span className="font-medium opacity-80">— claim will likely be rejected; file under AMC instead.</span>
+              )}
+            </div>
+          )
+        })()}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
             <span className="mb-1.5 block text-xs font-semibold text-[#a1a1aa]"><span className="mr-1 text-rose-400">*</span>Equipment type</span>

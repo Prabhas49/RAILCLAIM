@@ -16,6 +16,9 @@ export interface EquipmentClaimProfile {
   rootCause: string
   warrantyClause: string
   warrantyContract: string
+  /** OEM warranty coverage window (ISO dates). */
+  warrantyStart: string
+  warrantyEnd: string
   amountInr: number
   amountJpy: number
   confidence: number
@@ -44,6 +47,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Armature winding insulation failure resulting in turn-to-turn short circuit and commutator flashover, producing excessive fault current and electromagnetic forces that mechanically displaced and damaged the end windings. Observed defect: severe armature end-winding damage at commutator end with copper conductors displaced, insulation destruction and winding lashing/banding destroyed. Secondary damage: end-winding deformation, possible commutator surface damage and brush gear damage — armature replacement or complete rewind required.',
     warrantyClause: 'Clause 8.2 (Rotary Electrical Machinery Early Failure)',
     warrantyContract: 'JICA-METRO-WARR-2024-C08',
+    warrantyStart: '2023-04-12',
+    warrantyEnd: '2028-04-12',
     amountInr: 4820000,
     amountJpy: 8560000,
     confidence: 0.96,
@@ -63,6 +68,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Door drive belt tension loss plus debris-contaminated obstruction sensor optics causing latch solenoid misfire.',
     warrantyClause: 'Clause 6.1 (Passenger Door System Guarantee)',
     warrantyContract: 'JICA-METRO-WARR-2024-D12',
+    warrantyStart: '2023-06-01',
+    warrantyEnd: '2028-06-01',
     amountInr: 940000,
     amountJpy: 1670000,
     confidence: 0.93,
@@ -82,6 +89,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Pneumatic manifold solenoid seal ring extrusion leading to pressure dissipation under JIS E-4112 testing cycle.',
     warrantyClause: 'Clause 5.4 (Braking & Pneumatic Integrity Guarantee)',
     warrantyContract: 'CMRL-SYS-14',
+    warrantyStart: '2022-11-15',
+    warrantyEnd: '2025-11-15',
     amountInr: 1850000,
     amountJpy: 3280000,
     confidence: 0.94,
@@ -101,6 +110,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Condenser fan bearing seizure restricting airflow, driving refrigerant head pressure beyond compressor cut-out limit.',
     warrantyClause: 'Clause 9.3 (HVAC Refrigeration Circuit Warranty)',
     warrantyContract: 'BMRCL-HVAC-2025-03',
+    warrantyStart: '2024-03-20',
+    warrantyEnd: '2027-03-20',
     amountInr: 1240000,
     amountJpy: 2200000,
     confidence: 0.92,
@@ -120,6 +131,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Collector strip carbon insert worn beyond 5 mm limit with arcing pitting; raising gear spring fatigue altering contact force.',
     warrantyClause: 'Clause 7.2 (Current Collection Equipment Warranty)',
     warrantyContract: 'DMRC-PAN-2024-19',
+    warrantyStart: '2024-01-10',
+    warrantyEnd: '2029-01-10',
     amountInr: 1680000,
     amountJpy: 2990000,
     confidence: 0.91,
@@ -139,6 +152,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Axle box bearing grease thermal breakdown causing rolling contact fatigue and elevated running temperature.',
     warrantyClause: 'Clause 8.4 (Bogie & Running Gear Early Failure)',
     warrantyContract: 'JICA-METRO-WARR-2024-B07',
+    warrantyStart: '2023-04-12',
+    warrantyEnd: '2028-04-12',
     amountInr: 2980000,
     amountJpy: 5290000,
     confidence: 0.95,
@@ -158,6 +173,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Coupler head wear bushing erosion beyond tolerance preventing full locking-head engagement during shunting moves.',
     warrantyClause: 'Clause 6.6 (Coupler & Draft Gear Warranty)',
     warrantyContract: 'JICA-METRO-WARR-2024-C14',
+    warrantyStart: '2023-06-01',
+    warrantyEnd: '2028-06-01',
     amountInr: 760000,
     amountJpy: 1350000,
     confidence: 0.9,
@@ -177,6 +194,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Balise antenna coax connector intermittent contact plus onboard ATC receiver board firmware telegram timeout.',
     warrantyClause: 'Clause 12.1 (Onboard Signaling & ATC Systems Warranty)',
     warrantyContract: 'JICA-SG-ATC-2025-02',
+    warrantyStart: '2024-07-01',
+    warrantyEnd: '2032-07-01',
     amountInr: 3420000,
     amountJpy: 6070000,
     confidence: 0.89,
@@ -196,6 +215,8 @@ export const EQUIPMENT_FAULT_INFO: Record<string, EquipmentClaimProfile> = {
     rootCause: 'Pending depot inspection and technician root-cause confirmation.',
     warrantyClause: 'Clause 4.1 (General Equipment Warranty)',
     warrantyContract: 'JICA-METRO-WARR-2024-G00',
+    warrantyStart: '2024-01-01',
+    warrantyEnd: '2026-12-31',
     amountInr: 500000,
     amountJpy: 890000,
     confidence: 0.75,
@@ -215,3 +236,46 @@ export const PHOTO_DETECTION_ORDER = [
   'Signaling Unit',
   'Other',
 ] as const
+
+// ── Warranty validity ───────────────────────────────────────────────────────
+
+export interface WarrantyStatus {
+  /** 'active' | 'expiring' (≤90 days left) | 'expired' */
+  state: 'active' | 'expiring' | 'expired'
+  /** Days remaining (negative if expired). */
+  daysRemaining: number
+  label: string
+  badgeClass: string
+}
+
+export function getWarrantyStatus(equipmentType: string): WarrantyStatus | null {
+  const profile = EQUIPMENT_FAULT_INFO[equipmentType]
+  if (!profile?.warrantyEnd) return null
+  const end = new Date(profile.warrantyEnd)
+  const start = new Date(profile.warrantyStart)
+  const today = new Date()
+  const days = Math.ceil((end.getTime() - today.getTime()) / 86400000)
+  const fmt = (d: Date) => d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+  if (days < 0) {
+    return {
+      state: 'expired',
+      daysRemaining: days,
+      label: `Warranty expired ${fmt(end)}`,
+      badgeClass: 'bg-[#2B1218] text-[#FF4D6D] border border-[#FF4D6D]/30',
+    }
+  }
+  if (days <= 90) {
+    return {
+      state: 'expiring',
+      daysRemaining: days,
+      label: `Expiring in ${days} day${days === 1 ? '' : 's'} (${fmt(end)})`,
+      badgeClass: 'bg-[#241a08] text-[#f59e0b] border border-[#f59e0b]/30',
+    }
+  }
+  return {
+    state: 'active',
+    daysRemaining: days,
+    label: `In warranty · ${fmt(start)} → ${fmt(end)}`,
+    badgeClass: 'bg-[#0C271E] text-[#06D6A0] border border-[#06D6A0]/30',
+  }
+}

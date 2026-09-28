@@ -79,10 +79,10 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
             MAINTENANCE OPERATIONS
           </p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Dashboard
+            {(() => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening' })()}, {getSession()?.name?.split(' ')[0] ?? 'Engineer'}
           </h1>
           <p className="mt-1 text-sm text-[#a1a1aa]">
-            Your claim pipeline at a glance — draft, review, dispatch.
+            {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} · Your claim pipeline at a glance — draft, review, dispatch.
           </p>
         </div>
         <button

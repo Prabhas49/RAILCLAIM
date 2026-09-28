@@ -1,6 +1,7 @@
 import React from 'react'
 import type { FailureScenario } from '../data/mock'
-import { EQUIPMENT_FAULT_INFO } from '../data/equipmentFaults'
+import { EQUIPMENT_FAULT_INFO, getWarrantyStatus } from '../data/equipmentFaults'
+import { getAuditLog } from '../lib/auditLog'
 
 interface OemPdfVoucherProps {
   scenario: FailureScenario
@@ -412,6 +413,25 @@ export function openPrintableVoucher(scenario: any) {
       </tr>
     </tbody>
   </table>
+
+  <div class="sec-header">
+    <span>6. WARRANTY VALIDITY & CLAIM PACKAGE AUDIT TRAIL</span>
+    <span>保証有効性及び監査記録</span>
+  </div>
+  <table class="data-table" style="margin-bottom: 8px;">
+    <tr>
+      <th style="width: 25%;">Warranty Window</th>
+      <td colspan="2"><strong>${(() => { const w = getWarrantyStatus(data.equipment); return w ? w.label : 'Coverage window on file' })()}</strong></td>
+    </tr>
+    <tr>
+      <th>Warranty Status at Dispatch</th>
+      <td colspan="2" style="font-weight: bold; color: ${(() => { const w = getWarrantyStatus(data.equipment); return w?.state === 'expired' ? '#dc2626' : '#16a34a' })()};">${(() => { const w = getWarrantyStatus(data.equipment); return w ? (w.state === 'expired' ? 'EXPIRED — under AMC, out of OEM coverage' : w.state === 'expiring' ? 'ACTIVE — expiring soon, expedite assessment' : 'ACTIVE — covered under OEM warranty') : 'ACTIVE' })()}</td>
+    </tr>
+  </table>
+  <div class="transcript-box">
+    <div class="transcript-label">IMMUTABLE AUDIT LEDGER — EVERY ACTION ON THIS CLAIM (${getAuditLog().slice(0, 6).length} most recent of record)</div>
+    ${getAuditLog().slice(0, 6).map((ev: any) => `<div style="font-size: 9px; padding: 3px 0; border-bottom: 1px solid #f1f5f9;"><span style="color: #6b7280;">${ev.at}</span> · <strong>${ev.actor}</strong> — ${ev.action}</div>`).join('')}
+  </div>
 
   <div class="footer-sign">
     <div>
