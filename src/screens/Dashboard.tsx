@@ -4,7 +4,7 @@ import { Icon } from '../components/ui/Icon'
 import { getDraft, getSubmittedClaims } from '../lib/claimStore'
 import { canApprove, getSession } from '../lib/auth'
 import { getPendingInbox, markClaimSeen } from '../lib/inbox'
-import { getRecoveredTotalInr, getOemResponses, disputeClaim, markOemSeen } from '../lib/oemResponses'
+import { getOemResponses, disputeClaim, markOemSeen } from '../lib/oemResponses'
 import { startAutoPilot, AUTOPILOT_SCRIPT } from '../lib/autoPilot'
 import { runDemo } from '../lib/demoMode'
 import type { ViewId } from '../types'
@@ -44,8 +44,6 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
     [inboxTick, draft],
   )
   const showNewClaimBanner = Boolean(pendingInbox?.unseen)
-  const recovered = useMemo(() => 3820000 + getRecoveredTotalInr(), [inboxTick])
-  const oemDecided = useMemo(() => getOemResponses().filter((r) => r.state === 'decided').length, [inboxTick])
 
   const [autopilot, setAutopilot] = useState<{ step: number; label: string } | null>(null)
 
@@ -136,24 +134,19 @@ export default function Dashboard({ onNavigate }: { onNavigate: (v: ViewId) => v
         </button>
       </div>
 
-      {/* ── Cost-saved counter + demo launcher ───────────────────── */}
+      {/* ── Demo / presentation launcher ───────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 rounded-2xl border border-[#06D6A0]/30 bg-gradient-to-r from-[#0C271E] via-[#0a0a0a] to-[#0a0a0a] p-5"
+        className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 rounded-2xl border border-[#06D6A0]/30 bg-gradient-to-r from-[#0C271E] via-[#0a0a0a] to-[#0a0a0a] p-5"
       >
         <div className="flex-1">
           <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#06D6A0]">
-            Warranty money recovered
+            Presentation mode
           </p>
-          <p className="mt-1 font-mono text-3xl font-black text-white">
-            ₹{recovered.toLocaleString('en-IN')}
-          </p>
-          <p className="mt-0.5 text-xs text-[#a1a1aa]">
-            {oemDecided > 0
-              ? `${oemDecided} OEM decision${oemDecided === 1 ? '' : 's'} received — approvals credited live`
-              : 'This quarter across all depots · OEM decisions credit here automatically'}
+          <p className="mt-1 text-sm text-[#a1a1aa]">
+            Run the scripted 60-second walkthrough, or let auto-pilot play the whole claim → dispute → recovery arc hands-free.
           </p>
         </div>
         <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
