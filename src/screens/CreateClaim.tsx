@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getScenario } from '../data/mock'
 import { EQUIPMENT_FAULT_INFO, PHOTO_DETECTION_ORDER, getWarrantyStatus } from '../data/equipmentFaults'
 import { getOrInitDraft, patchDraft, type ClaimDraft } from '../lib/claimStore'
-import { addPersistentPhoto } from '../lib/evidenceStore'
+import { addPersistentPhoto, getStoredPhotos, deletePersistentPhoto } from '../lib/evidenceStore'
 import { translateToJapanese, speakJapanese } from '../lib/translator'
 import { canApprove, getSession } from '../lib/auth'
 import { logAuditEvent } from '../lib/auditLog'
@@ -200,7 +200,7 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
   const stopVoice = () => mrRef.current?.stop()
 
   const handlePhotos = (files: File[]) => {
-    // Only the latest photo counts: uploading a new one discards the previous.
+    // Photos accumulate in upload order; each can be discarded with its ✕ button.
     const file = Array.from(files)[0]
     if (!file) return
     const reader = new FileReader()
@@ -222,8 +222,12 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
       }
       setAnalyzing(null)
 
-      // Discard the old photo — only this one is kept.
-      const photos = [{ slot: 1, name: file.name, dataUrl: compressed, tag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence }]
+      // Append the new photo (re-uploading the same file replaces it) and keep
+      // slots 1..n in upload order. Capped at 6 photos.
+      const newPhoto = { slot: draft.photos.length + 1, name: file.name, dataUrl: compressed, tag: ai.ocrSerial || draft.serialNumber, confidence: ai.confidence }
+      const photos = [...draft.photos.filter((p) => p.name !== file.name), newPhoto]
+        .slice(-6)
+        .map((p, i) => ({ ...p, slot: i + 1 }))
       if (ai.info) {
         update({
           photos,
@@ -246,6 +250,14 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
       })
     }
     reader.readAsDataURL(file)
+  }
+
+  // Discard a wrong photo so a correct one can be uploaded in its place.
+  const removePhoto = (index: number, name: string) => {
+    update({ photos: draft.photos.filter((_, i) => i !== index).map((p, i) => ({ ...p, slot: i + 1 })) })
+    // Keep the evidence vault in sync — drop the matching stored copy.
+    getStoredPhotos().filter((p) => p.name === name).forEach((p) => deletePersistentPhoto(p.id))
+    say('Photo discarded — upload a replacement anytime.')
   }
 
   const submit = () => {
@@ -295,9 +307,23 @@ export default function CreateClaim({ onSubmit }: { onSubmit: (v: ViewId) => voi
           <button onClick={() => fileRef.current?.click()} className="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black">Upload photos</button>
         </div>
         <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => e.target.files && handlePhotos(Array.from(e.target.files))} />
-        <p className="mt-2 text-xs text-[#71717a]">Upload in order — 1st photo nameplate → AI detects the equipment and fills the claim automatically.</p>
+        <p className="mt-2 text-xs text-[#71717a]">Upload in order — 1st photo nameplate → AI detects the equipment and fills the claim automatically. Hit ✕ on a photo to discard it and upload another.</p>
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {draft.photos.map((p) => <img key={p.slot + p.name} src={p.dataUrl} alt={p.name} className="aspect-video w-full rounded-lg border border-[#262626] object-cover" />)}
+          {draft.photos.map((p, i) => (
+            <div key={`${p.slot}-${p.name}-${i}`} className="group relative">
+              <img src={p.dataUrl} alt={p.name} className="aspect-video w-full rounded-lg border border-[#262626] object-cover" />
+              <button
+                type="button"
+                onClick={() => removePhoto(i, p.name)}
+                title={`Remove ${p.name}`}
+                aria-label={`Remove ${p.name}`}
+                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-white/25 bg-black/80 text-sm font-bold text-white backdrop-blur transition-colors hover:border-rose-500 hover:bg-rose-600"
+              >✕</button>
+              <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded bg-black/75 px-1.5 py-0.5 font-mono text-[10px] font-bold text-white/80">
+                {i + 1} · {p.name}
+              </span>
+            </div>
+          ))}
           {draft.photos.length === 0 && <p className="col-span-2 sm:col-span-3 text-xs text-[#71717a]">No photos yet — nameplate, fault screen, depot context.</p>}
         </div>
       </div>
